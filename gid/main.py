@@ -37,7 +37,7 @@ opener.addheader('User-Agent', 'whatever')
 headers = {'User-Agent': str(ua.chrome)}
 
 
-class GoogleImageDownloader:
+class GoogleImagesDownloader:
     def __init__(self, download_destination="downloads", image_size=None, limit=10):
         self.image_size = image_size
         self.limit = limit
@@ -190,6 +190,6 @@ class GoogleImageDownloader:
 
 
 if __name__ == "__main__":
-    downloader = GoogleImageDownloader(limit=999)
+    downloader = GoogleImagesDownloader(limit=999)
 
     downloader.download("cat")
