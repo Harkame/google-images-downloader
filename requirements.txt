@@ -1,0 +1,5 @@
+selenium
+pillow
+chromedriver-py
+fake_useragent
+tqdm
