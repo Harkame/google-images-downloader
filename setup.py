@@ -3,6 +3,9 @@ from setuptools import setup, find_packages
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+with open('requirements.txt') as f:
+    required = f.read().splitlines()
+
 setup(
     name="google-images-downloader",
     version="1.0.0",
@@ -13,14 +16,8 @@ setup(
     url="https://github.com/Harkame/GoogleImagesDownloader",
     packages=find_packages(),
     classifiers=["Programming Language :: Python"],
-    install_requires=[
-    ],
-    dependency_links=[],
-    extras_require={
-        "dev": [
-        ]
-    },
+    install_requires=[required],
     entry_points={
-        "console_scripts": ["google-images-downloader = google-images-downloader.main:main"],
+        "console_scripts": ["google-images-downloader = google_images_downloader.main:main"],
     },
 )
