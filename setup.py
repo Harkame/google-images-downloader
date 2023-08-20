@@ -10,7 +10,7 @@ setup(
     description="Script to download images from a \"Google Images\" query",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/Harkame/JapScanDownloader",
+    url="https://github.com/Harkame/GoogleImagesDownloader",
     packages=find_packages(),
     classifiers=["Programming Language :: Python"],
     install_requires=[
