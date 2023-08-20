@@ -1,6 +1,0 @@
-selenium
-requests
-pillow
-chromedriver-py
-fake_useragent
-tqdm
