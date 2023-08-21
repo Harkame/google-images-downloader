@@ -2,5 +2,6 @@
 downloads
 dist
 google_images_downloader.egg-info
+GoogleImagesDownloader.egg-info
 build
 __pycache__
