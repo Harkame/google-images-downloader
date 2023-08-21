@@ -6,7 +6,7 @@ requires = [
 [project]
 name = "google-images-downloader"
 description = "Script to download images from a \"Google Images\" query"
-version = "1.0.2"
+version = "1.0.3"
 authors = [
     { name = "Harkame" }
 ]
@@ -17,7 +17,7 @@ dependencies = [
     "requests",
     "pillow",
     "chromedriver-py",
-    "fake_useragent",
+    "fake-useragent",
     "tqdm"
 ]
 
