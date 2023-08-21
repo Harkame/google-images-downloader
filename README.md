@@ -8,13 +8,13 @@
 
 ## Installation
 
-``` console
+```shell
 pip install google-images-downloader
 ```
 
 OR
 
-``` console
+```shell
 git clone https://github.com/Harkame/GoogleImagesDownloader.git
 cd GoogleImagesDownloader
 pip install .
@@ -26,39 +26,45 @@ pip install .
 
 #### Basic usage
 
-``` console
+```shell
 google-images-downloader -q QUERY
 ```
 
 For more informations
 
-``` console
+```shell
 google-images-downloader -h
 ```
 
 ### Programmatically
 
-``` python
+#### Basic usage
+
+```python
 from google_images_downloader import GoogleImagesDownloader
 
 downloader = GoogleImagesDownloader()
-```
 
-#### Basic usage
-
-``` python
 downloader.download("cat", destination="downloads", limit=50, resize=None)
 ```
 
 #### Download with images resizing
 
-``` python
+```python
+from google_images_downloader import GoogleImagesDownloader
+
+downloader = GoogleImagesDownloader()
+
 downloader.download("dog", resize=(180, 180))
 ```
 
 #### Quiet download
 
-``` python
+```python
+from google_images_downloader import GoogleImagesDownloader
+
+downloader = GoogleImagesDownloader()
+
 downloader.quiet = True
 
 downloader.download("fish")
