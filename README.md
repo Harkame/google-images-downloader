@@ -30,10 +30,10 @@ $ pip install .
 $ google-images-downloader -q QUERY
 ```
 
-#### Usage with parameters
+For more informations
 
 ``` console
-$ google-images-downloader [-h] -q QUERY [-d DESTINATION] [-l LIMIT] [-r RESIZE] [-Q QUIET] [-D DEBUG]
+$ google-images-downloader -h
 ```
 
 ### Programmatically
