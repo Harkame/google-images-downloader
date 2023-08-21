@@ -2,22 +2,64 @@
 
 [![PyPI version](https://badge.fury.io/py/google-images-downloader.svg)](https://badge.fury.io/py/google-images-downloader)
 
+## Requirements
+
+- Google Chrome
+
 ## Installation
 
-```console
+``` console
 $ pip install google-images-downloader
 ```
 
 OR
 
-```console
+``` console
 $ git clone https://github.com/Harkame/GoogleImagesDownloader.git
 $ cd GoogleImagesDownloader
-$ python -m pip install .
+$ pip install .
 ```
 
 ## Usage
 
-```console
-$ google-images-downloader
+### Command line
+
+#### Basic usage
+
+``` console
+$ google-images-downloader -q QUERY
+```
+
+#### Usage with parameters
+
+``` console
+$ google-images-downloader [-h] -q QUERY [-d DESTINATION] [-l LIMIT] [-r RESIZE] [-Q QUIET] [-D DEBUG]
+```
+
+### Programmatically
+
+``` python
+from google_images_downloader import GoogleImagesDownloader
+
+downloader = GoogleImagesDownloader()
+```
+
+#### Basic usage
+
+``` python
+downloader.download("cat", destination="downloads", limit=50, image_size=None)
+```
+
+#### Download with images resizing
+
+``` python
+downloader.download("dog", image_size=(180, 180))
+```
+
+#### Quiet download
+
+``` python
+downloader.quiet = True
+
+downloader.download("fish")
 ```
