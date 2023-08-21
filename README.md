@@ -1,4 +1,4 @@
-# GoogleImagesDownloader
+# google-images-downloader
 
 [![PyPI version](https://badge.fury.io/py/google-images-downloader.svg)](https://badge.fury.io/py/google-images-downloader)
 
