@@ -1,3 +1,8 @@
+[build-system]
+requires = [
+    "setuptools>=65.0.0"
+]
+
 [project]
 name = "google-images-downloader"
 description = "Script to download images from a \"Google Images\" query"
@@ -7,20 +12,19 @@ authors = [
 ]
 readme = "README.md"
 classifiers = ["Programming Language :: Python"]
-
-[project.urls]
-repository = "https://github.com/Harkame/google-images-downloader"
-
-[build-system]
-requires = [
+dependencies = [
     "selenium",
     "requests",
     "pillow",
     "chromedriver-py",
     "fake_useragent",
-    "tqdm",
-    "setuptools>=65.0.0"
+    "tqdm"
 ]
+
+[project.urls]
+repository = "https://github.com/Harkame/google-images-downloader"
+
+
 
 build-backend = "setuptools.build_meta"
 
