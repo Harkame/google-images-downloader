@@ -30,7 +30,7 @@ pip install .
 google-images-downloader -q QUERY
 ```
 
-For more informations
+For more information
 
 ```shell
 google-images-downloader -h
@@ -38,34 +38,20 @@ google-images-downloader -h
 
 ### Programmatically
 
-#### Basic usage
-
 ```python
 from google_images_downloader import GoogleImagesDownloader
 
 downloader = GoogleImagesDownloader()
 
-downloader.download("cat", destination="downloads", limit=50, resize=None)
-```
+downloader.download("bear")  # Download 50 images in ./downloads folder
 
-#### Download with images resizing
+downloader.download("cat", destination="C:\download\destination")  # Download at specified destination
 
-```python
-from google_images_downloader import GoogleImagesDownloader
+downloader.download("bird", limit=100)  # Download 100 images
 
-downloader = GoogleImagesDownloader()
+downloader.download("dog", resize=(180, 180))  # Download with images resizing
 
-downloader.download("dog", resize=(180, 180))
-```
+downloader.quiet = True  # Disable status messages
 
-#### Quiet download
-
-```python
-from google_images_downloader import GoogleImagesDownloader
-
-downloader = GoogleImagesDownloader()
-
-downloader.quiet = True
-
-downloader.download("fish")
+downloader.download("fish")  # Quiet download
 ```
