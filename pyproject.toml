@@ -1,0 +1,28 @@
+[project]
+name = "GoogleImagesDownloader"
+description = "Script to download images from a \"Google Images\" query"
+version = "1.0.2"
+authors = [
+    { name = "Harkame" }
+]
+readme = "README.md"
+classifiers = ["Programming Language :: Python"]
+
+[project.urls]
+repository = "https://github.com/Harkame/GoogleImagesDownloader"
+
+[build-system]
+requires = [
+    "selenium",
+    "requests",
+    "pillow",
+    "chromedriver-py",
+    "fake_useragent",
+    "tqdm",
+    "setuptools>=65.0.0"
+]
+
+build-backend = "setuptools.build_meta"
+
+[project.scripts]
+google-images-downloader = "google_images_downloader.main:main"
