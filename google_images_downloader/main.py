@@ -70,9 +70,9 @@ def get_arguments(arguments):
 def main():
     arguments = get_arguments(sys.argv[1:])
 
-    google_images_downloader = GoogleImagesDownloader()
+    downloader = GoogleImagesDownloader()
 
-    google_images_downloader.init_arguments(arguments)
+    downloader.init_arguments(arguments)
 
     resize = None
 
@@ -83,9 +83,7 @@ def main():
         else:
             resize = [int(x) for x in arguments.resize.split("x")]
 
-    google_images_downloader.download(arguments.query, destination=arguments.destination,
-                                      resize=resize, limit=arguments.limit)
+    downloader.download(arguments.query, destination=arguments.destination, limit=arguments.limit, resize=resize)
 
-
-if __name__ == "__main__":
-    main()
+    if __name__ == "__main__":
+        main()
