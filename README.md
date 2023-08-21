@@ -9,15 +9,15 @@
 ## Installation
 
 ``` console
-$ pip install google-images-downloader
+pip install google-images-downloader
 ```
 
 OR
 
 ``` console
-$ git clone https://github.com/Harkame/GoogleImagesDownloader.git
-$ cd GoogleImagesDownloader
-$ pip install .
+git clone https://github.com/Harkame/GoogleImagesDownloader.git
+cd GoogleImagesDownloader
+pip install .
 ```
 
 ## Usage
@@ -27,13 +27,13 @@ $ pip install .
 #### Basic usage
 
 ``` console
-$ google-images-downloader -q QUERY
+google-images-downloader -q QUERY
 ```
 
 For more informations
 
 ``` console
-$ google-images-downloader -h
+google-images-downloader -h
 ```
 
 ### Programmatically
