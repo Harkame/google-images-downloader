@@ -14,17 +14,16 @@ authors = [
 readme = "README.md"
 classifiers = ["Programming Language :: Python"]
 dependencies = [
-    "selenium",
-    "requests",
-    "pillow",
+    "selenium>=4.11.2",
+    "requests>=2.31.0",
+    "Pillow>=10.0.0",
     "chromedriver-py",
-    "fake-useragent",
-    "tqdm"
+    "fake-useragent>=1.2.1",
+    "tqdm>=4.66.1"
 ]
 
 [project.urls]
 repository = "https://github.com/Harkame/google-images-downloader"
-
 
 [project.scripts]
 google-images-downloader = "google_images_downloader.main:main"
