@@ -1,5 +1,6 @@
 import sys
-from google_images_downloader import GoogleImagesDownloader
+from google_images_downloader import GoogleImagesDownloader, DEFAULT_DESTINATION, DEFAULT_LIMIT, \
+    DEFAULT_RESIZE, DEFAULT_QUIET, DEFAULT_DEBUG
 import argparse
 import os
 import re
@@ -12,28 +13,30 @@ def get_arguments(arguments):
     )
 
     argument_parser.add_argument(
-        "-Q",
-        "--quiet",
-        help="Disable program output" + os.linesep +
-             "Example : python google_images_downloader/main.py -q",
-        default=False
+        "-q",
+        "--query",
+        help="Google Images query" + os.linesep +
+             "Example : python google_images_downloader/main.py -q cat",
+        required=True
     )
 
     argument_parser.add_argument(
         "-d",
-        "--download_destination",
+        "--destination",
         help="Download destination" + os.linesep +
              "Default : ./downloads\n" + os.linesep +
              "Example : python google_images_downloader/main.py -d C:\\my\\download\\destination",
-        default="downloads"
+        default=DEFAULT_DESTINATION
     )
 
     argument_parser.add_argument(
-        "-D",
-        "--debug",
-        help="Enable debug logs" + os.linesep +
-             "Example : python google_images_downloader/main.py -D",
-        default=False
+        "-l",
+        "--limit",
+        help="Downloads limit" + os.linesep +
+             "Default : 50\n" + os.linesep +
+             "Example : python google_images_downloader/main.py -l 500",
+        default=DEFAULT_LIMIT,
+        type=int
     )
 
     argument_parser.add_argument(
@@ -42,25 +45,23 @@ def get_arguments(arguments):
         help="Resize images" + os.linesep +
              "Default : No resizing\n" + os.linesep +
              "Example : python google_images_downloader/main.py -r 180x180",
-        default=None,
+        default=DEFAULT_RESIZE,
     )
 
     argument_parser.add_argument(
-        "-l",
-        "--limit",
-        help="Downloads limit" + os.linesep +
-             "Default : 10\n" + os.linesep +
-             "Example : python google_images_downloader/main.py -l 10",
-        default=10,
-        type=int
+        "-Q",
+        "--quiet",
+        help="Disable program output" + os.linesep +
+             "Example : python google_images_downloader/main.py -q",
+        default=DEFAULT_QUIET
     )
 
     argument_parser.add_argument(
-        "-q",
-        "--query",
-        help="Google Images query" + os.linesep +
-             "Example : python google_images_downloader/main.py -q cat",
-        required=True
+        "-D",
+        "--debug",
+        help="Enable debug logs" + os.linesep +
+             "Example : python google_images_downloader/main.py -D",
+        default=DEFAULT_DEBUG
     )
 
     return argument_parser.parse_args(arguments)
@@ -73,16 +74,17 @@ def main():
 
     google_images_downloader.init_arguments(arguments)
 
-    image_size = None
+    resize = None
 
     if arguments.resize is not None:
         if re.match('^[0-9]+x[0-9]+$', arguments.resize) is None:
             raise Exception(f"Invalid size format" + os.linesep +
                             "Expected format example : 180x180")
         else:
-            image_size = [int(x) for x in arguments.resize.split("x")]
+            resize = [int(x) for x in arguments.resize.split("x")]
 
-    google_images_downloader.download(arguments.query, image_size=image_size, limit=arguments.limit)
+    google_images_downloader.download(arguments.query, destination=arguments.destination,
+                                      resize=resize, limit=arguments.limit)
 
 
 if __name__ == "__main__":

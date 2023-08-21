@@ -18,6 +18,12 @@ from tqdm import tqdm
 from urllib.request import HTTPError
 from selenium.webdriver.common.action_chains import ActionChains
 
+DEFAULT_DESTINATION = "downloads"
+DEFAULT_LIMIT = 50
+DEFAULT_RESIZE = None
+DEFAULT_QUIET = False
+DEFAULT_DEBUG = False
+
 IMAGE_HEIGHT = 180
 
 logger = logging.getLogger(__name__)
@@ -29,8 +35,7 @@ headers = {'User-Agent': str(user_agent)}
 
 class GoogleImagesDownloader:
     def __init__(self):
-        self.quiet = False
-        self.download_destination = "downloads"
+        self.quiet = DEFAULT_QUIET
 
         options = webdriver.ChromeOptions()
         options.add_argument('headless')
@@ -52,10 +57,10 @@ class GoogleImagesDownloader:
             logger.addHandler(stream_handler)
 
         self.quiet = arguments.quiet
-        self.download_destination = arguments.download_destination
 
-    def download(self, query, image_size=None, limit=10):
-        query_destination_folder = os.path.join(self.download_destination, query)
+    def download(self, query, destination=DEFAULT_DESTINATION, limit=DEFAULT_LIMIT,
+                 resize=DEFAULT_RESIZE):
+        query_destination_folder = os.path.join(destination, query)
         os.makedirs(query_destination_folder, exist_ok=True)
 
         self.driver.get(f"https://www.google.com/search?q={query}&tbm=isch")
@@ -74,7 +79,7 @@ class GoogleImagesDownloader:
 
         image_items = list_items.find_elements(By.CSS_SELECTOR, "div[role='listitem']")
 
-        if self.quiet is False:
+        if not self.quiet:
             print("Downloads...")
 
         with tqdm(total=limit) as pbar:
@@ -82,13 +87,13 @@ class GoogleImagesDownloader:
                 pbar.disable = True
 
             for index, image_item in enumerate(image_items):
-                self.__download_item(query, index, image_item, image_size)
+                self.__download_item(query, index, image_item, destination, resize)
                 pbar.update(1)
 
                 if index + 1 == limit:
                     break
 
-    def __download_item(self, query, index, image_item, image_size=None):
+    def __download_item(self, query, index, image_item, destination, resize):
         logger.debug(f"index : {index}")
 
         actions = ActionChains(self.driver)
@@ -100,7 +105,7 @@ class GoogleImagesDownloader:
         image_url = None
         image_bytes = None
 
-        complete_file_name = os.path.join(self.download_destination, query,
+        complete_file_name = os.path.join(destination, query,
                                           query.replace(" ", "_") + "_" + str(index) + ".jpg")
 
         try:
@@ -160,8 +165,8 @@ class GoogleImagesDownloader:
         if image.mode != 'RGB':
             image = image.convert('RGB')
 
-        if image_size is not None:
-            image = image.resize(image_size)
+        if resize is not None:
+            image = image.resize(resize)
 
         image.save(complete_file_name, "jpeg")
 
@@ -184,7 +189,7 @@ class GoogleImagesDownloader:
              'sameSite': 'Lax', 'secure': True, 'value': '7169081_48_52_123900_48_436380'})
 
     def __scroll(self, limit):
-        if self.quiet is False:
+        if not self.quiet:
             print("Scrolling...")
 
         count = 0
