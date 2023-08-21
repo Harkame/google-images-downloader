@@ -4,7 +4,7 @@
 
 ## Requirements
 
-- Google Chrome
+- [Google Chrome](https://www.google.com/chrome/)
 
 ## Installation
 
@@ -47,13 +47,13 @@ downloader = GoogleImagesDownloader()
 #### Basic usage
 
 ``` python
-downloader.download("cat", destination="downloads", limit=50, image_size=None)
+downloader.download("cat", destination="downloads", limit=50, resize=None)
 ```
 
 #### Download with images resizing
 
 ``` python
-downloader.download("dog", image_size=(180, 180))
+downloader.download("dog", resize=(180, 180))
 ```
 
 #### Quiet download
