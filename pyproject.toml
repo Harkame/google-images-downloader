@@ -2,6 +2,7 @@
 requires = [
     "setuptools>=65.0.0"
 ]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "google-images-downloader"
@@ -24,9 +25,6 @@ dependencies = [
 [project.urls]
 repository = "https://github.com/Harkame/google-images-downloader"
 
-
-
-build-backend = "setuptools.build_meta"
 
 [project.scripts]
 google-images-downloader = "google_images_downloader.main:main"
