@@ -4,6 +4,7 @@ from google_images_downloader import GoogleImagesDownloader, DEFAULT_DESTINATION
 import argparse
 import os
 import re
+import timeit
 
 
 def get_arguments(arguments):
@@ -53,7 +54,7 @@ def get_arguments(arguments):
         "--quiet",
         help="Disable program output" + os.linesep +
              "Example : python google_images_downloader/main.py -q",
-        default=DEFAULT_QUIET
+        action="count"
     )
 
     argument_parser.add_argument(
@@ -61,7 +62,7 @@ def get_arguments(arguments):
         "--debug",
         help="Enable debug logs" + os.linesep +
              "Example : python google_images_downloader/main.py -D",
-        default=DEFAULT_DEBUG
+        action="count"
     )
 
     return argument_parser.parse_args(arguments)
@@ -85,5 +86,6 @@ def main():
 
     downloader.download(arguments.query, destination=arguments.destination, limit=arguments.limit, resize=resize)
 
-    if __name__ == "__main__":
-        main()
+
+if __name__ == "__main__":
+    main()
