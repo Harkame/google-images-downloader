@@ -10,7 +10,7 @@ packages = ["google_images_downloader"]
 [project]
 name = "google-images-downloader"
 description = "Script to download images from a \"Google Images\" query"
-version = "1.0.3"
+version = "1.0.4"
 authors = [
     { name = "Harkame" }
 ]
