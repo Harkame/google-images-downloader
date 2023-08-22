@@ -16,7 +16,9 @@ OR
 
 ```shell
 git clone https://github.com/Harkame/GoogleImagesDownloader.git
+
 cd GoogleImagesDownloader
+
 pip install .
 ```
 
@@ -54,4 +56,12 @@ downloader.download("dog", resize=(180, 180))  # Download with images resizing
 downloader.quiet = True  # Disable status messages
 
 downloader.download("fish")  # Quiet download
+```
+
+## Tests
+
+```shell
+pip install tox
+
+tox
 ```
