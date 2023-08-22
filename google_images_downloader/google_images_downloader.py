@@ -1,6 +1,8 @@
 import os
 import time
 import urllib.request
+from multiprocessing.pool import ThreadPool
+from concurrent.futures import ThreadPoolExecutor, wait
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -56,7 +58,8 @@ class GoogleImagesDownloader:
 
             logger.addHandler(stream_handler)
 
-        self.quiet = arguments.quiet
+        if arguments.quiet:
+            self.quiet = True
 
     def download(self, query, destination=DEFAULT_DESTINATION, limit=DEFAULT_LIMIT,
                  resize=DEFAULT_RESIZE):
@@ -82,93 +85,59 @@ class GoogleImagesDownloader:
         if not self.quiet:
             print("Downloads...")
 
-        with tqdm(total=limit) as pbar:
-            if self.quiet:
-                pbar.disable = True
+        downloads_count = len(image_items) if limit > len(image_items) else limit
+
+        if self.quiet:
+            self.__download_items(query, destination, image_items, resize, limit)
+        else:
+            with tqdm(total=downloads_count) as pbar:
+                self.__download_items(query, destination, image_items, resize, limit, pbar=pbar)
+
+    def __download_items(self, query, destination, image_items, resize, limit, pbar=None):
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            future_list = list()
 
             for index, image_item in enumerate(image_items):
-                self.__download_item(query, index, image_item, destination, resize)
-                pbar.update(1)
+                logger.debug(f"index : {index}")
+
+                image_url, preview_src = self.__get_image_values(image_item)
+
+                complete_file_name = os.path.join(destination, query,
+                                                  query.replace(" ", "_") + "_" + str(index) + ".jpg")
+
+                future_list.append(
+                    executor.submit(download_image, complete_file_name, image_url, preview_src,
+                                    resize, pbar=pbar))
 
                 if index + 1 == limit:
                     break
 
-    def __download_item(self, query, index, image_item, destination, resize):
-        logger.debug(f"index : {index}")
+            wait(future_list)
 
+    def __get_image_values(self, image_item):
         actions = ActionChains(self.driver)
         actions.move_to_element(image_item).perform()
 
         WebDriverWait(self.driver, 10).until(
             EC.element_to_be_clickable(image_item)).click()
 
-        image_url = None
-        image_bytes = None
+        preview_src = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located(
+                (By.CSS_SELECTOR, "div[jsname='CGzTgf'] div[jsname='figiqf'] img"))
+        ).get_attribute("src")
 
-        complete_file_name = os.path.join(destination, query,
-                                          query.replace(" ", "_") + "_" + str(index) + ".jpg")
+        image_url = None
 
         try:
             image_url = WebDriverWait(self.driver, 10).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, "img[jsname='kn3ccd']"))
             ).get_attribute("src")
-        except TimeoutException:  # No image available, download the preview instead
-            preview_src = WebDriverWait(self.driver, 3).until(
-                EC.presence_of_element_located(
-                    (By.CSS_SELECTOR, "div[jsname='CGzTgf'] div[jsname='figiqf'] img"))
-            ).get_attribute("src")
-
-            logger.debug(f"preview_src : {preview_src}")
-
-            if preview_src.startswith("http"):
-                image_url = preview_src
-            else:
-                image_bytes = base64.b64decode(
-                    preview_src.replace("data:image/png;base64,", "").replace("data:image/jpeg;base64,", ""))
+        except TimeoutException:  # No image available
+            pass
 
         logger.debug(f"image_url : {image_url}")
-        logger.debug(f"image_bytes : {image_bytes}")
 
-        download_success = True
-
-        with open(complete_file_name, 'wb') as handler:
-            if image_url is not None:
-                try:
-                    request = requests.get(image_url, headers=headers)
-
-                    if request.status_code == 200:
-                        handler.write(request.content)
-                    else:
-                        download_success = False
-
-                    logger.debug(f"requests get")
-                except requests.exceptions.SSLError:
-                    try:
-                        request = urllib.request.Request(image_url, headers=headers)
-                        handler.write(urllib.request.urlopen(request).read())
-                        logger.debug(f"urllib retrieve")
-                    except HTTPError:
-                        logger.debug(f"download failed")
-                        download_success = False
-
-        if not download_success:
-            os.remove(complete_file_name)
-            return
-
-        image = None
-
-        if image_url is not None:
-            image = Image.open(complete_file_name)
-        else:
-            image = Image.open(BytesIO(image_bytes))
-
-        if image.mode != 'RGB':
-            image = image.convert('RGB')
-
-        if resize is not None:
-            image = image.resize(resize)
-
-        image.save(complete_file_name, "jpeg")
+        return image_url, preview_src
 
     def __disable_safeui(self):
         href = self.driver.find_element(By.CSS_SELECTOR, 'div.cj2HCb div[jsname="ibnC6b"] a').get_attribute("href")
@@ -225,3 +194,57 @@ class GoogleImagesDownloader:
                 break
 
             last_height = new_height
+
+
+def download_image(complete_file_name, image_url, preview_src, resize, pbar=None):
+    image_bytes = None
+
+    download_success = download_image_aux(complete_file_name, image_url)  ## Try to download image_url
+
+    if not download_success:  # Download failed, download the preview image
+        if preview_src.startswith("http"):
+            logger.debug("preview_src startswith http")
+            download_image_aux(complete_file_name, preview_src)  ## Download preview image
+        else:
+            logger.debug("preview_src data")
+            image_bytes = base64.b64decode(
+                preview_src.replace("data:image/png;base64,", "").replace("data:image/jpeg;base64,", ""))
+
+    image = Image.open(complete_file_name) if image_bytes is None else Image.open(BytesIO(image_bytes))
+
+    if image.mode != 'RGB':
+        image = image.convert('RGB')
+
+    if resize is not None:
+        image = image.resize(resize)
+
+    image.save(complete_file_name, "jpeg")
+
+    if pbar:
+        pbar.update(1)
+
+
+def download_image_aux(complete_file_name, image_url):
+    download_success = True
+
+    with open(complete_file_name, 'wb') as handler:
+        if image_url is not None:
+            try:
+                request = requests.get(image_url, headers=headers)
+
+                if request.status_code == 200:
+                    handler.write(request.content)
+                else:
+                    download_success = False
+
+                logger.debug(f"requests get")
+            except requests.exceptions.SSLError:
+                try:
+                    request = urllib.request.Request(image_url, headers=headers)
+                    handler.write(urllib.request.urlopen(request).read())
+                    logger.debug(f"urllib retrieve")
+                except HTTPError:
+                    logger.debug(f"download failed")
+                    download_success = False
+
+    return download_success
