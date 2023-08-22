@@ -17,7 +17,7 @@ def get_arguments(arguments):
         "-q",
         "--query",
         help="Google Images query" + os.linesep +
-             "Example : python google_images_downloader/main.py -q cat",
+             "Example : google-images-downloader -q cat",
         required=True
     )
 
@@ -26,7 +26,7 @@ def get_arguments(arguments):
         "--destination",
         help="Download destination" + os.linesep +
              "Default : ./downloads\n" + os.linesep +
-             "Example : python google_images_downloader/main.py -d C:\\my\\download\\destination",
+             "Example : google-images-downloader -d C:\\my\\download\\destination",
         default=DEFAULT_DESTINATION
     )
 
@@ -35,7 +35,7 @@ def get_arguments(arguments):
         "--limit",
         help="Downloads limit" + os.linesep +
              "Default : 50\n" + os.linesep +
-             "Example : python google_images_downloader/main.py -l 500",
+             "Example : google-images-downloader -l 500",
         default=DEFAULT_LIMIT,
         type=int
     )
@@ -45,7 +45,7 @@ def get_arguments(arguments):
         "--resize",
         help="Resize images" + os.linesep +
              "Default : No resizing\n" + os.linesep +
-             "Example : python google_images_downloader/main.py -r 180x180",
+             "Example : google-images-downloader -r 180x180",
         default=DEFAULT_RESIZE,
     )
 
@@ -53,7 +53,7 @@ def get_arguments(arguments):
         "-Q",
         "--quiet",
         help="Disable program output" + os.linesep +
-             "Example : python google_images_downloader/main.py -q",
+             "Example : google-images-downloader -q",
         action="count"
     )
 
@@ -61,14 +61,14 @@ def get_arguments(arguments):
         "-D",
         "--debug",
         help="Enable debug logs" + os.linesep +
-             "Example : python google_images_downloader/main.py -D",
+             "Example : google-images-downloader -D",
         action="count"
     )
 
     return argument_parser.parse_args(arguments)
 
 
-def main():
+if __name__ == "__main__":
     arguments = get_arguments(sys.argv[1:])
 
     downloader = GoogleImagesDownloader()
@@ -85,7 +85,3 @@ def main():
             resize = [int(x) for x in arguments.resize.split("x")]
 
     downloader.download(arguments.query, destination=arguments.destination, limit=arguments.limit, resize=resize)
-
-
-if __name__ == "__main__":
-    main()

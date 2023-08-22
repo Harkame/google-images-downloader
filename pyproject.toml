@@ -29,4 +29,4 @@ dev = ["pytest>=6", "pytest-cov"]
 repository = "https://github.com/Harkame/google-images-downloader"
 
 [project.scripts]
-google-images-downloader = "google_images_downloader.main:main"
+google-images-downloader = "google_images_downloader.__main__:main"
