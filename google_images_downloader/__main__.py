@@ -1,13 +1,12 @@
-import sys
 from google_images_downloader import GoogleImagesDownloader, DEFAULT_DESTINATION, DEFAULT_LIMIT, \
-    DEFAULT_RESIZE, DEFAULT_QUIET, DEFAULT_DEBUG
+    DEFAULT_RESIZE
+import sys
 import argparse
 import os
 import re
-import timeit
 
 
-def get_arguments(arguments):
+def get_arguments():
     argument_parser = argparse.ArgumentParser(
         description="Script to download images from a \"Google Images\" query",
         formatter_class=lambda prog: argparse.RawTextHelpFormatter(prog, width=99999),
@@ -64,15 +63,13 @@ def get_arguments(arguments):
              "Example : google-images-downloader -D",
         action="count"
     )
+    return argument_parser.parse_args(sys.argv[1:])
 
-    return argument_parser.parse_args(arguments)
 
-
-if __name__ == "__main__":
-    arguments = get_arguments(sys.argv[1:])
-
+def main():
     downloader = GoogleImagesDownloader()
 
+    arguments = get_arguments()
     downloader.init_arguments(arguments)
 
     resize = None
@@ -85,3 +82,7 @@ if __name__ == "__main__":
             resize = [int(x) for x in arguments.resize.split("x")]
 
     downloader.download(arguments.query, destination=arguments.destination, limit=arguments.limit, resize=resize)
+
+
+if __name__ == "__main__":
+    main()

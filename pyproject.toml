@@ -4,6 +4,9 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools]
+packages = ["google_images_downloader"]
+
 [project]
 name = "google-images-downloader"
 description = "Script to download images from a \"Google Images\" query"
@@ -21,12 +24,11 @@ dependencies = [
     "fake-useragent>=1.2.1",
     "tqdm>=4.66.1"
 ]
+[project.urls]
+repository = "https://github.com/Harkame/google-images-downloader"
 
 [project.optional-dependencies]
 dev = ["pytest>=6", "pytest-cov"]
-
-[project.urls]
-repository = "https://github.com/Harkame/google-images-downloader"
 
 [project.scripts]
 google-images-downloader = "google_images_downloader.__main__:main"
