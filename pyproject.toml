@@ -22,6 +22,9 @@ dependencies = [
     "tqdm>=4.66.1"
 ]
 
+[project.optional-dependencies]
+dev = ["pytest>=6", "pytest-cov"]
+
 [project.urls]
 repository = "https://github.com/Harkame/google-images-downloader"
 
