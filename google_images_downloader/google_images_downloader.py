@@ -40,7 +40,7 @@ class GoogleImagesDownloader:
         self.quiet = DEFAULT_QUIET
 
         options = webdriver.ChromeOptions()
-        options.add_argument('headless')
+        # options.add_argument('headless')
         options.add_argument('window-size=1920x1080')
         options.add_argument("disable-gpu")
 
@@ -199,7 +199,10 @@ class GoogleImagesDownloader:
 def download_image(complete_file_name, image_url, preview_src, resize, pbar=None):
     image_bytes = None
 
-    download_success = download_image_aux(complete_file_name, image_url)  ## Try to download image_url
+    download_success = False
+
+    if image_url:
+        download_image_aux(complete_file_name, image_url)  ## Try to download image_url
 
     if not download_success:  # Download failed, download the preview image
         if preview_src.startswith("http"):
@@ -228,23 +231,22 @@ def download_image_aux(complete_file_name, image_url):
     download_success = True
 
     with open(complete_file_name, 'wb') as handler:
-        if image_url is not None:
+        try:
+            request = requests.get(image_url, headers=headers)
+
+            if request.status_code == 200:
+                handler.write(request.content)
+            else:
+                download_success = False
+
+            logger.debug(f"requests get")
+        except requests.exceptions.SSLError:
             try:
-                request = requests.get(image_url, headers=headers)
-
-                if request.status_code == 200:
-                    handler.write(request.content)
-                else:
-                    download_success = False
-
-                logger.debug(f"requests get")
-            except requests.exceptions.SSLError:
-                try:
-                    request = urllib.request.Request(image_url, headers=headers)
-                    handler.write(urllib.request.urlopen(request).read())
-                    logger.debug(f"urllib retrieve")
-                except HTTPError:
-                    logger.debug(f"download failed")
-                    download_success = False
+                request = urllib.request.Request(image_url, headers=headers)
+                handler.write(urllib.request.urlopen(request).read())
+                logger.debug(f"urllib retrieve")
+            except HTTPError:
+                logger.debug(f"download failed")
+                download_success = False
 
     return download_success
