@@ -6,7 +6,8 @@ dist: focal
 
 env:
   global:
-    - CAMPFIRE_TOKEN=abc123
+    - GLOBAL_ENV_VAR=tata
+
 
 python:
   - 3.8
