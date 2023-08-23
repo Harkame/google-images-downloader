@@ -9,6 +9,7 @@ packages = ["google_images_downloader"]
 
 [project]
 name = "google-images-downloader"
+requires-python = ">=3.8"
 description = "Script to download images from a \"Google Images\" query"
 version = "1.0.4"
 authors = [
@@ -28,7 +29,7 @@ dependencies = [
 repository = "https://github.com/Harkame/google-images-downloader"
 
 [project.optional-dependencies]
-dev = ["pytest>=6", "pytest-cov"]
+dev = ["pytest>=7", "pytest-cov"]
 
 [project.scripts]
 google-images-downloader = "google_images_downloader.__main__:main"
