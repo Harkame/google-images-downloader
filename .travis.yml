@@ -10,9 +10,6 @@ python:
   - 3.10
   - 3.11
 
-before_script:
-  - export MY_VAR=master
-
 addons:
   chrome: stable
 
