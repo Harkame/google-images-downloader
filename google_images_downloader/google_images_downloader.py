@@ -1,7 +1,7 @@
 import os
+import sys
 import time
 import urllib.request
-from multiprocessing.pool import ThreadPool
 from concurrent.futures import ThreadPoolExecutor, wait
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -53,7 +53,6 @@ class GoogleImagesDownloader:
     def init_arguments(self, arguments):
         if arguments.debug:
             stream_handler = logging.StreamHandler()
-            stream_handler.setLevel(logging.DEBUG)
             stream_handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s', "%H:%M:%S"))
 
             logger.addHandler(stream_handler)
@@ -92,7 +91,7 @@ class GoogleImagesDownloader:
         if self.quiet:
             self.__download_items(query, destination, image_items, resize, limit)
         else:
-            with tqdm(total=downloads_count) as pbar:
+            with tqdm(total=downloads_count, file=sys.stdout) as pbar:
                 self.__download_items(query, destination, image_items, resize, limit, pbar=pbar)
 
     def __download_items(self, query, destination, image_items, resize, limit, pbar=None):
