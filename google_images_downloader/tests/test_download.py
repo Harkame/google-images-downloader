@@ -3,7 +3,6 @@ import os
 import shutil
 import pytest
 from PIL import Image
-import logging
 
 from ..google_images_downloader import GoogleImagesDownloader, DEFAULT_LIMIT
 
@@ -14,9 +13,6 @@ ANOTHER_DESTINATION = "downloads_tests_bis"
 LIMIT = 100
 MAX_LIMIT = 9999
 RESIZE = (180, 180)
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 
 @pytest.fixture(autouse=True)
@@ -70,8 +66,6 @@ class TestDownload(unittest.TestCase):
 
         files = os.listdir(os.path.join(DESTINATION, QUERY))
         for file in files:
-            logger.debug(f"[{file}]")
-            # logger.debug(f"[{file}] -> size : {os.path.getsize(file)}")
-            # image = Image.open(file)
+            image = Image.open(os.path.join(DESTINATION, file))
 
-            # self.assertEqual(image.size, RESIZE)
+            self.assertEqual(image.size, RESIZE)
