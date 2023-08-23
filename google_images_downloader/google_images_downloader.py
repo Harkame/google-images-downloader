@@ -91,7 +91,7 @@ class GoogleImagesDownloader:
         if self.quiet:
             self.__download_items(query, destination, image_items, resize, limit)
         else:
-            with tqdm(total=downloads_count, file=sys.stdout) as pbar:
+            with tqdm(total=downloads_count) as pbar:
                 self.__download_items(query, destination, image_items, resize, limit, pbar=pbar)
 
     def __download_items(self, query, destination, image_items, resize, limit, pbar=None):
