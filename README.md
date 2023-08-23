@@ -3,11 +3,7 @@
 [![PyPI version](https://badge.fury.io/py/google-images-downloader.svg)](https://badge.fury.io/py/google-images-downloader)
 [![Build Status](https://app.travis-ci.com/Harkame/google-images-downloader.svg?branch=main)](https://app.travis-ci.com/Harkame/google-images-downloader)
 
-`
-
 ## Requirements
-
-`
 
 - [Google Chrome](https://www.google.com/chrome/)
 
