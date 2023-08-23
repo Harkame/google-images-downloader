@@ -7,7 +7,6 @@ from PIL import Image
 from ..google_images_downloader import GoogleImagesDownloader, DEFAULT_LIMIT
 
 QUERY = "cat"
-ANOTHER_QUERY = "dog"
 DESTINATION = "downloads_tests"
 ANOTHER_DESTINATION = "downloads_tests_bis"
 LIMIT = 100
@@ -66,6 +65,6 @@ class TestDownload(unittest.TestCase):
 
         files = os.listdir(os.path.join(DESTINATION, QUERY))
         for file in files:
-            image = Image.open(os.path.join(DESTINATION, file))
+            image = Image.open(os.path.join(DESTINATION, QUERY, file))
 
             self.assertEqual(image.size, RESIZE)
