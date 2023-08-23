@@ -48,9 +48,8 @@ class TestDownload(unittest.TestCase):
         files = os.listdir(os.path.join(DESTINATION, QUERY))
 
         self.assertEqual(LIMIT, len(files))
+    """
 
-    @pytest.mark.skipif("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true",
-                        reason="Skipping this test on Travis CI because of timeout")
     def test_download_no_limit(self):
         self.downloader.download(QUERY, destination=DESTINATION,
                                  limit=9999)  # Google Images returns ~600 images maximum
@@ -58,10 +57,9 @@ class TestDownload(unittest.TestCase):
         files = os.listdir(os.path.join(DESTINATION, QUERY))
 
         self.assertNotEquals(MAX_LIMIT, len(files))
-    """
 
     def test_download_resize(self):
-        self.downloader.download(QUERY, destination=DESTINATION, resize=(180, 180))
+        self.downloader.download(QUERY, destination=DESTINATION, resize=RESIZE)
 
         files = os.listdir(os.path.join(DESTINATION, QUERY))
         for file in files:
