@@ -1,7 +1,8 @@
 os:
   - linux
 
-env: TRAVIS = true
+env:
+  - TRAVIS=true
 
 language: python
 dist: focal
