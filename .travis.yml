@@ -2,12 +2,13 @@ os:
   - linux
 
 language: python
-matrix:
-  include:
-    - python: 3.8
-    - python: 3.9
-    - python: 3.10
-    - python: 3.11
+
+python:
+  - 3.8
+  - 3.9
+  - 3.10.0
+  - 3.11-dev
+
 
 dist: xenial
 
