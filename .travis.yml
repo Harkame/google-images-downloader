@@ -4,6 +4,9 @@ os:
 language: python
 dist: focal
 
+env:
+  - TRAVIS=True
+
 python:
   - 3.8
   - 3.9
