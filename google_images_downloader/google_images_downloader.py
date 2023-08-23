@@ -54,9 +54,11 @@ class GoogleImagesDownloader:
         if arguments.debug:
             stream_handler = logging.StreamHandler()
             stream_handler.setLevel(logging.DEBUG)
-            stream_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+            stream_handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s', "%H:%M:%S"))
 
             logger.addHandler(stream_handler)
+
+            self.quiet = True  # If enable debug logs, disable progress bar
 
         if arguments.quiet:
             self.quiet = True
@@ -98,15 +100,13 @@ class GoogleImagesDownloader:
             future_list = list()
 
             for index, image_item in enumerate(image_items):
-                logger.debug(f"index : {index}")
-
                 image_url, preview_src = self.__get_image_values(image_item)
 
                 complete_file_name = os.path.join(destination, query,
                                                   query.replace(" ", "_") + "_" + str(index) + ".jpg")
 
                 future_list.append(
-                    executor.submit(download_image, complete_file_name, image_url, preview_src,
+                    executor.submit(download_image, index, complete_file_name, image_url, preview_src,
                                     resize, pbar=pbar))
 
                 if index + 1 == limit:
@@ -134,8 +134,6 @@ class GoogleImagesDownloader:
             ).get_attribute("src")
         except TimeoutException:  # No image available
             pass
-
-        logger.debug(f"image_url : {image_url}")
 
         return image_url, preview_src
 
@@ -196,20 +194,24 @@ class GoogleImagesDownloader:
             last_height = new_height
 
 
-def download_image(complete_file_name, image_url, preview_src, resize, pbar=None):
+def download_image(index, complete_file_name, image_url, preview_src, resize, pbar=None):
     image_bytes = None
 
     download_success = False
 
+    logger.debug(f"[{index}] -> image_url : {image_url}")
+
     if image_url:
-        download_image_aux(complete_file_name, image_url)  ## Try to download image_url
+        download_success = download_image_aux(complete_file_name, image_url)  ## Try to download image_url
 
     if not download_success:  # Download failed, download the preview image
+        logger.debug(f"[{index}] -> Download with image_url failed, try to download the preview")
+
         if preview_src.startswith("http"):
-            logger.debug("preview_src startswith http")
+            logger.debug(f"[{index}] -> preview_src is URL : {preview_src}")
             download_image_aux(complete_file_name, preview_src)  ## Download preview image
         else:
-            logger.debug("preview_src data")
+            logger.debug(f"[{index}] -> preview_src is data")
             image_bytes = base64.b64decode(
                 preview_src.replace("data:image/png;base64,", "").replace("data:image/jpeg;base64,", ""))
 
@@ -238,15 +240,15 @@ def download_image_aux(complete_file_name, image_url):
                 handler.write(request.content)
             else:
                 download_success = False
-
-            logger.debug(f"requests get")
-        except requests.exceptions.SSLError:
+        except requests.exceptions.SSLError:  # If requests.get failed, try with urllib
             try:
                 request = urllib.request.Request(image_url, headers=headers)
                 handler.write(urllib.request.urlopen(request).read())
-                logger.debug(f"urllib retrieve")
             except HTTPError:
-                logger.debug(f"download failed")
                 download_success = False
 
     return download_success
+
+
+if __name__ == "__main__":
+    download_image_aux("cat.jpg", "https://catamazing.com/cdn/shop/files/catshark.jpg?v=1649869148")

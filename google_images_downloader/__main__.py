@@ -59,7 +59,7 @@ def get_arguments():
     argument_parser.add_argument(
         "-D",
         "--debug",
-        help="Enable debug logs" + os.linesep +
+        help="Enable debug logs, disable progression bar and messages" + os.linesep +
              "Example : google-images-downloader -D",
         action="count"
     )
