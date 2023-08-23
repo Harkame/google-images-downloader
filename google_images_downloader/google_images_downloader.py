@@ -40,7 +40,7 @@ class GoogleImagesDownloader:
         self.quiet = DEFAULT_QUIET
 
         options = webdriver.ChromeOptions()
-        # options.add_argument('headless')
+        options.add_argument('headless')
         options.add_argument('window-size=1920x1080')
         options.add_argument("disable-gpu")
 
