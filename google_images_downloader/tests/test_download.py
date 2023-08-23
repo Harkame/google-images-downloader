@@ -32,9 +32,9 @@ class TestDownload(unittest.TestCase):
         self.downloader.download(QUERY, destination=DESTINATION)
 
         print(os.environ)
+        print(os.environ["CAMPFIRE_TOKEN"])
 
-        self.assertEqual(os.environ["TRAVIS"], True)
-        self.assertEqual(os.environ["TRAVIS"], "true")
+        self.assertEqual(os.environ["CAMPFIRE_TOKEN"], "abc123")
 
     """
     def test_download(self):
