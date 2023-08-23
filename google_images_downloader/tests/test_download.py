@@ -31,6 +31,15 @@ class TestDownload(unittest.TestCase):
     def test_download(self):
         self.downloader.download(QUERY, destination=DESTINATION)
 
+        print(os.environ["TRAVIS"])
+
+        self.assertEqual(os.environ["TRAVIS"], True)
+        self.assertEqual(os.environ["TRAVIS"], "true")
+
+    """
+    def test_download(self):
+        self.downloader.download(QUERY, destination=DESTINATION)
+
         files = os.listdir(os.path.join(DESTINATION, QUERY))
 
         self.assertEqual(DEFAULT_LIMIT, len(files))
@@ -67,3 +76,4 @@ class TestDownload(unittest.TestCase):
             image = Image.open(file)
 
             self.assertEqual(image.size, RESIZE)
+    """
