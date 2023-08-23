@@ -2,12 +2,13 @@ os:
   - linux
 
 language: python
+dist: focal
 
 python:
   - 3.8
   - 3.9
-  - 3.10.0
-  - 3.11-dev
+  - 3.10
+  - 3.11
 
 addons:
   chrome: stable
