@@ -9,12 +9,6 @@ python:
   - 3.10.0
   - 3.11-dev
 
-
-dist: xenial
-
-services:
-  - xvfb
-
 addons:
   chrome: stable
 
