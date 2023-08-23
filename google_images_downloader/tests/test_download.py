@@ -31,14 +31,6 @@ class TestDownload(unittest.TestCase):
     def test_download(self):
         self.downloader.download(QUERY, destination=DESTINATION)
 
-        print(os.environ)
-
-        self.assertEqual(os.environ["TRAVIS"], "true")
-
-    """
-    def test_download(self):
-        self.downloader.download(QUERY, destination=DESTINATION)
-
         files = os.listdir(os.path.join(DESTINATION, QUERY))
 
         self.assertEqual(DEFAULT_LIMIT, len(files))
@@ -57,7 +49,7 @@ class TestDownload(unittest.TestCase):
 
         self.assertEqual(LIMIT, len(files))
 
-    @pytest.mark.skipif("TRAVIS" in os.environ and os.environ["TRAVIS"] == True,
+    @pytest.mark.skipif("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true",
                         reason="Skipping this test on Travis CI because of timeout")
     def test_download_no_limit(self):
         self.downloader.download(QUERY, destination=DESTINATION,
@@ -75,4 +67,3 @@ class TestDownload(unittest.TestCase):
             image = Image.open(file)
 
             self.assertEqual(image.size, RESIZE)
-    """
