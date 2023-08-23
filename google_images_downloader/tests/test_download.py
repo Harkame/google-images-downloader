@@ -31,7 +31,7 @@ class TestDownload(unittest.TestCase):
     def test_download(self):
         self.downloader.download(QUERY, destination=DESTINATION)
 
-        print(os.environ["TRAVIS"])
+        print(os.environ)
 
         self.assertEqual(os.environ["TRAVIS"], True)
         self.assertEqual(os.environ["TRAVIS"], "true")
