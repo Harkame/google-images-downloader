@@ -71,7 +71,7 @@ class TestDownload(unittest.TestCase):
         files = os.listdir(os.path.join(DESTINATION, QUERY))
         for file in files:
             logger.debug(f"[{file}]")
-            logger.debug(f"[{file}] -> size : {os.path.getsize(file)}")
+            # logger.debug(f"[{file}] -> size : {os.path.getsize(file)}")
             # image = Image.open(file)
 
             # self.assertEqual(image.size, RESIZE)
