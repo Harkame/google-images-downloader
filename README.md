@@ -52,7 +52,7 @@ downloader.download("cat", destination="C:\download\destination")  # Download at
 
 downloader.download("bird", limit=100)  # Download 100 images
 
-downloader.download("dog", resize=(180, 180))  # Download with images resizing
+downloader.download("dog", resize=(256, 256))  # Download with images resizing
 
 downloader.quiet = True  # Disable status messages
 

@@ -44,7 +44,7 @@ def get_arguments():
         "--resize",
         help="Resize images" + os.linesep +
              "Default : No resizing\n" + os.linesep +
-             "Example : google-images-downloader -r 180x180",
+             "Example : google-images-downloader -r 256x256",
         default=DEFAULT_RESIZE,
     )
 
@@ -77,7 +77,7 @@ def main():
     if arguments.resize is not None:
         if re.match('^[0-9]+x[0-9]+$', arguments.resize) is None:
             raise Exception(f"Invalid size format" + os.linesep +
-                            "Expected format example : 180x180")
+                            "Expected format example : 256x256")
         else:
             resize = [int(x) for x in arguments.resize.split("x")]
 

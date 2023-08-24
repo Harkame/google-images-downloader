@@ -11,7 +11,7 @@ DESTINATION = "downloads_tests"
 ANOTHER_DESTINATION = "downloads_tests_bis"
 LIMIT = 100
 MAX_LIMIT = 9999
-RESIZE = (180, 180)
+RESIZE = (256, 256)
 
 
 @pytest.fixture(autouse=True)
