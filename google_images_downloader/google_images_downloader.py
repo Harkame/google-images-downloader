@@ -25,6 +25,7 @@ DEFAULT_LIMIT = 50
 DEFAULT_RESIZE = None
 DEFAULT_QUIET = False
 DEFAULT_DEBUG = False
+DEFAULT_FORMAT = None
 
 IMAGE_HEIGHT = 180
 
@@ -63,7 +64,7 @@ class GoogleImagesDownloader:
             self.quiet = True
 
     def download(self, query, destination=DEFAULT_DESTINATION, limit=DEFAULT_LIMIT,
-                 resize=DEFAULT_RESIZE):
+                 resize=DEFAULT_RESIZE, format=DEFAULT_FORMAT):
         query_destination_folder = os.path.join(destination, query)
         os.makedirs(query_destination_folder, exist_ok=True)
 
@@ -89,24 +90,23 @@ class GoogleImagesDownloader:
         downloads_count = len(image_items) if limit > len(image_items) else limit
 
         if self.quiet:
-            self.__download_items(query, destination, image_items, resize, limit)
+            self.__download_items(query, destination, image_items, resize, limit, format)
         else:
             with tqdm(total=downloads_count) as pbar:
-                self.__download_items(query, destination, image_items, resize, limit, pbar=pbar)
+                self.__download_items(query, destination, image_items, resize, limit, format, pbar=pbar)
 
-    def __download_items(self, query, destination, image_items, resize, limit, pbar=None):
+    def __download_items(self, query, destination, image_items, resize, limit, format, pbar=None):
         with ThreadPoolExecutor(max_workers=5) as executor:
             future_list = list()
 
             for index, image_item in enumerate(image_items):
                 image_url, preview_src = self.__get_image_values(image_item)
 
-                complete_file_name = os.path.join(destination, query,
-                                                  query.replace(" ", "_") + "_" + str(index) + ".jpg")
+                query_destination = os.path.join(destination, query)
 
                 future_list.append(
-                    executor.submit(download_image, index, complete_file_name, image_url, preview_src,
-                                    resize, pbar=pbar))
+                    executor.submit(download_image, index, query, query_destination, image_url, preview_src,
+                                    resize, format, pbar=pbar))
 
                 if index + 1 == limit:
                     break
@@ -193,61 +193,71 @@ class GoogleImagesDownloader:
             last_height = new_height
 
 
-def download_image(index, complete_file_name, image_url, preview_src, resize, pbar=None):
+def download_image(index, query, query_destination, image_url, preview_src, resize, format, pbar=None):
     image_bytes = None
-
-    download_success = False
 
     logger.debug(f"[{index}] -> image_url : {image_url}")
 
     if image_url:
-        download_success = download_image_aux(complete_file_name, image_url)  ## Try to download image_url
+        image_bytes = download_image_aux(image_url)  ## Try to download image_url
 
-    if not download_success:  # Download failed, download the preview image
+    if not image_bytes:  # Download failed, download the preview image
         logger.debug(f"[{index}] -> Download with image_url failed, try to download the preview")
 
         if preview_src.startswith("http"):
             logger.debug(f"[{index}] -> preview_src is URL : {preview_src}")
-            download_image_aux(complete_file_name, preview_src)  ## Download preview image
+            image_bytes = download_image_aux(preview_src)  # Download preview image
         else:
-            logger.debug(f"[{index}] -> preview_src is data")
+            logger.debug(f"[{index}] -> preview_src is bytes")
             image_bytes = base64.b64decode(
                 preview_src.replace("data:image/png;base64,", "").replace("data:image/jpeg;base64,", ""))
 
-    image = Image.open(complete_file_name) if image_bytes is None else Image.open(BytesIO(image_bytes))
+    image = Image.open(BytesIO(image_bytes))
 
-    if image.mode != 'RGB':
-        image = image.convert('RGB')
+    logger.debug(f"[{index}] -> image.format : {image.format}")
+    logger.debug(f"[{index}] -> image.mode : {image.mode}")
+
+    # Standardise downloaded image format
+    if image.format == "PNG":
+        image = image.convert("RGBA")  # Force image mode to RGBA (convert P, L modes)
+        image_extension = ".png"
+    else:
+        image = image.convert("RGB")
+        image_extension = ".jpg"
+
+    # Re-format image
+    if format == "PNG":
+        image = image.convert("RGBA")  # Force image mode to RGBA (convert P, L modes)
+        image_extension = ".png"
+    elif format == "JPEG":
+        image = image.convert("RGB")
+        image_extension = ".jpg"
 
     if resize is not None:
         image = image.resize(resize)
 
-    image.save(complete_file_name, "jpeg")
+    image_name = query.replace(" ", "_") + "_" + str(index) + image_extension
+    complete_file_name = os.path.join(query_destination, image_name)
+
+    image.save(complete_file_name, format)
 
     if pbar:
         pbar.update(1)
 
 
-def download_image_aux(complete_file_name, image_url):
-    download_success = True
+def download_image_aux(image_url):
+    image_bytes = None
 
-    with open(complete_file_name, 'wb') as handler:
+    try:
+        request = requests.get(image_url, headers=headers)
+
+        if request.status_code == 200:
+            image_bytes = request.content
+    except requests.exceptions.SSLError:  # If requests.get failed, try with urllib
         try:
-            request = requests.get(image_url, headers=headers)
+            request = urllib.request.Request(image_url, headers=headers)
+            image_bytes = urllib.request.urlopen(request).read()
+        except HTTPError:
+            pass
 
-            if request.status_code == 200:
-                handler.write(request.content)
-            else:
-                download_success = False
-        except requests.exceptions.SSLError:  # If requests.get failed, try with urllib
-            try:
-                request = urllib.request.Request(image_url, headers=headers)
-                handler.write(urllib.request.urlopen(request).read())
-            except HTTPError:
-                download_success = False
-
-    return download_success
-
-
-if __name__ == "__main__":
-    download_image_aux("cat.jpg", "https://catamazing.com/cdn/shop/files/catshark.jpg?v=1649869148")
+    return image_bytes

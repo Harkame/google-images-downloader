@@ -54,7 +54,9 @@ downloader.download("bird", limit=100)  # Download 100 images
 
 downloader.download("dog", resize=(256, 256))  # Download with images resizing
 
-downloader.quiet = True  # Disable status messages
+downloader.download("dog", format="JPEG")  # Download with images re-formatting (JPEG or PNG)
+
+downloader.quiet = True  # Disable progression messages
 
 downloader.download("fish")  # Quiet download
 ```

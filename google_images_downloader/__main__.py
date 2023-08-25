@@ -1,5 +1,5 @@
 from google_images_downloader import GoogleImagesDownloader, DEFAULT_DESTINATION, DEFAULT_LIMIT, \
-    DEFAULT_RESIZE
+    DEFAULT_RESIZE, DEFAULT_FORMAT
 import sys
 import argparse
 import os
@@ -49,6 +49,15 @@ def get_arguments():
     )
 
     argument_parser.add_argument(
+        "-f",
+        "--format",
+        help="Format download image to specified format" + os.linesep +
+             "By default, images keep their default format" + os.linesep +
+             "Example : google-images-downloader -f PNG",
+        default=DEFAULT_FORMAT,
+        choices=["JPEG", "PNG"])
+
+    argument_parser.add_argument(
         "-Q",
         "--quiet",
         help="Disable program output" + os.linesep +
@@ -63,6 +72,7 @@ def get_arguments():
              "Example : google-images-downloader -D",
         action="count"
     )
+
     return argument_parser.parse_args(sys.argv[1:])
 
 
@@ -81,7 +91,8 @@ def main():
         else:
             resize = [int(x) for x in arguments.resize.split("x")]
 
-    downloader.download(arguments.query, destination=arguments.destination, limit=arguments.limit, resize=resize)
+    downloader.download(arguments.query, destination=arguments.destination, limit=arguments.limit, resize=resize,
+                        format=arguments.format)
 
 
 if __name__ == "__main__":

@@ -66,3 +66,27 @@ class TestDownload(unittest.TestCase):
             image = Image.open(os.path.join(DESTINATION, QUERY, file))
 
             self.assertEqual(image.size, RESIZE)
+
+    def test_download_format_jpeg(self):
+        self.downloader.download(QUERY, destination=DESTINATION, format="JPEG")
+
+        files = os.listdir(os.path.join(DESTINATION, QUERY))
+        for file in files:
+            file_extension = os.path.splitext(file)[1]
+            self.assertEqual(file_extension, ".jpg")
+
+            image = Image.open(os.path.join(DESTINATION, QUERY, file))
+            self.assertEqual(image.format, "JPEG")
+            self.assertEqual(image.mode, "RGB")
+
+    def test_download_format_png(self):
+        self.downloader.download(QUERY, destination=DESTINATION, format="PNG")
+
+        files = os.listdir(os.path.join(DESTINATION, QUERY))
+        for file in files:
+            file_extension = os.path.splitext(file)[1]
+            self.assertEqual(file_extension, ".png")
+
+            image = Image.open(os.path.join(DESTINATION, QUERY, file))
+            self.assertEqual(image.format, "PNG")
+            self.assertEqual(image.mode, "RGBA")
