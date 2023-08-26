@@ -5,7 +5,11 @@
 
 ## Requirements
 
-- [Google Chrome](https://www.google.com/chrome/)
+- [Google Chrome](https://www.google.com/chrome/) (Used by default)
+
+OR
+
+- [Firefox](https://www.mozilla.org/en-US/firefox/new/)
 
 ## Installation
 
@@ -44,7 +48,7 @@ google-images-downloader -h
 ```python
 from google_images_downloader import GoogleImagesDownloader
 
-downloader = GoogleImagesDownloader()
+downloader = GoogleImagesDownloader() # Use chrome by default
 
 downloader.download("bear")  # Download 50 images in ./downloads folder
 
@@ -59,6 +63,22 @@ downloader.download("dog", format="JPEG")  # Download with images re-formatting 
 downloader.quiet = True  # Disable progression messages
 
 downloader.download("fish")  # Quiet download
+```
+
+#### Specify browser to use for web scraping
+
+```python
+from google_images_downloader import GoogleImagesDownloader
+
+downloader = GoogleImagesDownloader(browser="firefox") # Default : "chrome"
+```
+
+#### Show browser while web scraping
+
+```python
+from google_images_downloader import GoogleImagesDownloader
+
+downloader = GoogleImagesDownloader(show=True)
 ```
 
 ## Tests

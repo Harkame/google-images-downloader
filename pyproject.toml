@@ -19,9 +19,10 @@ readme = "README.md"
 classifiers = ["Programming Language :: Python"]
 dependencies = [
     "selenium>=4.11.2",
+    "chromedriver-py",
+    "pygeckodriver>=0.33",
     "requests>=2.31.0",
     "Pillow>=10.0.0",
-    "chromedriver-py",
     "fake-useragent>=1.2.1",
     "tqdm>=4.66.1"
 ]

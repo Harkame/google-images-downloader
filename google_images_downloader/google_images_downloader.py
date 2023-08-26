@@ -19,6 +19,7 @@ from io import BytesIO
 from tqdm import tqdm
 from urllib.request import HTTPError
 from selenium.webdriver.common.action_chains import ActionChains
+from pygeckodriver import geckodriver_path
 
 DEFAULT_DESTINATION = "downloads"
 DEFAULT_LIMIT = 50
@@ -26,6 +27,8 @@ DEFAULT_RESIZE = None
 DEFAULT_QUIET = False
 DEFAULT_DEBUG = False
 DEFAULT_FORMAT = None
+
+DEFAULT_BROWSER = "chrome"
 
 IMAGE_HEIGHT = 180
 
@@ -37,17 +40,25 @@ headers = {'User-Agent': str(user_agent)}
 
 
 class GoogleImagesDownloader:
-    def __init__(self):
+    def __init__(self, browser=DEFAULT_BROWSER, show=False):
         self.quiet = DEFAULT_QUIET
 
-        options = webdriver.ChromeOptions()
-        options.add_argument('headless')
-        options.add_argument('window-size=1920x1080')
-        options.add_argument("disable-gpu")
+        if browser == DEFAULT_BROWSER: #chrome
+            options = webdriver.ChromeOptions()
 
-        options.add_experimental_option('excludeSwitches', ['enable-logging'])
+            if not show:
+                options.headless = True
 
-        self.driver = webdriver.Chrome(options=options, service=webdriver.ChromeService(executable_path=binary_path))
+            options.add_experimental_option('excludeSwitches', ['enable-logging'])
+
+            self.driver = webdriver.Chrome(options=options, service=webdriver.ChromeService(executable_path=binary_path))
+        elif browser == "firefox":
+            options = webdriver.FirefoxOptions()
+
+            if not show:
+                options.headless = True
+
+            self.driver = webdriver.Firefox(options=options, service=webdriver.ChromeService(executable_path=geckodriver_path))
 
         self.__consent()
 
@@ -113,7 +124,25 @@ class GoogleImagesDownloader:
 
             wait(future_list)
 
+    def __scroll_shim(self, object):
+        x = object.location['x']
+        y = object.location['y']
+        scroll_by_coord = 'window.scrollTo(%s,%s);' % (
+            x,
+            y
+        )
+        scroll_nav_out_of_way = 'window.scrollBy(0, -120);'
+        self.driver.execute_script(scroll_by_coord)
+        self.driver.execute_script(scroll_nav_out_of_way)
+
     def __get_image_values(self, image_item):
+
+        # Scroll to item it not working well on firefox
+        # This functions seems to resolve the problem
+        # https://stackoverflow.com/questions/44777053/selenium-movetargetoutofboundsexception-with-firefox
+        if 'firefox' in self.driver.capabilities['browserName']:
+            self.__scroll_shim(image_item)
+
         actions = ActionChains(self.driver)
         actions.move_to_element(image_item).perform()
 

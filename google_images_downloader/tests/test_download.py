@@ -1,4 +1,4 @@
-import unittest
+from unittest import TestCase
 import os
 import shutil
 import pytest
@@ -21,11 +21,9 @@ def resource():
     shutil.rmtree(ANOTHER_DESTINATION, ignore_errors=True)
 
 
-class TestDownload(unittest.TestCase):
-    def __init__(self, *args, **kwargs):
-        super(TestDownload, self).__init__(*args, **kwargs)
-
-        self.downloader = GoogleImagesDownloader()
+class TestDownload(TestCase):
+    __test__ = False
+    downloader = None
 
     def test_download(self):
         self.downloader.download(QUERY, destination=DESTINATION)
@@ -90,3 +88,21 @@ class TestDownload(unittest.TestCase):
             image = Image.open(os.path.join(DESTINATION, QUERY, file))
             self.assertEqual(image.format, "PNG")
             self.assertEqual(image.mode, "RGBA")
+
+
+class ChromeTestDownload(TestDownload):
+    __test__ = True
+
+    def __init__(self, *args, **kwargs):
+        super(ChromeTestDownload, self).__init__(*args, **kwargs)
+
+        self.downloader = GoogleImagesDownloader(browser="chrome")
+
+
+class FirefoxTestDownload(TestDownload):
+    __test__ = True
+
+    def __init__(self, *args, **kwargs):
+        super(FirefoxTestDownload, self).__init__(*args, **kwargs)
+
+        self.downloader = GoogleImagesDownloader(browser="firefox")
