@@ -108,6 +108,19 @@ def get_arguments():
     return argument_parser.parse_args(sys.argv[1:])
 
 
+def get_formatted_resize(resize):
+    formatted_resize = None
+
+    if resize is not None:
+        if re.match('^[0-9]+x[0-9]+$', resize) is None:
+            raise Exception(f"Invalid size format" + os.linesep +
+                            "Expected format example : 256x256")
+        else:
+            resize = [int(x) for x in resize.split("x")]
+
+    return resize
+
+
 def main():
     arguments = get_arguments()
 
@@ -119,14 +132,7 @@ def main():
 
     downloader.init_arguments(arguments)
 
-    resize = None
-
-    if arguments.resize is not None:
-        if re.match('^[0-9]+x[0-9]+$', arguments.resize) is None:
-            raise Exception(f"Invalid size format" + os.linesep +
-                            "Expected format example : 256x256")
-        else:
-            resize = [int(x) for x in arguments.resize.split("x")]
+    resize = get_formatted_resize(arguments.resize)  # Transform resizing format, example : 256x256 to (256, 256) tuple
 
     downloader.download(arguments.query, destination=arguments.destination, limit=arguments.limit, resize=resize,
                         format=arguments.format)
