@@ -16,7 +16,6 @@ import base64
 from io import BytesIO
 from tqdm import tqdm
 from urllib.request import HTTPError
-from selenium.webdriver.common.action_chains import ActionChains
 from pygeckodriver import geckodriver_path
 
 DEFAULT_DESTINATION = "downloads"
@@ -92,6 +91,8 @@ class GoogleImagesDownloader:
 
         self.__scroll(limit)
 
+        self.driver.execute_script("document.getElementsByClassName('qs41qe')[0].style.display = 'none'") # Fix firefox issue, when click on item after scrolling
+
         image_items = list_items.find_elements(By.CSS_SELECTOR, "div[role='listitem']")
 
         if not self.quiet:
@@ -123,30 +124,10 @@ class GoogleImagesDownloader:
 
             wait(future_list)
 
-    def __scroll_shim(self, object):
-        x = object.location['x']
-        y = object.location['y']
-        scroll_by_coord = 'window.scrollTo(%s,%s);' % (
-            x,
-            y
-        )
-        scroll_nav_out_of_way = 'window.scrollBy(0, -120);'
-        self.driver.execute_script(scroll_by_coord)
-        self.driver.execute_script(scroll_nav_out_of_way)
-
     def __get_image_values(self, image_item):
+        self.driver.execute_script("arguments[0].scrollIntoView(true);", image_item)
 
-        # Scroll to item it not working well on firefox
-        # This functions seems to resolve the problem
-        # https://stackoverflow.com/questions/44777053/selenium-movetargetoutofboundsexception-with-firefox
-        if 'firefox' in self.driver.capabilities['browserName']:
-            self.__scroll_shim(image_item)
-
-        actions = ActionChains(self.driver)
-        actions.move_to_element(image_item).perform()
-
-        WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
-            EC.element_to_be_clickable(image_item)).click()
+        WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(image_item)).click()
 
         preview_src = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
             EC.presence_of_element_located(
@@ -199,11 +180,7 @@ class GoogleImagesDownloader:
             if display_more_tag.is_displayed() and display_more_tag.is_enabled():
                 display_more_tag.click()
 
-            if 'firefox' in self.driver.capabilities['browserName']:
-                self.__scroll_shim(bottom_tag)
-
-            actions = ActionChains(self.driver)
-            actions.move_to_element(bottom_tag).perform()
+            self.driver.execute_script("arguments[0].scrollIntoView(true);", bottom_tag)
 
             image_items = list_items.find_elements(By.CSS_SELECTOR, "div[role='listitem']")
 
