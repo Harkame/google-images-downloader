@@ -1,6 +1,4 @@
 import os
-import sys
-import time
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, wait
 from selenium import webdriver
@@ -27,16 +25,16 @@ DEFAULT_RESIZE = None
 DEFAULT_QUIET = False
 DEFAULT_DEBUG = False
 DEFAULT_FORMAT = None
-
+DEFAULT_WEBDRIVER_WAIT_DURATION = 10
 DEFAULT_BROWSER = "chrome"
-
-IMAGE_HEIGHT = 180
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 user_agent = UserAgent().chrome
 headers = {'User-Agent': str(user_agent)}
+
+WEBDRIVER_WAIT_DURATION = DEFAULT_WEBDRIVER_WAIT_DURATION
 
 
 class GoogleImagesDownloader:
@@ -65,7 +63,7 @@ class GoogleImagesDownloader:
     def init_arguments(self, arguments):
         if arguments.debug:
             stream_handler = logging.StreamHandler()
-            stream_handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s', "%H:%M:%S"))
+            stream_handler.setFormatter(logging.Formatter('%(asctime)s - %(funcName)s - %(message)s', "%H:%M:%S"))
 
             logger.addHandler(stream_handler)
 
@@ -81,13 +79,14 @@ class GoogleImagesDownloader:
 
         self.driver.get(f"https://www.google.com/search?q={query}&tbm=isch")
 
-        WebDriverWait(self.driver, 10).until(
+        WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "div[role='list']"))
         )
 
         self.__disable_safeui()
 
-        list_items = WebDriverWait(self.driver, 10).until(
+        # Wait for list to continue
+        list_items = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "div[role='list']"))
         )
 
@@ -96,7 +95,7 @@ class GoogleImagesDownloader:
         image_items = list_items.find_elements(By.CSS_SELECTOR, "div[role='listitem']")
 
         if not self.quiet:
-            print("Downloads...")
+            print("Downloading...")
 
         downloads_count = len(image_items) if limit > len(image_items) else limit
 
@@ -146,10 +145,10 @@ class GoogleImagesDownloader:
         actions = ActionChains(self.driver)
         actions.move_to_element(image_item).perform()
 
-        WebDriverWait(self.driver, 10).until(
+        WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
             EC.element_to_be_clickable(image_item)).click()
 
-        preview_src = WebDriverWait(self.driver, 10).until(
+        preview_src = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
             EC.presence_of_element_located(
                 (By.CSS_SELECTOR, "div[jsname='CGzTgf'] div[jsname='figiqf'] img"))
         ).get_attribute("src")
@@ -157,7 +156,7 @@ class GoogleImagesDownloader:
         image_url = None
 
         try:
-            image_url = WebDriverWait(self.driver, 10).until(
+            image_url = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, "img[jsname='kn3ccd']"))
             ).get_attribute("src")
         except TimeoutException:  # No image available
@@ -187,39 +186,35 @@ class GoogleImagesDownloader:
         if not self.quiet:
             print("Scrolling...")
 
-        count = 0
+        bottom_tag = self.driver.find_element(By.CSS_SELECTOR, 'div[jsname="wEwttd"]')
+        display_more_tag = self.driver.find_element(By.CSS_SELECTOR, 'input[jsaction="Pmjnye"]')
 
-        display_more = self.driver.find_element(By.CSS_SELECTOR, 'input[jsaction="Pmjnye"]')
-        last_height = self.driver.execute_script("return document.body.scrollHeight")
+        data_status = int(bottom_tag.get_attribute("data-status"))
 
-        scroll_try = 0
+        list_items = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "div[role='list']"))
+        )
 
-        loaded_images = 0
+        while data_status != 3:
+            if display_more_tag.is_displayed() and display_more_tag.is_enabled():
+                display_more_tag.click()
 
-        while True:
-            count += IMAGE_HEIGHT * 3
-            self.driver.execute_script(f"window.scrollTo(0, {count});")
-            loaded_images += 6
+            if 'firefox' in self.driver.capabilities['browserName']:
+                self.__scroll_shim(bottom_tag)
 
-            time.sleep(1)
+            actions = ActionChains(self.driver)
+            actions.move_to_element(bottom_tag).perform()
 
-            if loaded_images >= limit:
+            image_items = list_items.find_elements(By.CSS_SELECTOR, "div[role='listitem']")
+
+            logger.debug(f"limit : {limit} - len(image_items) : {len(image_items)}")
+
+            if limit <= len(image_items):
                 return
 
-            new_height = self.driver.execute_script("return document.body.scrollHeight")
+            data_status = int(bottom_tag.get_attribute("data-status"))
 
-            if display_more.is_displayed() and display_more.is_enabled():
-                display_more.click()
-
-            if last_height == new_height:
-                scroll_try += 1
-            else:
-                scroll_try = 0
-
-            if last_height == new_height and scroll_try > 10:
-                break
-
-            last_height = new_height
+            logger.debug(f"data_status : {data_status}")
 
 
 def download_image(index, query, query_destination, image_url, preview_src, resize, format, pbar=None):
