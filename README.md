@@ -63,6 +63,8 @@ downloader.download("dog", format="JPEG")  # Download with images re-formatting 
 downloader.quiet = True  # Disable progression messages
 
 downloader.download("fish")  # Quiet download
+
+downloader.driver.close() # Do not forget to close the driver
 ```
 
 #### Specify browser to use for web scraping
@@ -71,6 +73,8 @@ downloader.download("fish")  # Quiet download
 from google_images_downloader import GoogleImagesDownloader
 
 downloader = GoogleImagesDownloader(browser="firefox") # Default : "chrome"
+
+downloader.driver.close() # Do not forget to close the driver
 ```
 
 #### Show browser while web scraping
@@ -79,6 +83,8 @@ downloader = GoogleImagesDownloader(browser="firefox") # Default : "chrome"
 from google_images_downloader import GoogleImagesDownloader
 
 downloader = GoogleImagesDownloader(show=True)
+
+downloader.driver.close() # Do not forget to close the driver
 ```
 
 ## Tests
