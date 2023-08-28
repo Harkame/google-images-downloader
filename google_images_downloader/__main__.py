@@ -54,7 +54,7 @@ def get_arguments():
     argument_parser.add_argument(
         "-f",
         "--format",
-        help="format download image to specified format" + os.linesep +
+        help="format download images to specified format" + os.linesep +
              "by default, images keep their default format" + os.linesep +
              "example : google-images-downloader -f PNG" + os.linesep +
              "(default: %(default)s)",
@@ -135,7 +135,7 @@ def main():
     resize = get_formatted_resize(arguments.resize)  # Transform resizing format, example : 256x256 to (256, 256) tuple
 
     downloader.download(arguments.query, destination=arguments.destination, limit=arguments.limit, resize=resize,
-                        format=arguments.format)
+                        file_format=arguments.format)
 
     downloader.driver.close()
 
