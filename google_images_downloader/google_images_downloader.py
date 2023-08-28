@@ -72,15 +72,19 @@ class GoogleImagesDownloader:
             self.quiet = True
 
     def download(self, query, destination=DEFAULT_DESTINATION, limit=DEFAULT_LIMIT,
-                 resize=DEFAULT_RESIZE, format=DEFAULT_FORMAT):
+                 resize=DEFAULT_RESIZE, file_format=DEFAULT_FORMAT):
         query_destination_folder = os.path.join(destination, query)
         os.makedirs(query_destination_folder, exist_ok=True)
 
         self.driver.get(f"https://www.google.com/search?q={query}&tbm=isch")
 
-        WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "div[role='list']"))
-        )
+        try:
+            WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "div[role='list']"))
+            )
+        except TimeoutException:
+            print("No results")
+            return
 
         self.__disable_safeui()
 
@@ -101,12 +105,12 @@ class GoogleImagesDownloader:
         downloads_count = len(image_items) if limit > len(image_items) else limit
 
         if self.quiet:
-            self.__download_items(query, destination, image_items, resize, limit, format)
+            self.__download_items(query, destination, image_items, resize, limit, file_format)
         else:
             with tqdm(total=downloads_count) as pbar:
-                self.__download_items(query, destination, image_items, resize, limit, format, pbar=pbar)
+                self.__download_items(query, destination, image_items, resize, limit, file_format, pbar=pbar)
 
-    def __download_items(self, query, destination, image_items, resize, limit, format, pbar=None):
+    def __download_items(self, query, destination, image_items, resize, limit, file_format, pbar=None):
         with ThreadPoolExecutor(max_workers=5) as executor:
             future_list = list()
 
@@ -117,7 +121,7 @@ class GoogleImagesDownloader:
 
                 future_list.append(
                     executor.submit(download_image, index, query, query_destination, image_url, preview_src,
-                                    resize, format, pbar=pbar))
+                                    resize, file_format, pbar=pbar))
 
                 if index + 1 == limit:
                     break
@@ -194,7 +198,7 @@ class GoogleImagesDownloader:
             logger.debug(f"data_status : {data_status}")
 
 
-def download_image(index, query, query_destination, image_url, preview_src, resize, format, pbar=None):
+def download_image(index, query, query_destination, image_url, preview_src, resize, file_format, pbar=None):
     image_bytes = None
 
     logger.debug(f"[{index}] -> image_url : {image_url}")
@@ -227,10 +231,10 @@ def download_image(index, query, query_destination, image_url, preview_src, resi
         image_extension = ".jpg"
 
     # Re-format image
-    if format == "PNG":
+    if file_format == "PNG":
         image = image.convert("RGBA")  # Force image mode to RGBA (convert P, L modes)
         image_extension = ".png"
-    elif format == "JPEG":
+    elif file_format == "JPEG":
         image = image.convert("RGB")
         image_extension = ".jpg"
 
@@ -240,7 +244,7 @@ def download_image(index, query, query_destination, image_url, preview_src, resi
     image_name = query.replace(" ", "_") + "_" + str(index) + image_extension
     complete_file_name = os.path.join(query_destination, image_name)
 
-    image.save(complete_file_name, format)
+    image.save(complete_file_name, file_format)
 
     if pbar:
         pbar.update(1)
