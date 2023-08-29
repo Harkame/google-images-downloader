@@ -38,7 +38,7 @@ class DownloadTest:
 
         assert len(files) == 0
 
-    @parameterized.expand(ANOTHER_DESTINATIONS)
+    @pytest.mark.parametrize("destination", ANOTHER_DESTINATIONS)
     def test_download_another_destination(self, destination):
         self.downloader.download(QUERY, destination=destination)
 
