@@ -39,7 +39,7 @@ jobs:
         with:
           python-version: ${{ matrix.py }}
       - name: Install tox
-        run: pip install pytest parameterized*
+        run: pip install pytest parameterized
       - name: Install dependencies
         run: pip install -e .
       - name: Run test suite
