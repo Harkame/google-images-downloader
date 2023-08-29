@@ -23,6 +23,7 @@ DEFAULT_LIMIT = 50
 DEFAULT_RESIZE = None
 DEFAULT_QUIET = False
 DEFAULT_DEBUG = False
+DEFAULT_SHOW = False
 DEFAULT_FORMAT = None
 DEFAULT_WEBDRIVER_WAIT_DURATION = 20
 DEFAULT_BROWSER = "chrome"
@@ -37,30 +38,15 @@ WEBDRIVER_WAIT_DURATION = DEFAULT_WEBDRIVER_WAIT_DURATION
 
 
 class GoogleImagesDownloader:
-    def __init__(self, browser=DEFAULT_BROWSER, show=False):
-        self.quiet = DEFAULT_QUIET
+    def __init__(self, browser=DEFAULT_BROWSER, show=DEFAULT_SHOW, debug=DEFAULT_DEBUG, quiet=DEFAULT_QUIET):
+        logger.debug(f"browser : {browser}")
+        logger.debug(f"show : {show}")
+        logger.debug(f"debug : {debug}")
+        logger.debug(f"quiet : {quiet}")
 
-        if browser == DEFAULT_BROWSER: #chrome
-            options = webdriver.ChromeOptions()
+        self.quiet = quiet
 
-            if not show:
-                options.headless = True
-
-            options.add_experimental_option('excludeSwitches', ['enable-logging'])
-
-            self.driver = webdriver.Chrome(options=options, service=webdriver.ChromeService(executable_path=binary_path))
-        elif browser == "firefox":
-            options = webdriver.FirefoxOptions()
-
-            if not show:
-                options.headless = True
-
-            self.driver = webdriver.Firefox(options=options, service=webdriver.ChromeService(executable_path=geckodriver_path))
-
-        self.__consent()
-
-    def init_arguments(self, arguments):
-        if arguments.debug:
+        if debug:
             stream_handler = logging.StreamHandler()
             stream_handler.setFormatter(logging.Formatter('%(asctime)s - %(funcName)s - %(message)s', "%H:%M:%S"))
 
@@ -68,13 +54,40 @@ class GoogleImagesDownloader:
 
             self.quiet = True  # If enable debug logs, disable progress bar
 
-        if arguments.quiet:
+        if quiet:
             self.quiet = True
+
+        if browser == DEFAULT_BROWSER:  # chrome
+            options = webdriver.ChromeOptions()
+
+            if not show:
+                options.headless = True
+
+            options.add_experimental_option('excludeSwitches', ['enable-logging'])
+
+            self.driver = webdriver.Chrome(options=options,
+                                           service=webdriver.ChromeService(executable_path=binary_path))
+        elif browser == "firefox":
+            options = webdriver.FirefoxOptions()
+
+            if not show:
+                options.headless = True
+
+            self.driver = webdriver.Firefox(options=options,
+                                            service=webdriver.ChromeService(executable_path=geckodriver_path))
+
+        self.__consent()
 
     def download(self, query, destination=DEFAULT_DESTINATION, limit=DEFAULT_LIMIT,
                  resize=DEFAULT_RESIZE, file_format=DEFAULT_FORMAT):
         query_destination_folder = os.path.join(destination, query)
         os.makedirs(query_destination_folder, exist_ok=True)
+
+        logger.debug(f"query : {query}")
+        logger.debug(f"destination : {destination}")
+        logger.debug(f"limit : {limit}")
+        logger.debug(f"resize : {resize}")
+        logger.debug(f"file_format : {file_format}")
 
         self.driver.get(f"https://www.google.com/search?q={query}&tbm=isch")
 
@@ -83,7 +96,8 @@ class GoogleImagesDownloader:
                 EC.presence_of_element_located((By.CSS_SELECTOR, "div[role='list']"))
             )
         except TimeoutException:
-            print("No results")
+            if not self.quiet:
+                print("No results")
             return
 
         self.__disable_safeui()
@@ -95,7 +109,8 @@ class GoogleImagesDownloader:
 
         self.__scroll(limit)
 
-        self.driver.execute_script("document.getElementsByClassName('qs41qe')[0].style.display = 'none'") # Fix firefox issue, when click on item after scrolling
+        self.driver.execute_script(
+            "document.getElementsByClassName('qs41qe')[0].style.display = 'none'")  # Fix firefox issue, when click on item after scrolling
 
         image_items = list_items.find_elements(By.CSS_SELECTOR, "div[role='listitem']")
 
@@ -129,14 +144,23 @@ class GoogleImagesDownloader:
             wait(future_list)
 
     def __get_image_values(self, image_item):
-        self.driver.execute_script("arguments[0].scrollIntoView(true);", image_item)
+        preview_src_tag = None
 
-        WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(image_item)).click()
+        while not preview_src_tag:  # Sometimes image part is not displayed the first time
+            self.driver.execute_script("arguments[0].scrollIntoView(true);", image_item)
 
-        preview_src = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
-            EC.presence_of_element_located(
-                (By.CSS_SELECTOR, "div[jsname='CGzTgf'] div[jsname='figiqf'] img"))
-        ).get_attribute("src")
+            WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(image_item)).click()
+
+            try:
+                preview_src_tag = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
+                    EC.presence_of_element_located(
+                        (By.CSS_SELECTOR, "div[jsname='CGzTgf'] div[jsname='figiqf'] img"))
+                )
+            except TimeoutException:
+                logger.debug("can't reach images tag...retry")
+                pass
+
+        preview_src = preview_src_tag.get_attribute("src")
 
         image_url = None
 
@@ -145,7 +169,7 @@ class GoogleImagesDownloader:
                 EC.presence_of_element_located((By.CSS_SELECTOR, "img[jsname='kn3ccd']"))
             ).get_attribute("src")
         except TimeoutException:  # No image available
-            pass
+            logger.debug("can't retrieve image_url")
 
         return image_url, preview_src
 
@@ -207,7 +231,7 @@ def download_image(index, query, query_destination, image_url, preview_src, resi
         image_bytes = download_image_aux(image_url)  ## Try to download image_url
 
     if not image_bytes:  # Download failed, download the preview image
-        logger.debug(f"[{index}] -> Download with image_url failed, try to download the preview")
+        logger.debug(f"[{index}] -> download with image_url failed, try to download the preview")
 
         if preview_src.startswith("http"):
             logger.debug(f"[{index}] -> preview_src is URL : {preview_src}")
