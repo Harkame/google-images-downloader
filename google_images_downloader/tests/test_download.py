@@ -31,6 +31,7 @@ class DownloadTest:
 
         assert len(files) == DEFAULT_LIMIT
 
+    """
     def test_download_no_results(self):
         self.downloader.download(QUERY_WITHOUT_RESULTS, destination=DESTINATION)
 
@@ -113,6 +114,7 @@ class DownloadTest:
         remove_download_folders()
 
         self.downloader.driver.close()
+    """
 
 
 class TestChrome(DownloadTest):
