@@ -71,10 +71,11 @@ def get_arguments():
         choices=["chrome", "firefox"])
 
     argument_parser.add_argument(
-        "-Q",
-        "--quiet",
-        help="disable program output" + os.linesep +
-             "example : google-images-downloader -Q",
+        "-s",
+        "--show",
+        help="show the browser by disabling headless option" + os.linesep +
+             "useful for debugging" + os.linesep +
+             "example : google-images-downloader -s",
         action="count"
     )
 
@@ -87,11 +88,10 @@ def get_arguments():
     )
 
     argument_parser.add_argument(
-        "-s",
-        "--show",
-        help="show the browser by disabling headless option" + os.linesep +
-             "useful for debugging" + os.linesep +
-             "example : google-images-downloader -s",
+        "-Q",
+        "--quiet",
+        help="disable program output" + os.linesep +
+             "example : google-images-downloader -Q",
         action="count"
     )
 
@@ -127,10 +127,9 @@ def main():
     google_images_downloader.WEBDRIVER_WAIT_DURATION = arguments.wait_duration
 
     show = True if arguments.show else False
+    quiet = True if arguments.quiet else False
 
-    downloader = GoogleImagesDownloader(browser=arguments.browser, show=show)
-
-    downloader.init_arguments(arguments)
+    downloader = GoogleImagesDownloader(browser=arguments.browser, show=show, debug=arguments.debug, quiet=quiet)
 
     resize = get_formatted_resize(arguments.resize)  # Transform resizing format, example : 256x256 to (256, 256) tuple
 
