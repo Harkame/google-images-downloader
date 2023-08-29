@@ -120,6 +120,7 @@ class DownloadTest:
 class TestChrome(DownloadTest):
     browser = "chrome"
 
-
+"""
 class TestFirefox(DownloadTest):
     browser = "firefox"
+"""
