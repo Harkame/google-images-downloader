@@ -2,6 +2,9 @@
 
 [![PyPI version](https://badge.fury.io/py/google-images-downloader.svg)](https://badge.fury.io/py/google-images-downloader)
 [![Build Status](https://app.travis-ci.com/Harkame/google-images-downloader.svg?branch=main)](https://app.travis-ci.com/Harkame/google-images-downloader)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/35653176f62b47aa8666544e6c30dcfd)](https://app.codacy.com/gh/Harkame/google-images-downloader/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![Maintainability](https://api.codeclimate.com/v1/badges/6ab037c4ca021b4be8ab/maintainability)](https://codeclimate.com/github/Harkame/google-images-downloader/maintainability)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ## Requirements
 
@@ -48,7 +51,7 @@ google-images-downloader -h
 ```python
 from google_images_downloader import GoogleImagesDownloader
 
-downloader = GoogleImagesDownloader() # Use chrome by default
+downloader = GoogleImagesDownloader(browser="chrome", show=False, debug=False, quiet=False) # Constructor with default values
 
 downloader.download("bear")  # Download 50 images in ./downloads folder
 
@@ -58,11 +61,7 @@ downloader.download("bird", limit=100)  # Download 100 images
 
 downloader.download("dog", resize=(256, 256))  # Download with images resizing
 
-downloader.download("dog", format="JPEG")  # Download with images re-formatting (JPEG or PNG)
-
-downloader.quiet = True  # Disable progression messages
-
-downloader.download("fish")  # Quiet download
+downloader.download("dog", file_format="JPEG")  # Download with images re-formatting (JPEG or PNG)
 
 downloader.driver.close() # Do not forget to close the driver
 ```
@@ -73,16 +72,6 @@ downloader.driver.close() # Do not forget to close the driver
 from google_images_downloader import GoogleImagesDownloader
 
 downloader = GoogleImagesDownloader(browser="firefox") # Default : "chrome"
-
-downloader.driver.close() # Do not forget to close the driver
-```
-
-#### Show browser while web scraping
-
-```python
-from google_images_downloader import GoogleImagesDownloader
-
-downloader = GoogleImagesDownloader(show=True)
 
 downloader.driver.close() # Do not forget to close the driver
 ```
