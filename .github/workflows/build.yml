@@ -2,8 +2,6 @@ name: build
 on:
   push:
   pull_request:
-  schedule:
-    - cron: "0 8 * * *"
 
 concurrency:
   group: check-${{ github.ref }}
@@ -11,6 +9,7 @@ concurrency:
 
 jobs:
   test:
+    environment: build
     name: test with ${{ matrix.py }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -25,8 +24,10 @@ jobs:
     steps:
       - uses: browser-actions/setup-chrome@v1
       - run: chrome --version
-      - uses: browser-actions/setup-firefox@v1
-      - run: firefox --version
+      - if: ${{ matrix.os != 'windows-latest' }}
+        uses: browser-actions/setup-firefox@v1
+      - if: ${{ matrix.os != 'windows-latest' }}
+        run: firefox --version
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
