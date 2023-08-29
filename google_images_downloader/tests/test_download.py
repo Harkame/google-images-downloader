@@ -102,7 +102,7 @@ class DownloadTest:
                 assert file_extension == ".jpg"
             elif format == "PNG":
                 assert file_extension == ".png"
-
+    """
     @pytest.fixture(autouse=True)
     def resource(self):
         remove_download_folders()
@@ -114,7 +114,7 @@ class DownloadTest:
         remove_download_folders()
 
         self.downloader.driver.close()
-    """
+
 
 
 class TestChrome(DownloadTest):
