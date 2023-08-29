@@ -39,8 +39,6 @@ jobs:
         with:
           python-version: ${{ matrix.py }}
       - name: Install tox
-        run: python -m pip install tox-gh>=1.2
-      - name: Setup test suite
-        run: tox -vv --notest
+        run: python -m pip pytest parameterized
       - name: Run test suite
-        run: tox --skip-pkg-install
+        run: pytest google_images_downloader/tests
