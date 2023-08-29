@@ -27,6 +27,8 @@ jobs:
           - macos-latest
           - windows-latest
     steps:
+      - uses: browser-actions/setup-chrome@v1
+      - run: chrome --version
       - uses: browser-actions/setup-firefox@v1
       - run: firefox --version
       - uses: actions/checkout@v3
