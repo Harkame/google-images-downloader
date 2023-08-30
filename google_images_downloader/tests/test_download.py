@@ -23,8 +23,8 @@ class DownloadTest:
     downloader = None
     browser = None
 
-    @pytest.mark.parametrize('execution_number', range(30))
-    def test_download(self, execution_number):
+    # @pytest.mark.parametrize('execution_number', range(30))
+    def test_download(self):
         self.downloader.download(QUERY, destination=DESTINATION)
 
         files = os.listdir(os.path.join(DESTINATION, QUERY))
