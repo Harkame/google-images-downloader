@@ -6,7 +6,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from PIL import Image
-from chromedriver_py import binary_path
 import urllib.request
 import logging
 import requests
@@ -16,7 +15,6 @@ import base64
 from io import BytesIO
 from tqdm import tqdm
 from urllib.request import HTTPError
-from pygeckodriver import geckodriver_path
 
 DEFAULT_DESTINATION = "downloads"
 DEFAULT_LIMIT = 50
@@ -65,16 +63,14 @@ class GoogleImagesDownloader:
 
             options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
-            self.driver = webdriver.Chrome(options=options,
-                                           service=webdriver.ChromeService(executable_path=binary_path))
+            self.driver = webdriver.Chrome(options=options)
         elif browser == "firefox":
             options = webdriver.FirefoxOptions()
 
             if not show:
                 options.headless = True
 
-            self.driver = webdriver.Firefox(options=options,
-                                            service=webdriver.ChromeService(executable_path=geckodriver_path))
+            self.driver = webdriver.Firefox(options=options)
 
         self.__consent()
 
