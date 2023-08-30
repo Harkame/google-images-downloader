@@ -16,7 +16,10 @@ jobs:
       fail-fast: false
       matrix:
         py:
+          - "3.11"
           - "3.10"
+          - "3.9"
+          - "3.8"
         os:
           - ubuntu-latest
           - macos-latest
