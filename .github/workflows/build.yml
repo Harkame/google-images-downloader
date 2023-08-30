@@ -20,6 +20,7 @@ jobs:
           - "3.10"
           - "3.9"
           - "3.8"
+          - "3.7"
         os:
           - ubuntu-latest
           - macos-latest
@@ -33,8 +34,6 @@ jobs:
         with:
           python-version: ${{ matrix.py }}
       - name: Install tox
-        run: pip install pytest parameterized
-      - name: Install dependencies
-        run: pip install -e .
+        run: pip install tox
       - name: Run test suite
-        run: pytest google_images_downloader/tests
+        run: tox
