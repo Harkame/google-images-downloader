@@ -22,15 +22,6 @@ jobs:
           - macos-latest
           - windows-latest
     steps:
-      - uses: browser-actions/setup-chrome@v1
-      - if: ${{ matrix.os == 'macos-latest' }}
-        run: chromium --version
-      - if: ${{ matrix.os != 'macos-latest' }}
-        run: chrome --version
-      - if: ${{ matrix.os != 'windows-latest' }}
-        uses: browser-actions/setup-firefox@v1
-      - if: ${{ matrix.os != 'windows-latest' }}
-        run: firefox --version
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
