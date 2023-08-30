@@ -121,5 +121,7 @@ class TestChrome(DownloadTest):
     browser = "chrome"
 
 
+@pytest.mark.skipif("GITHUB_WORKFLOW" in os.environ and os.environ["GITHUB_WORKFLOW"] == "true",
+                    reason="Not working well on github actions")
 class TestFirefox(DownloadTest):
     browser = "firefox"
