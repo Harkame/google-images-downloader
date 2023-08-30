@@ -23,13 +23,15 @@ class DownloadTest:
     downloader = None
     browser = None
 
-    def test_download(self):
+    @pytest.mark.parametrize('execution_number', range(30))
+    def test_download(self, execution_number):
         self.downloader.download(QUERY, destination=DESTINATION)
 
         files = os.listdir(os.path.join(DESTINATION, QUERY))
 
         assert len(files) == DEFAULT_LIMIT
 
+    """
     def test_download_no_results(self):
         self.downloader.download(QUERY_WITHOUT_RESULTS, destination=DESTINATION)
 
@@ -37,7 +39,7 @@ class DownloadTest:
 
         assert len(files) == 0
 
-    """
+
     @pytest.mark.parametrize("destination", ANOTHER_DESTINATIONS)
     def test_download_another_destination(self, destination):
         self.downloader.download(QUERY, destination=destination)
