@@ -15,6 +15,7 @@ import base64
 from io import BytesIO
 from tqdm import tqdm
 from urllib.request import HTTPError
+import time
 
 DEFAULT_DESTINATION = "downloads"
 DEFAULT_LIMIT = 50
@@ -74,6 +75,8 @@ class GoogleImagesDownloader:
 
         self.__consent()
 
+        self.__disable_safeui()
+
     def download(self, query, destination=DEFAULT_DESTINATION, limit=DEFAULT_LIMIT,
                  resize=DEFAULT_RESIZE, file_format=DEFAULT_FORMAT):
         query_destination_folder = os.path.join(destination, query)
@@ -96,17 +99,14 @@ class GoogleImagesDownloader:
                 print("No results")
             return
 
-        self.__disable_safeui()
-
-        # Wait for list to continue
-        list_items = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "div[role='list']"))
-        )
-
         self.__scroll(limit)
 
         self.driver.execute_script(
             "document.getElementsByClassName('qs41qe')[0].style.display = 'none'")  # Fix firefox issue, when click on item after scrolling
+
+        list_items = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "div[role='list']"))
+        )
 
         image_items = list_items.find_elements(By.CSS_SELECTOR, "div[role='listitem']")
 
@@ -175,14 +175,22 @@ class GoogleImagesDownloader:
         return image_url, preview_src
 
     def __disable_safeui(self):
-        href = self.driver.find_element(By.CSS_SELECTOR, 'div.cj2HCb div[jsname="ibnC6b"] a').get_attribute("href")
+        self.driver.get(f"https://www.google.com/search?q=google&tbm=isch")
+
+        href = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "div.cj2HCb div[jsname='ibnC6b'] a"))
+        ).get_attribute("href")
 
         href = href.replace("safeui=on", "safeui=off")
 
         self.driver.get(href)
 
+        WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "div.cj2HCb div[jsname='ibnC6b'] a"))
+        ).get_attribute("href")
+
     def __consent(self):
-        self.driver.get("https://www.google.com/")
+        self.driver.get("https://www.google.com/")  # To add cookie with domain .google.com
 
         self.driver.add_cookie(
             {'domain': '.google.com', 'expiry': 1726576871, 'httpOnly': False, 'name': 'SOCS', 'path': '/',
