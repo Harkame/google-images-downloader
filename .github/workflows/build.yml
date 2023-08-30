@@ -32,7 +32,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.py }}
-      - name: Install tox
-        run: pip install tox
+      - name: Install tests dependencies
+        run: pip install pytest pytest-cov
       - name: Run test suite
-        run: tox
+        run: pytest google_images_downloader/tests --cov=google_images_downloader --cov-report=xml:coverage.xml --cov-report=term
