@@ -1,4 +1,3 @@
-from parameterized import parameterized
 import os
 import shutil
 from PIL import Image
