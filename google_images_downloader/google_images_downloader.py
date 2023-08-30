@@ -59,7 +59,7 @@ class GoogleImagesDownloader:
             options = webdriver.ChromeOptions()
 
             if not show:
-                options.headless = True
+                options.add_argument("-headless")
 
             options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
@@ -68,7 +68,7 @@ class GoogleImagesDownloader:
             options = webdriver.FirefoxOptions()
 
             if not show:
-                options.headless = True
+                options.add_argument("-headless")
 
             self.driver = webdriver.Firefox(options=options)
 
