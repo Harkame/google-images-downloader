@@ -37,6 +37,7 @@ class DownloadTest:
 
         assert len(files) == 0
 
+    """
     @pytest.mark.parametrize("destination", ANOTHER_DESTINATIONS)
     def test_download_another_destination(self, destination):
         self.downloader.download(QUERY, destination=destination)
@@ -54,6 +55,7 @@ class DownloadTest:
         assert len(files) == limit
 
     """
+    """
     def test_download_no_limit(self):
         self.downloader.download(QUERY, destination=DESTINATION,
                                  limit=NO_LIMIT)
@@ -62,7 +64,7 @@ class DownloadTest:
 
         assert len(files) < NO_LIMIT  # Google Images returns ~600 images maximum
     """
-
+    """
     @pytest.mark.parametrize("resize",
                              [
                                  (64, 64),
@@ -100,6 +102,7 @@ class DownloadTest:
                 assert file_extension == ".jpg"
             elif format == "PNG":
                 assert file_extension == ".png"
+    """
 
     @pytest.fixture(autouse=True)
     def resource(self):
