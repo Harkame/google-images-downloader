@@ -130,19 +130,18 @@ class GoogleImagesDownloader:
 
                 query_destination = os.path.join(destination, query)
 
-                """
                 future_list.append(
                     executor.submit(download_image, index, query, query_destination, image_url, preview_src,
                                     resize, file_format, pbar=pbar))
-                """
 
+                """
                 download_image(index, query, query_destination, image_url, preview_src,
                                resize, file_format, pbar=pbar)
-
+                """
                 if index + 1 == limit:
                     break
 
-            # wait(future_list)
+            wait(future_list)
 
     def __get_image_values(self, image_item):
         preview_src_tag = None
