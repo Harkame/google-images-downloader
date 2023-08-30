@@ -54,6 +54,8 @@ class DownloadTest:
 
         assert len(files) == limit
 
+    @pytest.mark.skipif("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true",
+                        reason="Skipping this test on Travis CI, because of timeout")
     def test_download_no_limit(self):
         self.downloader.download(QUERY, destination=DESTINATION,
                                  limit=NO_LIMIT)
