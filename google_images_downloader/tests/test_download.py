@@ -30,7 +30,6 @@ class DownloadTest:
 
         assert len(files) == DEFAULT_LIMIT
 
-    """
     def test_download_no_results(self):
         self.downloader.download(QUERY_WITHOUT_RESULTS, destination=DESTINATION)
 
@@ -99,7 +98,6 @@ class DownloadTest:
                 assert file_extension == ".jpg"
             elif format == "PNG":
                 assert file_extension == ".png"
-    """
 
     @pytest.fixture(autouse=True)
     def resource(self):
