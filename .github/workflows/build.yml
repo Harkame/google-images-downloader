@@ -7,9 +7,6 @@ concurrency:
   group: check-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  GITHUB_WORKFLOW: True
-
 jobs:
   test:
     environment: build
