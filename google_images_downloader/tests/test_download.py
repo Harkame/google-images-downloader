@@ -23,7 +23,8 @@ class DownloadTest:
     downloader = None
     browser = None
 
-    # @pytest.mark.parametrize('execution_number', range(30))
+    # pytest.mark.parametrize('execution_number', range(30))
+
     def test_download(self):
         self.downloader.download(QUERY, destination=DESTINATION)
 
@@ -124,7 +125,6 @@ class TestChrome(DownloadTest):
 
 
 # Disabled for the moment, to much problem on github workflows
-"""
+
 class TestFirefox(DownloadTest):
     browser = "firefox"
-"""

@@ -71,7 +71,8 @@ class GoogleImagesDownloader:
             if not show:
                 options.add_argument("-headless")
 
-            self.driver = webdriver.Firefox(options=options)
+            self.driver = webdriver.Firefox(options=options,
+                                            service=webdriver.FirefoxService(log_output=os.devnull))
 
         self.__consent()
 
@@ -203,7 +204,10 @@ class GoogleImagesDownloader:
         if not self.quiet:
             print("Scrolling...")
 
-        bottom_tag = self.driver.find_element(By.CSS_SELECTOR, 'div[jsname="wEwttd"]')
+        bottom_tag = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "div[jsname='wEwttd'][data-status='5']"))
+        )
+
         display_more_tag = self.driver.find_element(By.CSS_SELECTOR, 'input[jsaction="Pmjnye"]')
 
         data_status = int(bottom_tag.get_attribute("data-status"))
