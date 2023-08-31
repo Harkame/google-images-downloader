@@ -62,6 +62,8 @@ class GoogleImagesDownloader:
             if not show:
                 options.add_argument("-headless")
 
+            options.add_argument("--disable-gpu")
+            options.add_argument("--disable-dev-shm-usage")
             options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
             self.driver = webdriver.Chrome(options=options)
@@ -298,6 +300,7 @@ def download_image_aux(image_url):
 
         if request.status_code == 200:
             image_bytes = request.content
+            logger.debug(f"Successfully get image_bytes with request")
         else:
             logger.debug(f"Failed to download with request - request.status_code : {request.status_code}")
     except requests.exceptions.SSLError:  # If requests.get failed, try with urllib
@@ -305,6 +308,7 @@ def download_image_aux(image_url):
         try:
             request = urllib.request.Request(image_url, headers=headers)
             image_bytes = urllib.request.urlopen(request).read()
+            logger.debug(f"Successfully get image_bytes with urllib")
         except HTTPError:
             logger.debug(f"Failed to download with urllib - image_url : {image_url}")
 
