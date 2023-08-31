@@ -125,26 +125,27 @@ class GoogleImagesDownloader:
                 self.__download_items(query, destination, image_items, resize, limit, file_format, pbar=pbar)
 
     def __download_items(self, query, destination, image_items, resize, limit, file_format, pbar=None):
-        with ThreadPoolExecutor(max_workers=5) as executor:
-            future_list = list()
+        # with ThreadPoolExecutor(max_workers=5) as executor:
+        future_list = list()
 
-            for index, image_item in enumerate(image_items):
-                image_url, preview_src = self.__get_image_values(image_item)
+        for index, image_item in enumerate(image_items):
+            image_url, preview_src = self.__get_image_values(image_item)
 
-                query_destination = os.path.join(destination, query)
+            query_destination = os.path.join(destination, query)
 
-                future_list.append(
-                    executor.submit(download_image, index, query, query_destination, image_url, preview_src,
-                                    resize, file_format, pbar=pbar))
+            """
+            future_list.append(
+                executor.submit(download_image, index, query, query_destination, image_url, preview_src,
+                                resize, file_format, pbar=pbar))
+            """
 
-                """
-                download_image(index, query, query_destination, image_url, preview_src,
-                               resize, file_format, pbar=pbar)
-                """
-                if index + 1 == limit:
-                    break
+            download_image(index, query, query_destination, image_url, preview_src,
+                           resize, file_format, pbar=pbar)
 
-            wait(future_list)
+            if index + 1 == limit:
+                break
+
+            # wait(future_list)
 
     def __get_image_values(self, image_item):
         preview_src_tag = None
@@ -183,15 +184,11 @@ class GoogleImagesDownloader:
             EC.presence_of_element_located((By.CSS_SELECTOR, "div.cj2HCb div[jsname='ibnC6b'] a"))
         ).get_attribute("href")
 
-        href = href.replace("safeui=on", "safeui=off")
-
+        href = href.replace("&prev=https://www.google.com/search?q%3Dgoogle%26tbm%3Disch", "").replace("safeui=on",
+                                                                                                       "safeui=off")
         logger.debug(f"href : {href}")
 
         self.driver.get(href)
-
-        WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "div.cj2HCb div[jsname='ibnC6b'] a"))
-        )
 
     def __consent(self):
         self.driver.get("https://www.google.com/")  # To add cookie with domain .google.com
@@ -318,10 +315,8 @@ def download_image_aux(image_url):
 
 
 if __name__ == "__main__":
-    stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(logging.Formatter('%(asctime)s - %(funcName)s - %(message)s', "%H:%M:%S"))
+    downloader = GoogleImagesDownloader(show=True, debug=True)
 
-    logger.addHandler(stream_handler)
-    image_url = "https://www.humanesociety.org/sites/default/files/2023-05/cat-grass-116668.jpg"
+    time.sleep(3000)
 
-    download_image(37, "cat", "downloads", image_url, "", None, None, pbar=None)
+    downloader.driver.close()
