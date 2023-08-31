@@ -132,6 +132,7 @@ class TestChrome(DownloadTest):
 
 
 # Disabled for the moment, to much problem on github workflows
-
+"""
 class TestFirefox(DownloadTest):
     browser = "firefox"
+"""
