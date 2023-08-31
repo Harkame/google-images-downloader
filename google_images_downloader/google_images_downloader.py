@@ -293,6 +293,7 @@ def download_image(index, query, query_destination, image_url, preview_src, resi
 
 
 def download_image_aux(image_url):
+    logger.debug(f"Try to download - image_url : {image_url}")
     image_bytes = None
 
     try:
@@ -300,15 +301,16 @@ def download_image_aux(image_url):
 
         if request.status_code == 200:
             image_bytes = request.content
-            logger.debug(f"Successfully get image_bytes with request")
+            logger.debug(f"Successfully get image_bytes with request - image_url : {image_url}")
         else:
-            logger.debug(f"Failed to download with request - request.status_code : {request.status_code}")
+            logger.debug(
+                f"Failed to download with request - request.status_code : {request.status_code} - image_url : {image_url}")
     except requests.exceptions.SSLError:  # If requests.get failed, try with urllib
         logger.debug(f"Failed to download with request, try with urllib - image_url : {image_url}")
         try:
             request = urllib.request.Request(image_url, headers=headers)
             image_bytes = urllib.request.urlopen(request).read()
-            logger.debug(f"Successfully get image_bytes with urllib")
+            logger.debug(f"Successfully get image_bytes with urllib - image_url : {image_url}")
         except HTTPError:
             logger.debug(f"Failed to download with urllib - image_url : {image_url}")
 
