@@ -183,6 +183,8 @@ class GoogleImagesDownloader:
 
         href = href.replace("safeui=on", "safeui=off")
 
+        logger.debug(f"href : {href}")
+
         self.driver.get(href)
 
         WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
@@ -282,7 +284,7 @@ def download_image(index, query, query_destination, image_url, preview_src, resi
 
     image.save(complete_file_name, file_format)
 
-    logger.debug(f"file downloaded : {complete_file_name}")
+    logger.debug(f"[{index}] -> file downloaded : {complete_file_name}")
 
     if pbar:
         pbar.update(1)
