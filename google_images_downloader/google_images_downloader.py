@@ -298,11 +298,24 @@ def download_image_aux(image_url):
 
         if request.status_code == 200:
             image_bytes = request.content
+        else:
+            logger.debug(f"Failed to download with request - request.status_code : {request.status_code}")
     except requests.exceptions.SSLError:  # If requests.get failed, try with urllib
+        logger.debug(f"Failed to download with request, try with urllib - image_url : {image_url}")
         try:
             request = urllib.request.Request(image_url, headers=headers)
             image_bytes = urllib.request.urlopen(request).read()
         except HTTPError:
-            pass
+            logger.debug(f"Failed to download with urllib - image_url : {image_url}")
 
     return image_bytes
+
+
+if __name__ == "__main__":
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(logging.Formatter('%(asctime)s - %(funcName)s - %(message)s', "%H:%M:%S"))
+
+    logger.addHandler(stream_handler)
+    image_url = "https://www.humanesociety.org/sites/default/files/2023-05/cat-grass-116668.jpg"
+
+    download_image(37, "cat", "downloads", image_url, "", None, None, pbar=None)
