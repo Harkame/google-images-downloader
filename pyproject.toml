@@ -19,6 +19,7 @@ readme = "README.md"
 classifiers = ["Programming Language :: Python"]
 dependencies = [
     "selenium>=4.11.2",
+    "requests>=2.31.0,
     "grequests >= 0.7.0",
     "Pillow>=10.0.0",
     "fake-useragent>=1.2.1",
