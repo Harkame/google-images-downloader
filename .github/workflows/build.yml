@@ -32,6 +32,11 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.py }}
+      - uses: browser-actions/setup-chrome@v1
+      - if: ${{ matrix.os == 'macos-latest' }}
+        run: chromium --version
+      - if: ${{ matrix.os != 'macos-latest' }}
+        run: chrome --version
       - name: Install tests dependencies
         run: pip install pytest pytest-cov
       - name: Install package dependencies
