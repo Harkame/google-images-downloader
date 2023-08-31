@@ -2,7 +2,6 @@ import os
 import shutil
 from PIL import Image
 import pytest
-import logging
 
 from ..google_images_downloader import GoogleImagesDownloader, DEFAULT_LIMIT
 
@@ -11,9 +10,6 @@ QUERY_WITHOUT_RESULTS = "77af778b51abd4a3c51c5ddd97204a9c3ae614ebccb75a606c3b686
 DESTINATION = "downloads_tests"
 ANOTHER_DESTINATIONS = ["downloads_tests_2", "downloads_tests_3", "downloads_tests_4"]
 NO_LIMIT = 9999
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 
 def remove_download_folders():
@@ -27,15 +23,10 @@ class DownloadTest:
     downloader = None
     browser = None
 
-    # pytest.mark.parametrize('execution_number', range(30))
-
     def test_download(self):
         self.downloader.download(QUERY, destination=DESTINATION)
 
         files = os.listdir(os.path.join(DESTINATION, QUERY))
-
-        for file in files:
-            logger.debug(file)
 
         assert len(files) == DEFAULT_LIMIT
 
@@ -125,14 +116,8 @@ class DownloadTest:
         remove_download_folders()
 
         self.downloader.driver.close()
+        self.downloader = None  # Bug ? test suit is not ending if not
 
 
 class TestChrome(DownloadTest):
     browser = "chrome"
-
-
-# Disabled for the moment, to much problem on github workflows
-"""
-class TestFirefox(DownloadTest):
-    browser = "firefox"
-"""

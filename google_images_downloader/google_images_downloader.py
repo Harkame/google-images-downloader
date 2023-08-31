@@ -317,11 +317,3 @@ def download_image_aux(image_url):
             logger.debug(f"Failed to download with urllib - image_url : {image_url}")
     """
     return image_bytes
-
-
-if __name__ == "__main__":
-    downloader = GoogleImagesDownloader(show=True, debug=True)
-
-    time.sleep(3000)
-
-    downloader.driver.close()
