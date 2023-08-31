@@ -187,7 +187,7 @@ class GoogleImagesDownloader:
 
         WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "div.cj2HCb div[jsname='ibnC6b'] a"))
-        ).get_attribute("href")
+        )
 
     def __consent(self):
         self.driver.get("https://www.google.com/")  # To add cookie with domain .google.com
@@ -281,6 +281,8 @@ def download_image(index, query, query_destination, image_url, preview_src, resi
     complete_file_name = os.path.join(query_destination, image_name)
 
     image.save(complete_file_name, file_format)
+
+    logger.debug(f"file downloaded : {complete_file_name}")
 
     if pbar:
         pbar.update(1)
