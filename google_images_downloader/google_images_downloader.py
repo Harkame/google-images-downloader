@@ -34,6 +34,9 @@ headers = {'User-Agent': str(user_agent)}
 
 WEBDRIVER_WAIT_DURATION = DEFAULT_WEBDRIVER_WAIT_DURATION
 
+if os.name == "nt":  # Fix "Event loop is closed" error on Windows
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
 
 class GoogleImagesDownloader:
     def __init__(self, browser=DEFAULT_BROWSER, show=DEFAULT_SHOW, debug=DEFAULT_DEBUG, quiet=DEFAULT_QUIET):
@@ -128,7 +131,7 @@ class GoogleImagesDownloader:
 
         with ThreadPoolExecutor(max_workers=5) as executor:
             futures = []
-            for index, image_item in enumerate(image_items):  # Can be very long
+            for index, image_item in enumerate(image_items):
                 image_url, preview_src = self.__get_image_values(image_item)
 
                 futures.append(executor.submit(download_image, index, query, query_destination, image_url, preview_src,
@@ -306,6 +309,7 @@ async def download_image_aux(image_url):
 
 
 if __name__ == "__main__":
+    sys.exit(0)
     downloader = GoogleImagesDownloader()
     downloader.download(query="cat")
     downloader.close()
