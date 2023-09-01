@@ -8,7 +8,7 @@
 
 ## Requirements
 
-- [Google Chrome](https://www.google.com/chrome/) (Used by default)
+- [Google Chrome](https://www.google.com/chrome/)(Used by default)
 
 OR
 

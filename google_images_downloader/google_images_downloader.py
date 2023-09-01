@@ -157,7 +157,6 @@ class GoogleImagesDownloader:
                 )
             except TimeoutException:
                 logger.debug("can't reach images tag...retry")
-                pass
 
         preview_src = preview_src_tag.get_attribute("src")
 

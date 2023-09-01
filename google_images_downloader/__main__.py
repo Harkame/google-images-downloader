@@ -113,12 +113,12 @@ def get_formatted_resize(resize):
 
     if resize is not None:
         if re.match('^[0-9]+x[0-9]+$', resize) is None:
-            raise Exception(f"Invalid size format" + os.linesep +
+            raise Exception(f"Invalid size format : {resize}" + os.linesep +
                             "Expected format example : 256x256")
         else:
-            resize = [int(x) for x in resize.split("x")]
+            formatted_resize = [int(x) for x in resize.split("x")]
 
-    return resize
+    return formatted_resize
 
 
 def main():
