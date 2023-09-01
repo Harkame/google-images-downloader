@@ -12,9 +12,12 @@ from selenium.common.exceptions import TimeoutException
 import base64
 from io import BytesIO
 from tqdm import tqdm
-import time
+import aiohttp
+import asyncio
+import signal
+from pathlib import Path
 
-DEFAULT_DESTINATION = "downloads"
+DEFAULT_DESTINATION = os.path.join(Path(__file__).parent.parent, "downloads")
 DEFAULT_LIMIT = 50
 DEFAULT_RESIZE = None
 DEFAULT_QUIET = False
@@ -122,25 +125,20 @@ class GoogleImagesDownloader:
                 self.__download_items(query, destination, image_items, resize, limit, file_format, pbar=pbar)
 
     def __download_items(self, query, destination, image_items, resize, limit, file_format, pbar=None):
-        with ThreadPoolExecutor(max_workers=5) as executor:
-            future_list = list()
+        query_destination = os.path.join(destination, query)
 
-            for index, image_item in enumerate(image_items):
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            futures = []
+            for index, image_item in enumerate(image_items):  # Can be very long
                 image_url, preview_src = self.__get_image_values(image_item)
 
-                query_destination = os.path.join(destination, query)
+                futures.append(executor.submit(download_image, index, query, query_destination, image_url, preview_src,
+                                               resize, file_format, pbar=pbar))
 
-                future_list.append(
-                    executor.submit(download_image, index, query, query_destination, image_url, preview_src,
-                                    resize, file_format, pbar=pbar))
-                """
-                download_image(index, query, query_destination, image_url, preview_src,
-                               resize, file_format, pbar=pbar)
-                """
                 if index + 1 == limit:
                     break
 
-                wait(future_list)
+        wait(futures)
 
     def __get_image_values(self, image_item):
         preview_src_tag = None
@@ -229,6 +227,16 @@ class GoogleImagesDownloader:
 
             logger.debug(f"data_status : {data_status}")
 
+    def close(self):
+        self.driver.close()
+
+        pid = self.driver.service.process.pid
+
+        try:
+            os.kill(int(pid), signal.CTRL_C_EVENT)
+        except ProcessLookupError:
+            pass
+
 
 def download_image(index, query, query_destination, image_url, preview_src, resize, file_format, pbar=None):
     image_bytes = None
@@ -236,14 +244,14 @@ def download_image(index, query, query_destination, image_url, preview_src, resi
     logger.debug(f"[{index}] -> image_url : {image_url}")
 
     if image_url:
-        image_bytes = download_image_aux(image_url)  ## Try to download image_url
+        image_bytes = asyncio.run(download_image_aux(image_url))  ## Try to download image_url
 
     if not image_bytes:  # Download failed, download the preview image
         logger.debug(f"[{index}] -> download with image_url failed, try to download the preview")
 
         if preview_src.startswith("http"):
             logger.debug(f"[{index}] -> preview_src is URL : {preview_src}")
-            image_bytes = download_image_aux(preview_src)  # Download preview image
+            image_bytes = asyncio.run(download_image_aux(preview_src))  # Download preview image
         else:
             logger.debug(f"[{index}] -> preview_src is bytes")
             image_bytes = base64.b64decode(
@@ -284,36 +292,21 @@ def download_image(index, query, query_destination, image_url, preview_src, resi
         pbar.update(1)
 
 
-def download_image_aux(image_url):
+async def download_image_aux(image_url):
     logger.debug(f"Try to download - image_url : {image_url}")
-    image_bytes = None
 
-    request = grequests.get(image_url, headers=headers)
-    result = grequests.map([request])[0]
+    async with aiohttp.ClientSession() as session:
+        async with session.get(image_url) as response:
+            if response.status == 200:
+                logger.debug(f"Successfully get image_bytes with request - image_url : {image_url}")
+                return await response.read()
+            else:
+                logger.debug(
+                    f"Failed to download with request - request.status_code : {response.status} - image_url : {image_url}")
+                return None
 
-    if result.status_code == 200:
-        image_bytes = result.content
-        logger.debug(f"Successfully get image_bytes with request - image_url : {image_url}")
-    else:
-        logger.debug(
-            f"Failed to download with request - request.status_code : {result.status_code} - image_url : {image_url}")
-    """
-    except requests.exceptions.SSLError:  # If requests.get failed, try with urllib
-        logger.debug(f"Failed to download with request, try with urllib - image_url : {image_url}")
-        try:
-            request = urllib.request.Request(image_url, headers=headers)
-            image_bytes = urllib.request.urlopen(request).read()
-            logger.debug(f"Successfully get image_bytes with urllib - image_url : {image_url}")
-        except HTTPError:
-            logger.debug(f"Failed to download with urllib - image_url : {image_url}")
 
-    except requests.exceptions.ChunkedEncodingError:
-        logger.debug(f"Failed to download with request, try with urllib - image_url : {image_url}")
-        try:
-            request = urllib.request.Request(image_url, headers=headers)
-            image_bytes = urllib.request.urlopen(request).read()
-            logger.debug(f"Successfully get image_bytes with urllib - image_url : {image_url}")
-        except HTTPError:
-            logger.debug(f"Failed to download with urllib - image_url : {image_url}")
-    """
-    return image_bytes
+if __name__ == "__main__":
+    downloader = GoogleImagesDownloader()
+    downloader.download(query="cat")
+    downloader.close()

@@ -136,7 +136,7 @@ def main():
     downloader.download(arguments.query, destination=arguments.destination, limit=arguments.limit, resize=resize,
                         file_format=arguments.format)
 
-    downloader.driver.close()
+    downloader.close()
 
 
 if __name__ == "__main__":

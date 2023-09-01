@@ -64,7 +64,7 @@ downloader.download("dog", resize=(256, 256))  # Download with images resizing
 
 downloader.download("dog", file_format="JPEG")  # Download with images re-formatting (JPEG or PNG)
 
-downloader.driver.close()  # Do not forget to close the driver
+downloader.close()  # Do not forget to close the driver
 ```
 
 #### Specify browser to use for web scraping
@@ -74,7 +74,7 @@ from google_images_downloader import GoogleImagesDownloader
 
 downloader = GoogleImagesDownloader(browser="firefox")  # Default : "chrome"
 
-downloader.driver.close()  # Do not forget to close the driver
+downloader.close()  # Do not forget to close the driver
 ```
 
 ## Tests
