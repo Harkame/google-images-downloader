@@ -1,5 +1,4 @@
 import os
-import grequests
 from concurrent.futures import ThreadPoolExecutor, wait
 from selenium import webdriver
 from selenium.webdriver.common.by import By
