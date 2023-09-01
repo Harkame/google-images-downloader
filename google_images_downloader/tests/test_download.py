@@ -90,17 +90,17 @@ class DownloadTest:
         for file in files:
             file_extension = os.path.splitext(file)[1]
 
-            if format == "JPEG":
+            if file_format == "JPEG":
                 assert file_extension == ".jpg"
-            elif format == "PNG":
+            elif file_format == "PNG":
                 assert file_extension == ".png"
 
             image = Image.open(os.path.join(DESTINATION, QUERY, file))
-            assert image.format == format
+            assert image.format == file_format
 
-            if format == "JPEG":
+            if file_format == "JPEG":
                 assert file_extension == ".jpg"
-            elif format == "PNG":
+            elif file_format == "PNG":
                 assert file_extension == ".png"
 
     @pytest.fixture(autouse=True)
