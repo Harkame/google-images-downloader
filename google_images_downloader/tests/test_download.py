@@ -30,14 +30,12 @@ class DownloadTest:
 
         assert len(files) == DEFAULT_LIMIT
 
-    """
     def test_download_no_results(self):
         self.downloader.download(QUERY_WITHOUT_RESULTS, destination=DESTINATION)
 
         files = os.listdir(os.path.join(DESTINATION, QUERY_WITHOUT_RESULTS))
 
         assert len(files) == 0
-
 
     @pytest.mark.parametrize("destination", ANOTHER_DESTINATIONS)
     def test_download_another_destination(self, destination):
@@ -56,7 +54,6 @@ class DownloadTest:
         assert len(files) == limit
 
     """
-    """
     def test_download_no_limit(self):
         self.downloader.download(QUERY, destination=DESTINATION,
                                  limit=NO_LIMIT)
@@ -65,12 +62,14 @@ class DownloadTest:
 
         assert len(files) < NO_LIMIT  # Google Images returns ~600 images maximum
     """
-    """
+
     @pytest.mark.parametrize("resize",
                              [
                                  (64, 64),
                                  (256, 256),
+                                 (512, 512),
                                  (1024, 1024),
+                                 (3840, 2160),
                                  (197, 302),
                                  (415, 213)
                              ])
@@ -83,9 +82,9 @@ class DownloadTest:
 
             assert image.size == resize
 
-    @pytest.mark.parametrize("format", ["JPEG", "PNG"])
-    def test_download_format_format(self, format):
-        self.downloader.download(QUERY, destination=DESTINATION, format=format)
+    @pytest.mark.parametrize("file_format", ["JPEG", "PNG"])
+    def test_download_format_format(self, file_format):
+        self.downloader.download(QUERY, destination=DESTINATION, file_format=file_format)
 
         files = os.listdir(os.path.join(DESTINATION, QUERY))
         for file in files:
@@ -103,7 +102,6 @@ class DownloadTest:
                 assert file_extension == ".jpg"
             elif format == "PNG":
                 assert file_extension == ".png"
-    """
 
     @pytest.fixture(autouse=True)
     def resource(self):
