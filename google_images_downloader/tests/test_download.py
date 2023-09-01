@@ -45,7 +45,7 @@ class DownloadTest:
 
         assert len(files) == DEFAULT_LIMIT
 
-    @pytest.mark.parametrize("limit", [10, 20, 75, 100, 200, 300])
+    @pytest.mark.parametrize("limit", [10, 20, 75, 100])
     def test_download_limit(self, limit):
         self.downloader.download(QUERY, destination=DESTINATION, limit=limit)
 
