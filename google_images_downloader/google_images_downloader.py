@@ -134,6 +134,9 @@ class GoogleImagesDownloader:
             for index, image_item in enumerate(image_items):
                 image_url, preview_src = self.__get_image_values(image_item)
 
+                logger.debug(f"[{index}] -> image_url : {image_url}")
+                logger.debug(f"[{index}] -> preview_src : {preview_src}")
+
                 futures.append(executor.submit(download_image, index, query, query_destination, image_url, preview_src,
                                                resize, file_format, pbar=pbar))
 
@@ -242,8 +245,6 @@ class GoogleImagesDownloader:
 def download_image(index, query, query_destination, image_url, preview_src, resize, file_format, pbar=None):
     image_bytes = None
 
-    logger.debug(f"[{index}] -> image_url : {image_url}")
-
     if image_url:
         image_bytes = asyncio.run(download_image_aux(image_url))  ## Try to download image_url
 
@@ -257,6 +258,8 @@ def download_image(index, query, query_destination, image_url, preview_src, resi
             logger.debug(f"[{index}] -> preview_src is bytes")
             image_bytes = base64.b64decode(
                 preview_src.replace("data:image/png;base64,", "").replace("data:image/jpeg;base64,", ""))
+
+    logger.debug(f"[{index}] -> len(image_bytes) : {len(image_bytes)}")
 
     image = Image.open(BytesIO(image_bytes))
 
@@ -308,7 +311,6 @@ async def download_image_aux(image_url):
 
 
 if __name__ == "__main__":
-    sys.exit(0)
-    downloader = GoogleImagesDownloader()
-    downloader.download(query="cat")
+    downloader = GoogleImagesDownloader(debug=True)
+    downloader.download(query="cat", limit=300)
     downloader.close()
