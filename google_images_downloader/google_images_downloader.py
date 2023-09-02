@@ -137,7 +137,7 @@ class GoogleImagesDownloader:
                 logger.debug(f"[{index}] -> image_url : {image_url}")
                 logger.debug(f"[{index}] -> preview_src : {preview_src}")
 
-                futures.append(executor.submit(download_image, index, query, query_destination, image_url, preview_src,
+                futures.append(executor.submit(download_item, index, query, query_destination, image_url, preview_src,
                                                resize, file_format, pbar=pbar))
 
                 if index + 1 == limit:
@@ -159,7 +159,7 @@ class GoogleImagesDownloader:
                         (By.CSS_SELECTOR, "div[jsname='CGzTgf'] div[jsname='figiqf'] img"))
                 )
             except TimeoutException:
-                logger.debug("can't reach images tag...retry")
+                logger.debug("Can't reach images tag...retry")
 
         preview_src = preview_src_tag.get_attribute("src")
 
@@ -170,7 +170,7 @@ class GoogleImagesDownloader:
                 EC.presence_of_element_located((By.CSS_SELECTOR, "img[jsname='kn3ccd']"))
             ).get_attribute("src")
         except TimeoutException:  # No image available
-            logger.debug("can't retrieve image_url")
+            logger.debug("Can't retrieve image_url")
 
         return image_url, preview_src
 
@@ -242,22 +242,26 @@ class GoogleImagesDownloader:
             pass
 
 
-def download_image(index, query, query_destination, image_url, preview_src, resize, file_format, pbar=None):
+def download_item(index, query, query_destination, image_url, preview_src, resize, file_format, pbar=None):
     image_bytes = None
 
     if image_url:
-        image_bytes = asyncio.run(download_image_aux(image_url))  ## Try to download image_url
+        image_bytes = asyncio.run(download_image(image_url))  ## Try to download image_url
 
     if not image_bytes:  # Download failed, download the preview image
         logger.debug(f"[{index}] -> download with image_url failed, try to download the preview")
 
         if preview_src.startswith("http"):
             logger.debug(f"[{index}] -> preview_src is URL : {preview_src}")
-            image_bytes = asyncio.run(download_image_aux(preview_src))  # Download preview image
+            image_bytes = asyncio.run(download_image(preview_src))  # Download preview image
         else:
             logger.debug(f"[{index}] -> preview_src is bytes")
             image_bytes = base64.b64decode(
                 preview_src.replace("data:image/png;base64,", "").replace("data:image/jpeg;base64,", ""))
+
+    if not image_bytes:
+        logger.error(f"[{index}] Can't downloaded none of image_url and preview_src")
+        return
 
     logger.debug(f"[{index}] -> len(image_bytes) : {len(image_bytes)}")
 
@@ -296,7 +300,7 @@ def download_image(index, query, query_destination, image_url, preview_src, resi
         pbar.update(1)
 
 
-async def download_image_aux(image_url):
+async def download_image(image_url):
     logger.debug(f"Try to download - image_url : {image_url}")
 
     async with aiohttp.ClientSession() as session:
@@ -307,6 +311,18 @@ async def download_image_aux(image_url):
             else:
                 logger.debug(
                     f"Failed to download with request - request.status_code : {response.status} - image_url : {image_url}")
+                return None
+
+
+async def dldl():
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+                "https://allkindsvet.com/wp-content/uploads/2023/02/cat-sneezing-1024x683.jpg") as response:
+            print(await response.read())
+
+            if response.status == 200:
+                return await response.read()
+            else:
                 return None
 
 
