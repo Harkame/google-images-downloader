@@ -23,15 +23,13 @@ class DownloadTest:
     downloader = None
     browser = None
 
-    @pytest.mark.parametrize("repeat", [i for i in range(0, 100)])
-    def test_download(self, repeat):
+    def test_download(self):
         self.downloader.download(QUERY, destination=DESTINATION)
 
         files = os.listdir(os.path.join(DESTINATION, QUERY))
 
         assert len(files) == DEFAULT_LIMIT
 
-    """
     def test_download_no_results(self):
         self.downloader.download(QUERY_WITHOUT_RESULTS, destination=DESTINATION)
 
@@ -47,7 +45,7 @@ class DownloadTest:
 
         assert len(files) == DEFAULT_LIMIT
 
-    @pytest.mark.parametrize("limit", [10, 20, 75, 100])
+    @pytest.mark.parametrize("limit", [10, 20, 75, 100, 200, 300])
     def test_download_limit(self, limit):
         self.downloader.download(QUERY, destination=DESTINATION, limit=limit)
 
@@ -56,7 +54,6 @@ class DownloadTest:
         assert len(files) == limit
 
     """
-    """
     def test_download_no_limit(self):
         self.downloader.download(QUERY, destination=DESTINATION,
                                  limit=NO_LIMIT)
@@ -64,7 +61,6 @@ class DownloadTest:
         files = os.listdir(os.path.join(DESTINATION, QUERY))
 
         assert len(files) < NO_LIMIT  # Google Images returns ~600 images maximum
-    """
     """
 
     @pytest.mark.parametrize("resize",
@@ -106,7 +102,6 @@ class DownloadTest:
                 assert file_extension == ".jpg"
             elif file_format == "PNG":
                 assert file_extension == ".png"
-    """
 
     @pytest.fixture(autouse=True)
     def resource(self):
