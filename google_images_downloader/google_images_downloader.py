@@ -216,7 +216,8 @@ class GoogleImagesDownloader:
 
         while data_status != 3:
             if display_more_tag.is_displayed() and display_more_tag.is_enabled():
-                display_more_tag.click()
+                WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
+                    EC.element_to_be_clickable(display_more_tag)).click()
 
             self.driver.execute_script("arguments[0].scrollIntoView(true);", bottom_tag)
 
