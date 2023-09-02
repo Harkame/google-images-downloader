@@ -121,10 +121,10 @@ class GoogleImagesDownloader:
         downloads_count = len(image_items) if limit > len(image_items) else limit
 
         if self.quiet:
-            self.__download_items(query, destination, image_items, resize, limit, file_format)
+            return self.__download_items(query, destination, image_items, resize, limit, file_format)
         else:
             with tqdm(total=downloads_count) as pbar:
-                self.__download_items(query, destination, image_items, resize, limit, file_format, pbar=pbar)
+                return self.__download_items(query, destination, image_items, resize, limit, file_format, pbar=pbar)
 
     def __download_items(self, query, destination, image_items, resize, limit, file_format, pbar=None):
         query_destination = os.path.join(destination, query)
@@ -144,6 +144,8 @@ class GoogleImagesDownloader:
                     break
 
         wait(futures)
+
+        return futures.count(True)  # Return number of successful downloads
 
     def __get_image_values(self, image_item):
         preview_src_tag = None
@@ -262,7 +264,7 @@ def download_item(index, query, query_destination, image_url, preview_src, resiz
 
     if not image_bytes:
         logger.error(f"[{index}] Can't downloaded none of image_url and preview_src")
-        return
+        return False
 
     logger.debug(f"[{index}] -> len(image_bytes) : {len(image_bytes)}")
 
@@ -300,6 +302,8 @@ def download_item(index, query, query_destination, image_url, preview_src, resiz
     if pbar:
         pbar.update(1)
 
+    return True
+
 
 async def download_image(image_url):
     logger.debug(f"Try to download - image_url : {image_url}")
@@ -315,19 +319,9 @@ async def download_image(image_url):
                 return None
 
 
-async def dldl():
-    async with aiohttp.ClientSession() as session:
-        async with session.get(
-                "https://allkindsvet.com/wp-content/uploads/2023/02/cat-sneezing-1024x683.jpg") as response:
-            print(await response.read())
-
-            if response.status == 200:
-                return await response.read()
-            else:
-                return None
-
-
 if __name__ == "__main__":
+    """
     downloader = GoogleImagesDownloader(debug=True)
-    downloader.download(query="cat", limit=300)
+    downloader.download(query="cat", limit=10)
     downloader.close()
+    """
