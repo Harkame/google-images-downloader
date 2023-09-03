@@ -249,7 +249,7 @@ def download_item(index, query, query_destination, image_url, preview_src, resiz
     image_bytes = None
 
     if image_url:
-        image_bytes = asyncio.run(download_image(image_url))  ## Try to download image_url
+        image_bytes = asyncio.run(download_image(image_url))  # Try to download image_url
 
     if not image_bytes:  # Download failed, download the preview image
         logger.debug(f"[{index}] -> download with image_url failed, try to download the preview")
@@ -263,7 +263,7 @@ def download_item(index, query, query_destination, image_url, preview_src, resiz
                 preview_src.replace("data:image/png;base64,", "").replace("data:image/jpeg;base64,", ""))
 
     if not image_bytes:
-        logger.error(f"[{index}] Can't downloaded none of image_url and preview_src")
+        logger.debug(f"[{index}] Can't downloaded none of image_url and preview_src")
         return False
 
     logger.debug(f"[{index}] -> len(image_bytes) : {len(image_bytes)}")
@@ -315,7 +315,7 @@ async def download_image(image_url):
                 return await response.read()
             else:
                 logger.debug(
-                    f"Failed to download with request - request.status_code : {response.status} - image_url : {image_url}")
+                    f"Failed to download - request.status_code : {response.status} - image_url : {image_url}")
                 return None
 
 
