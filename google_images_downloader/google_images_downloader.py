@@ -7,7 +7,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from PIL import Image
 import logging
 from fake_useragent import UserAgent
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, ElementClickInterceptedException
 import base64
 from io import BytesIO
 from tqdm import tqdm
@@ -155,7 +155,14 @@ class GoogleImagesDownloader:
         while not preview_src_tag:  # Sometimes image part is not displayed the first time
             self.driver.execute_script("arguments[0].scrollIntoView(true);", image_item)
 
-            WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(image_item)).click()
+            logger.debug(f"[{index}] Try to click on image_item")
+
+            try:
+                (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(image_item))
+                 .click())
+            except ElementClickInterceptedException as e:
+                logger.debug(f"[{index}] ElementClickInterceptedException : {e}")
+                continue
 
             try:
                 preview_src_tag = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
