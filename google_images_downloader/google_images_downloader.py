@@ -263,7 +263,7 @@ def download_item(index, query, query_destination, image_url, preview_src, resiz
     if not image_bytes:  # Download failed, download the preview image
         logger.debug(f"[{index}] -> download with image_url failed, try to download the preview")
 
-        if image_bytes.startswith("http"):
+        if preview_src.startswith("http"):
             logger.debug(f"[{index}] -> preview_src is URL")
             image_bytes = asyncio.run(download_image(preview_src))  # Try to download preview_src
         else:
@@ -331,6 +331,6 @@ async def download_image(image_url):
 
 
 if __name__ == "__main__":
-    downloader = GoogleImagesDownloader()
-    downloader.download(query="cat")
+    downloader = GoogleImagesDownloader(debug=True)
+    downloader.download(query="cat", limit=100)
     downloader.close()
