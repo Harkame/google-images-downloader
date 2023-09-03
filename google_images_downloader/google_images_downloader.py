@@ -155,14 +155,14 @@ class GoogleImagesDownloader:
         while not preview_src_tag:  # Sometimes image part is not displayed the first time
             self.driver.execute_script("arguments[0].scrollIntoView(true);", image_item)
 
-            logger.debug(f"[{index}] Try to click on image_item")
+            logger.debug(f"[{index}] -> Try to click on image_item")
 
             try:
                 (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(image_item))
                  .click())
             except ElementClickInterceptedException as e:
-                logger.debug(f"[{index}] ElementClickInterceptedException : {e}")
-                continue
+                logger.debug(f"[{index}] -> ElementClickInterceptedException : {e}")
+                raise e
 
             try:
                 preview_src_tag = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
@@ -170,7 +170,7 @@ class GoogleImagesDownloader:
                         (By.CSS_SELECTOR, "div[jsname='CGzTgf'] img[jsname='JuXqh']"))
                 )
             except TimeoutException:
-                logger.debug(f"[{index}] Can't reach images tag...retry")
+                logger.debug(f"[{index}] -> Can't reach images tag...retry")
 
         preview_src = preview_src_tag.get_attribute("src")
 

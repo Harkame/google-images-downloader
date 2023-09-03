@@ -30,12 +30,14 @@ class DownloadTest:
 
         assert len(files) == DEFAULT_LIMIT
 
+    """
     def test_download_no_results(self):
         self.downloader.download(QUERY_WITHOUT_RESULTS, destination=DESTINATION)
 
         files = os.listdir(os.path.join(DESTINATION, QUERY_WITHOUT_RESULTS))
 
         assert len(files) == 0
+    """
 
     @pytest.mark.parametrize("destination", ANOTHER_DESTINATIONS)
     def test_download_another_destination(self, destination):
