@@ -53,7 +53,6 @@ class DownloadTest:
 
         assert len(files) == limit
 
-    """
     def test_download_no_limit(self):
         self.downloader.download(QUERY, destination=DESTINATION,
                                  limit=NO_LIMIT)
@@ -61,7 +60,6 @@ class DownloadTest:
         files = os.listdir(os.path.join(DESTINATION, QUERY))
 
         assert len(files) < NO_LIMIT  # Google Images returns ~600 images maximum
-    """
 
     @pytest.mark.parametrize("resize",
                              [
