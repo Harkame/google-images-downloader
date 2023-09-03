@@ -1,6 +1,6 @@
 .idea
 downloads
-downloads_tests
+downloads_tests*
 downloads_tests_bis
 dist
 google_images_downloader.egg-info
