@@ -135,7 +135,11 @@ class GoogleImagesDownloader:
                 image_url, preview_src = self.__get_image_values(image_item)
 
                 logger.debug(f"[{index}] -> image_url : {image_url}")
-                logger.debug(f"[{index}] -> preview_src : {preview_src}")
+
+                if preview_src.startswith("http"):
+                    logger.debug(f"[{index}] -> preview_src (URL) : {preview_src}")
+                else:
+                    logger.debug(f"[{index}] -> preview_src (Data) : {preview_src[0:100]}...")
 
                 futures.append(executor.submit(download_item, index, query, query_destination, image_url, preview_src,
                                                resize, file_format, pbar=pbar))
@@ -156,7 +160,7 @@ class GoogleImagesDownloader:
             try:
                 preview_src_tag = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
                     EC.presence_of_element_located(
-                        (By.CSS_SELECTOR, "img[jsname='JuXqh']"))
+                        (By.CSS_SELECTOR, "div[jsname='CGzTgf'] img[jsname='JuXqh']"))
                 )
             except TimeoutException:
                 logger.debug("Can't reach images tag...retry")
@@ -167,7 +171,7 @@ class GoogleImagesDownloader:
 
         try:
             image_url = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, "img[jsname='kn3ccd']"))
+                EC.presence_of_element_located((By.CSS_SELECTOR, "div[jsname='CGzTgf'] img[jsname='kn3ccd']"))
             ).get_attribute("src")
         except TimeoutException:  # No image available
             logger.debug("Can't retrieve image_url")
@@ -177,12 +181,19 @@ class GoogleImagesDownloader:
     def __disable_safeui(self):
         self.driver.get(f"https://www.google.com/search?q=google&tbm=isch")
 
-        href = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "div.cj2HCb div[jsname='ibnC6b'] a"))
-        ).get_attribute("href")
+        WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "div[role='list']"))
+        )
 
-        href = href.replace("&prev=https://www.google.com/search?q%3Dgoogle%26tbm%3Disch", "").replace("safeui=on",
-                                                                                                       "safeui=off")
+        ibnC6b_tags = self.driver.find_elements(By.CSS_SELECTOR, "div[jsname='ibnC6b'] a")
+
+        href = ""
+
+        for tag in ibnC6b_tags:
+            if "safeui=off" in tag.get_attribute("href"):
+                href = tag.get_attribute("href")
+
+        href = href.replace("&prev=https://www.google.com/search?q%3Dgoogle%26tbm%3Disch", "")
         logger.debug(f"href : {href}")
 
         self.driver.get(href)
@@ -252,8 +263,15 @@ def download_item(index, query, query_destination, image_url, preview_src, resiz
     if not image_bytes:  # Download failed, download the preview image
         logger.debug(f"[{index}] -> download with image_url failed, try to download the preview")
 
-        image_bytes = base64.b64decode(
-            preview_src.replace("data:image/png;base64,", "").replace("data:image/jpeg;base64,", ""))
+        if image_bytes.startswith("http"):
+            logger.debug(f"[{index}] -> preview_src is URL")
+            image_bytes = asyncio.run(download_image(preview_src))  # Try to download preview_src
+        else:
+            logger.debug(f"[{index}] -> preview_src is data")
+            image_bytes = base64.b64decode(
+                preview_src.replace("data:image/png;base64,", "").replace("data:image/jpeg;base64,", ""))
+
+    logger.debug(f"[{index}] -> len(image_bytes) : {len(image_bytes)}")
 
     save_image(index, query, query_destination, resize, file_format, image_bytes, pbar)
 
@@ -306,3 +324,9 @@ async def download_image(image_url):
                 logger.debug(
                     f"Failed to download - request.status_code : {response.status} - image_url : {image_url}")
                 return None
+
+
+if __name__ == "__main__":
+    downloader = GoogleImagesDownloader()
+    downloader.download(query="cat")
+    downloader.close()
