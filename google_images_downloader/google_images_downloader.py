@@ -145,6 +145,8 @@ class GoogleImagesDownloader:
 
         wait(futures)
 
+        logger.debug(f"Successful downloads : {futures.count(True)}")
+
         return futures.count(True)  # Return number of successful downloads
 
     def __get_image_values(self, image_item):
