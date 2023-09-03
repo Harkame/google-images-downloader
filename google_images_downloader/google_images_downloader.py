@@ -132,7 +132,7 @@ class GoogleImagesDownloader:
         with ThreadPoolExecutor(max_workers=5) as executor:
             futures = []
             for index, image_item in enumerate(image_items):
-                image_url, preview_src = self.__get_image_values(image_item)
+                image_url, preview_src = self.__get_image_values(index, image_item)
 
                 logger.debug(f"[{index}] -> image_url : {image_url}")
 
@@ -149,7 +149,7 @@ class GoogleImagesDownloader:
 
         wait(futures)
 
-    def __get_image_values(self, image_item):
+    def __get_image_values(self, index, image_item):
         preview_src_tag = None
 
         while not preview_src_tag:  # Sometimes image part is not displayed the first time
@@ -163,7 +163,7 @@ class GoogleImagesDownloader:
                         (By.CSS_SELECTOR, "div[jsname='CGzTgf'] img[jsname='JuXqh']"))
                 )
             except TimeoutException:
-                logger.debug("Can't reach images tag...retry")
+                logger.debug(f"[{index}] Can't reach images tag...retry")
 
         preview_src = preview_src_tag.get_attribute("src")
 
@@ -174,7 +174,7 @@ class GoogleImagesDownloader:
                 EC.presence_of_element_located((By.CSS_SELECTOR, "div[jsname='CGzTgf'] img[jsname='kn3ccd']"))
             ).get_attribute("src")
         except TimeoutException:  # No image available
-            logger.debug("Can't retrieve image_url")
+            logger.debug(f"[{index}] Can't retrieve image_url")
 
         return image_url, preview_src
 
@@ -270,6 +270,10 @@ def download_item(index, query, query_destination, image_url, preview_src, resiz
             logger.debug(f"[{index}] -> preview_src is data")
             image_bytes = base64.b64decode(
                 preview_src.replace("data:image/png;base64,", "").replace("data:image/jpeg;base64,", ""))
+
+    if image_bytes is None:
+        logger.debug(f"[{index}] -> Can't download none of image_url and preview_src")
+        return
 
     logger.debug(f"[{index}] -> len(image_bytes) : {len(image_bytes)}")
 
