@@ -138,8 +138,10 @@ class GoogleImagesDownloader:
                 else:
                     logger.debug(f"[{index}] -> preview_src (Data) : {preview_src[0:100]}...")
 
-                futures.append(executor.submit(download_item, index, query, query_destination, image_url, preview_src,
-                                               resize, file_format, pbar=pbar))
+                # futures.append(executor.submit(download_item, index, query, query_destination, image_url, preview_src,
+                # resize, file_format, pbar=pbar))
+
+                download_item(index, query, query_destination, image_url, preview_src, resize, file_format, pbar=pbar)
 
                 if index + 1 == limit:
                     break
