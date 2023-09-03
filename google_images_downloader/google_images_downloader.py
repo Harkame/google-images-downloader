@@ -145,10 +145,6 @@ class GoogleImagesDownloader:
 
         wait(futures)
 
-        logger.debug(f"Successful downloads : {futures.count(True)}")
-
-        return futures.count(True)  # Return number of successful downloads
-
     def __get_image_values(self, image_item):
         preview_src_tag = None
 
@@ -160,7 +156,7 @@ class GoogleImagesDownloader:
             try:
                 preview_src_tag = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
                     EC.presence_of_element_located(
-                        (By.CSS_SELECTOR, "div[jsname='CGzTgf'] div[jsname='figiqf'] img"))
+                        (By.CSS_SELECTOR, "img[jsname='JuXqh']"))
                 )
             except TimeoutException:
                 logger.debug("Can't reach images tag...retry")
@@ -256,20 +252,13 @@ def download_item(index, query, query_destination, image_url, preview_src, resiz
     if not image_bytes:  # Download failed, download the preview image
         logger.debug(f"[{index}] -> download with image_url failed, try to download the preview")
 
-        if preview_src.startswith("http"):
-            logger.debug(f"[{index}] -> preview_src is URL : {preview_src}")
-            image_bytes = asyncio.run(download_image(preview_src))  # Download preview image
-        else:
-            logger.debug(f"[{index}] -> preview_src is bytes")
-            image_bytes = base64.b64decode(
-                preview_src.replace("data:image/png;base64,", "").replace("data:image/jpeg;base64,", ""))
+        image_bytes = base64.b64decode(
+            preview_src.replace("data:image/png;base64,", "").replace("data:image/jpeg;base64,", ""))
 
-    if not image_bytes:
-        logger.debug(f"[{index}] Can't downloaded none of image_url and preview_src")
-        return False
+    save_image(index, query, query_destination, resize, file_format, image_bytes, pbar)
 
-    logger.debug(f"[{index}] -> len(image_bytes) : {len(image_bytes)}")
 
+def save_image(index, query, query_destination, resize, file_format, image_bytes, pbar):
     image = Image.open(BytesIO(image_bytes))
 
     logger.debug(f"[{index}] -> image.format : {image.format}")
@@ -304,8 +293,6 @@ def download_item(index, query, query_destination, image_url, preview_src, resiz
     if pbar:
         pbar.update(1)
 
-    return True
-
 
 async def download_image(image_url):
     logger.debug(f"Try to download - image_url : {image_url}")
@@ -313,17 +300,9 @@ async def download_image(image_url):
     async with aiohttp.ClientSession() as session:
         async with session.get(image_url) as response:
             if response.status == 200:
-                logger.debug(f"Successfully get image_bytes with request - image_url : {image_url}")
+                logger.debug(f"Successfully get image_bytes - image_url : {image_url}")
                 return await response.read()
             else:
                 logger.debug(
                     f"Failed to download - request.status_code : {response.status} - image_url : {image_url}")
                 return None
-
-
-if __name__ == "__main__":
-    """
-    downloader = GoogleImagesDownloader(debug=True)
-    downloader.download(query="cat", limit=10)
-    downloader.close()
-    """
