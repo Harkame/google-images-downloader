@@ -258,20 +258,20 @@ def download_item(index, query, query_destination, image_url, preview_src, resiz
     image_bytes = None
 
     if image_url:
-        image_bytes = asyncio.run(download_image(image_url))  # Try to download image_url
+        image_bytes = asyncio.run(download_image(index, image_url))  # Try to download image_url
 
-    if not image_bytes:  # Download failed, download the preview image
+    if not image_bytes:  # Download with image_url failed or no image_url, download the preview image
         logger.debug(f"[{index}] -> download with image_url failed, try to download the preview")
 
         if preview_src.startswith("http"):
             logger.debug(f"[{index}] -> preview_src is URL")
-            image_bytes = asyncio.run(download_image(preview_src))  # Try to download preview_src
+            image_bytes = asyncio.run(download_image(index, preview_src))  # Try to download preview_src
         else:
             logger.debug(f"[{index}] -> preview_src is data")
             image_bytes = base64.b64decode(
                 preview_src.replace("data:image/png;base64,", "").replace("data:image/jpeg;base64,", ""))
 
-    if image_bytes is None:
+    if not image_bytes:
         logger.debug(f"[{index}] -> Can't download none of image_url and preview_src")
         return
 
@@ -316,17 +316,17 @@ def save_image(index, query, query_destination, resize, file_format, image_bytes
         pbar.update(1)
 
 
-async def download_image(image_url):
-    logger.debug(f"Try to download - image_url : {image_url}")
+async def download_image(index, image_url):
+    logger.debug(f"[{index}] -> Try to download - image_url : {image_url}")
 
     async with aiohttp.ClientSession() as session:
         async with session.get(image_url) as response:
             if response.status == 200:
-                logger.debug(f"Successfully get image_bytes - image_url : {image_url}")
+                logger.debug(f"[{index}] -> Successfully get image_bytes")
                 return await response.read()
             else:
                 logger.debug(
-                    f"Failed to download - request.status_code : {response.status} - image_url : {image_url}")
+                    f"[{index}] -> Failed to download - request.status_code : {response.status}")
                 return None
 
 
