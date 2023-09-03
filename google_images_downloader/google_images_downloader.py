@@ -106,9 +106,6 @@ class GoogleImagesDownloader:
 
         self.__scroll(limit)
 
-        self.driver.execute_script(
-            "document.getElementsByClassName('qs41qe')[0].style.display = 'none'")  # Fix firefox issue, when click on item after scrolling
-
         list_items = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "div[role='list']"))
         )
@@ -162,7 +159,9 @@ class GoogleImagesDownloader:
                  .click())
             except ElementClickInterceptedException as e:
                 logger.debug(f"[{index}] -> ElementClickInterceptedException : {e}")
-                raise e
+                self.driver.execute_script(
+                    "document.getElementsByClassName('qs41qe')[0].style.display = 'none'")  # Hide element that blocks the click
+                continue
 
             try:
                 preview_src_tag = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
