@@ -15,6 +15,7 @@ from tqdm import tqdm
 import requests
 import signal
 from pathlib import Path
+import time
 
 DEFAULT_DESTINATION = os.path.join(Path(__file__).parent.parent, "downloads")
 DEFAULT_LIMIT = 50
@@ -104,6 +105,8 @@ class GoogleImagesDownloader:
             return
 
         self.__scroll(limit)
+
+        time.sleep(99999)
 
         list_items = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "div[role='list']"))
@@ -255,7 +258,10 @@ class GoogleImagesDownloader:
         pid = self.driver.service.process.pid
 
         try:
-            os.kill(int(pid), signal.CTRL_C_EVENT)
+            os.kill(int(pid), signal.SIGTERM)
+
+            if signal.CTRL_C_EVENT:
+                os.kill(int(pid), signal.CTRL_C_EVENT)
         except ProcessLookupError:
             pass
 
@@ -348,7 +354,7 @@ def download_image_with_requests(index, image_url):
         else:
             logger.debug(
                 f"[{index}] -> Failed to download - request.status_code : {response.status_code}")
-    except requests.exceptions.SSLError as e:  #
+    except Exception as e:  # requests.exceptions.SSLError
         logger.debug(
             f"[{index}] -> Exception : {e}")
         raise e
@@ -362,13 +368,13 @@ def download_image_with_urllib(index, image_url):
 
     try:
         with urllib.request.urlopen(image_url) as response:
-            if response.status_code == 200:
+            if response.status == 200:
                 logger.debug(f"[{index}] -> Successfully get image_bytes")
                 image_bytes = response.read()
             else:
                 logger.debug(
                     f"[{index}] -> Failed to download - request.status_code : {response.status}")
-    except Exception as e:  #
+    except Exception as e:  # urllib.request.HTTPError
         logger.debug(
             f"[{index}] -> Exception : {e}")
         raise e
@@ -381,10 +387,3 @@ def enable_logs():
     stream_handler.setFormatter(logging.Formatter('%(asctime)s - %(funcName)s - %(message)s', "%H:%M:%S"))
 
     logger.addHandler(stream_handler)
-
-
-if __name__ == "__main__":
-    # downloader = GoogleImagesDownloader(debug=True)
-    # downloader.download(query="cat")
-    # downloader.close()
-    print(download_image_with_urllib(0, "https://upload.wikimedia.org/wikipedia/commons/1/15/Cat_August_2010-4.jpg"))
