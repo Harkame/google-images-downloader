@@ -105,6 +105,14 @@ def get_arguments():
         type=int
     )
 
+    argument_parser.add_argument(
+        "-S",
+        "--disable_safeui",
+        help="Disable safeui (blurred images)" + os.linesep +
+             "example : google-images-downloader -S",
+        action="count"
+    )
+
     return argument_parser.parse_args(sys.argv[1:])
 
 
@@ -128,8 +136,9 @@ def main():
 
     show = True if arguments.show else False
     quiet = True if arguments.quiet else False
+    disable_safeui = True if arguments.disable_safeui else False
 
-    downloader = GoogleImagesDownloader(browser=arguments.browser, show=show, debug=arguments.debug, quiet=quiet)
+    downloader = GoogleImagesDownloader(browser=arguments.browser, show=show, debug=arguments.debug, quiet=quiet, disable_safeui=disable_safeui)
 
     resize = get_formatted_resize(arguments.resize)  # Transform resizing format, example : 256x256 to (256, 256) tuple
 

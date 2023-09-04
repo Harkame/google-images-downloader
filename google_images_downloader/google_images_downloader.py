@@ -8,7 +8,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from PIL import Image
 import logging
 from fake_useragent import UserAgent
-from selenium.common.exceptions import TimeoutException, ElementClickInterceptedException
+from selenium.common.exceptions import TimeoutException, ElementClickInterceptedException, NoSuchElementException
 import base64
 from io import BytesIO
 from tqdm import tqdm
@@ -24,6 +24,7 @@ DEFAULT_QUIET = False
 DEFAULT_DEBUG = False
 DEFAULT_SHOW = False
 DEFAULT_FORMAT = None
+DEFAULT_DISABLE_SAFEUI = False
 DEFAULT_WEBDRIVER_WAIT_DURATION = 20
 DEFAULT_BROWSER = "chrome"
 
@@ -42,7 +43,8 @@ if os.name == "nt":  # Fix "Event loop is closed" error on Windows
 
 
 class GoogleImagesDownloader:
-    def __init__(self, browser=DEFAULT_BROWSER, show=DEFAULT_SHOW, debug=DEFAULT_DEBUG, quiet=DEFAULT_QUIET):
+    def __init__(self, browser=DEFAULT_BROWSER, show=DEFAULT_SHOW, debug=DEFAULT_DEBUG, quiet=DEFAULT_QUIET,
+                 disable_safeui=DEFAULT_DISABLE_SAFEUI):
         logger.debug(f"browser : {browser}")
         logger.debug(f"show : {show}")
         logger.debug(f"debug : {debug}")
@@ -80,7 +82,8 @@ class GoogleImagesDownloader:
 
         self.__consent()
 
-        self.__disable_safeui()
+        if disable_safeui:
+            self.__disable_safeui()
 
     def download(self, query, destination=DEFAULT_DESTINATION, limit=DEFAULT_LIMIT,
                  resize=DEFAULT_RESIZE, file_format=DEFAULT_FORMAT):
@@ -106,8 +109,6 @@ class GoogleImagesDownloader:
 
         self.__scroll(limit)
 
-        time.sleep(99999)
-
         list_items = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "div[role='list']"))
         )
@@ -132,6 +133,10 @@ class GoogleImagesDownloader:
             futures = []
             for index, image_item in enumerate(image_items):
                 image_url, preview_src = self.__get_image_values(index, image_item)
+
+                if not image_url and not preview_src:
+                    logger.debug(f"[{index}] -> can't retrieve none of image_url and preview_src, maybe disable safeui")
+                    continue
 
                 logger.debug(f"[{index}] -> image_url : {image_url}")
 
@@ -165,6 +170,12 @@ class GoogleImagesDownloader:
                 self.driver.execute_script(
                     "document.getElementsByClassName('qs41qe')[0].style.display = 'none'")  # Hide element that blocks the click
                 continue
+
+            try:
+                self.driver.find_element(By.CSS_SELECTOR, "div[jsname='CGzTgf'] a[jsname='fSMu2b']")
+                return None, None
+            except NoSuchElementException:
+                pass
 
             try:
                 preview_src_tag = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
