@@ -368,7 +368,7 @@ def download_image_with_urllib(index, image_url):
         else:
             logger.debug(
                 f"[{index}] -> Failed to download - request.status_code : {response.status_code}")
-    except Exception as e:  # For now, use generic except
+    except urllib.request.HTTPError as e:
         logger.debug(
             f"[{index}] -> Exception : {e}")
 
