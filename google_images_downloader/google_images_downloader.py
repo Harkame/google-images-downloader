@@ -11,8 +11,7 @@ from selenium.common.exceptions import TimeoutException, ElementClickIntercepted
 import base64
 from io import BytesIO
 from tqdm import tqdm
-import aiohttp
-import asyncio
+import requests
 import signal
 from pathlib import Path
 
@@ -34,8 +33,10 @@ headers = {'User-Agent': str(user_agent)}
 
 WEBDRIVER_WAIT_DURATION = DEFAULT_WEBDRIVER_WAIT_DURATION
 
+"""
 if os.name == "nt":  # Fix "Event loop is closed" error on Windows
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+"""
 
 
 class GoogleImagesDownloader:
@@ -126,27 +127,27 @@ class GoogleImagesDownloader:
     def __download_items(self, query, destination, image_items, resize, limit, file_format, pbar=None):
         query_destination = os.path.join(destination, query)
 
-        # with ThreadPoolExecutor(max_workers=5) as executor:
-        # futures = []
-        for index, image_item in enumerate(image_items):
-            image_url, preview_src = self.__get_image_values(index, image_item)
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            futures = []
+            for index, image_item in enumerate(image_items):
+                image_url, preview_src = self.__get_image_values(index, image_item)
 
-            logger.debug(f"[{index}] -> image_url : {image_url}")
+                logger.debug(f"[{index}] -> image_url : {image_url}")
 
-            if preview_src.startswith("http"):
-                logger.debug(f"[{index}] -> preview_src (URL) : {preview_src}")
-            else:
-                logger.debug(f"[{index}] -> preview_src (Data) : {preview_src[0:100]}...")
+                if preview_src.startswith("http"):
+                    logger.debug(f"[{index}] -> preview_src (URL) : {preview_src}")
+                else:
+                    logger.debug(f"[{index}] -> preview_src (Data) : {preview_src[0:100]}...")
 
-            # futures.append(executor.submit(download_item, index, query, query_destination, image_url, preview_src,
-            # resize, file_format, pbar=pbar))
+                futures.append(executor.submit(download_item, index, query, query_destination, image_url, preview_src,
+                                               resize, file_format, pbar=pbar))
 
-            download_item(index, query, query_destination, image_url, preview_src, resize, file_format, pbar=pbar)
+                # download_item(index, query, query_destination, image_url, preview_src, resize, file_format, pbar=pbar)
 
-            if index + 1 == limit:
-                break
+                if index + 1 == limit:
+                    break
 
-        # wait(futures)
+                wait(futures)
 
     def __get_image_values(self, index, image_item):
         preview_src_tag = None
@@ -266,14 +267,14 @@ def download_item(index, query, query_destination, image_url, preview_src, resiz
     image_bytes = None
 
     if image_url:
-        image_bytes = asyncio.run(download_image(index, image_url))  # Try to download image_url
+        image_bytes = download_image(index, image_url)  # Try to download image_url
 
     if not image_bytes:  # Download with image_url failed or no image_url, download the preview image
         logger.debug(f"[{index}] -> download with image_url failed, try to download the preview")
 
         if preview_src.startswith("http"):
             logger.debug(f"[{index}] -> preview_src is URL")
-            image_bytes = asyncio.run(download_image(index, preview_src))  # Try to download preview_src
+            image_bytes = download_image(index, preview_src)  # Try to download preview_src
         else:
             logger.debug(f"[{index}] -> preview_src is data")
             image_bytes = base64.b64decode(
@@ -324,25 +325,20 @@ def save_image(index, query, query_destination, resize, file_format, image_bytes
         pbar.update(1)
 
 
-"""
-If using response.read() the next error can appear :
-aiohttp.client_exceptions.ClientPayloadError: Response payload is not completed
-https://github.com/aio-libs/aiohttp/issues/4581
-"""
-
-
-async def download_image(index, image_url):
+def download_image(index, image_url):
     logger.debug(f"[{index}] -> Try to download - image_url : {image_url}")
+    response = requests.get(image_url, allow_redirects=True)
 
-    async with aiohttp.ClientSession() as session:
-        async with session.get(image_url) as response:
-            if response.status == 200:
-                logger.debug(f"[{index}] -> Successfully get image_bytes")
-                return await response.content.read()
-            else:
-                logger.debug(
-                    f"[{index}] -> Failed to download - request.status_code : {response.status}")
-                return None
+    image_bytes = None
+
+    if response.status_code == 200:
+        logger.debug(f"[{index}] -> Successfully get image_bytes")
+        image_bytes = response.content
+    else:
+        logger.debug(
+            f"[{index}] -> Failed to download - request.status_code : {response.status_code}")
+
+    return image_bytes
 
 
 if __name__ == "__main__":
