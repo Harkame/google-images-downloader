@@ -15,7 +15,6 @@ from tqdm import tqdm
 import requests
 import signal
 from pathlib import Path
-import time
 
 DEFAULT_DESTINATION = os.path.join(Path(__file__).parent.parent, "downloads")
 DEFAULT_LIMIT = 50
