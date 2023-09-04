@@ -47,7 +47,7 @@ class BaseTestDownload:
     def test_download_multiple_query(self, query):
         self.downloader.download(query, destination=DESTINATION)
 
-        files = os.listdir(os.path.join(DESTINATION, QUERY))
+        files = os.listdir(os.path.join(DESTINATION, query))
 
         assert len(files) == DEFAULT_LIMIT
 
