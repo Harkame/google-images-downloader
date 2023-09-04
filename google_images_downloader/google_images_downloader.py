@@ -348,7 +348,7 @@ def download_image_with_requests(index, image_url):
         else:
             logger.debug(
                 f"[{index}] -> Failed to download - request.status_code : {response.status_code}")
-    except Exception as e:  # requests.exceptions.SSLError
+    except requests.exceptions.SSLError as e:  #
         logger.debug(
             f"[{index}] -> Exception : {e}")
         raise e
@@ -361,14 +361,13 @@ def download_image_with_urllib(index, image_url):
     image_bytes = None
 
     try:
-        response = urllib.request.urlopen(image_url)
-
-        if response.status_code == 200:
-            logger.debug(f"[{index}] -> Successfully get image_bytes")
-            image_bytes = response.content
-        else:
-            logger.debug(
-                f"[{index}] -> Failed to download - request.status_code : {response.status_code}")
+        with urllib.request.urlopen(image_url) as response:
+            if response.status_code == 200:
+                logger.debug(f"[{index}] -> Successfully get image_bytes")
+                image_bytes = response.read()
+            else:
+                logger.debug(
+                    f"[{index}] -> Failed to download - request.status_code : {response.status}")
     except Exception as e:  #
         logger.debug(
             f"[{index}] -> Exception : {e}")
@@ -385,6 +384,7 @@ def enable_logs():
 
 
 if __name__ == "__main__":
-    downloader = GoogleImagesDownloader(debug=True)
-    downloader.download(query="cat")
-    downloader.close()
+    # downloader = GoogleImagesDownloader(debug=True)
+    # downloader.download(query="cat")
+    # downloader.close()
+    print(download_image_with_urllib(0, "https://upload.wikimedia.org/wikipedia/commons/1/15/Cat_August_2010-4.jpg"))
