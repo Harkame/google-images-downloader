@@ -32,7 +32,7 @@ def remove_download_folders():
         shutil.rmtree(another_destination, ignore_errors=True)
 
 
-class TestTestDownload:
+class BaseTestDownload:
     downloader = None
     browser = None
 
