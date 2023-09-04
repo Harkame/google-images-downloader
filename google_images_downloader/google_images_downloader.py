@@ -127,140 +127,145 @@ class GoogleImagesDownloader:
     def __download_items(self, query, destination, image_items, resize, limit, file_format, pbar=None):
         query_destination = os.path.join(destination, query)
 
-        with ThreadPoolExecutor(max_workers=5) as executor:
-            futures = []
-            for index, image_item in enumerate(image_items):
-                image_url, preview_src = self.__get_image_values(index, image_item)
+        # with ThreadPoolExecutor(max_workers=5) as executor:
+        # futures = []
+        for index, image_item in enumerate(image_items):
+            image_url, preview_src = self.__get_image_values(index, image_item)
 
-                logger.debug(f"[{index}] -> image_url : {image_url}")
+            logger.debug(f"[{index}] -> image_url : {image_url}")
 
-                if preview_src.startswith("http"):
-                    logger.debug(f"[{index}] -> preview_src (URL) : {preview_src}")
-                else:
-                    logger.debug(f"[{index}] -> preview_src (Data) : {preview_src[0:100]}...")
+            if preview_src.startswith("http"):
+                logger.debug(f"[{index}] -> preview_src (URL) : {preview_src}")
+            else:
+                logger.debug(f"[{index}] -> preview_src (Data) : {preview_src[0:100]}...")
 
-                futures.append(executor.submit(download_item, index, query, query_destination, image_url, preview_src,
-                                               resize, file_format, pbar=pbar))
+                # futures.append(executor.submit(download_item, index, query, query_destination, image_url, preview_src,
+                # resize, file_format, pbar = pbar))
 
-                # download_item(index, query, query_destination, image_url, preview_src, resize, file_format, pbar=pbar)
+                download_item(index, query, query_destination, image_url, preview_src, resize, file_format, pbar=pbar)
 
                 if index + 1 == limit:
                     break
 
-                wait(futures)
+        # wait(futures)
 
-    def __get_image_values(self, index, image_item):
-        preview_src_tag = None
 
-        while not preview_src_tag:  # Sometimes image part is not displayed the first time
-            self.driver.execute_script("arguments[0].scrollIntoView(true);", image_item)
+def __get_image_values(self, index, image_item):
+    preview_src_tag = None
 
-            logger.debug(f"[{index}] -> Try to click on image_item")
+    while not preview_src_tag:  # Sometimes image part is not displayed the first time
+        self.driver.execute_script("arguments[0].scrollIntoView(true);", image_item)
 
-            try:
-                (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(image_item))
-                 .click())
-            except ElementClickInterceptedException as e:
-                logger.debug(f"[{index}] -> ElementClickInterceptedException : {e}")
-                self.driver.execute_script(
-                    "document.getElementsByClassName('qs41qe')[0].style.display = 'none'")  # Hide element that blocks the click
-                continue
-
-            try:
-                preview_src_tag = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
-                    EC.presence_of_element_located(
-                        (By.CSS_SELECTOR, "div[jsname='CGzTgf'] img[jsname='JuXqh']"))
-                )
-            except TimeoutException:
-                logger.debug(f"[{index}] -> Can't reach images tag...retry")
-
-        preview_src = preview_src_tag.get_attribute("src")
-
-        image_url = None
+        logger.debug(f"[{index}] -> Try to click on image_item")
 
         try:
-            image_url = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, "div[jsname='CGzTgf'] img[jsname='kn3ccd']"))
-            ).get_attribute("src")
-        except TimeoutException:  # No image available
-            logger.debug(f"[{index}] Can't retrieve image_url")
+            (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(image_item))
+             .click())
+        except ElementClickInterceptedException as e:
+            logger.debug(f"[{index}] -> ElementClickInterceptedException : {e}")
+            self.driver.execute_script(
+                "document.getElementsByClassName('qs41qe')[0].style.display = 'none'")  # Hide element that blocks the click
+            continue
 
-        return image_url, preview_src
+        try:
+            preview_src_tag = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
+                EC.presence_of_element_located(
+                    (By.CSS_SELECTOR, "div[jsname='CGzTgf'] img[jsname='JuXqh']"))
+            )
+        except TimeoutException:
+            logger.debug(f"[{index}] -> Can't reach images tag...retry")
 
-    def __disable_safeui(self):
-        self.driver.get(f"https://www.google.com/search?q=google&tbm=isch")
+    preview_src = preview_src_tag.get_attribute("src")
 
-        WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "div[role='list']"))
-        )
+    image_url = None
 
-        ibnC6b_tags = self.driver.find_elements(By.CSS_SELECTOR, "div[jsname='ibnC6b'] a")
+    try:
+        image_url = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "div[jsname='CGzTgf'] img[jsname='kn3ccd']"))
+        ).get_attribute("src")
+    except TimeoutException:  # No image available
+        logger.debug(f"[{index}] Can't retrieve image_url")
 
-        href = ""
+    return image_url, preview_src
 
-        for tag in ibnC6b_tags:
-            if "safeui=off" in tag.get_attribute("href"):
-                href = tag.get_attribute("href")
 
-        href = href.replace("&prev=https://www.google.com/search?q%3Dgoogle%26tbm%3Disch", "")
-        logger.debug(f"href : {href}")
+def __disable_safeui(self):
+    self.driver.get(f"https://www.google.com/search?q=google&tbm=isch")
 
-        self.driver.get(href)
+    WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "div[role='list']"))
+    )
 
-    def __consent(self):
-        self.driver.get("https://www.google.com/")  # To add cookie with domain .google.com
+    ibnC6b_tags = self.driver.find_elements(By.CSS_SELECTOR, "div[jsname='ibnC6b'] a")
 
-        self.driver.add_cookie(
-            {'domain': '.google.com', 'expiry': 1726576871, 'httpOnly': False, 'name': 'SOCS', 'path': '/',
-             'sameSite': 'Lax', 'secure': False, 'value': 'CAESHAgBEhJnd3NfMjAyMzA4MTUtMF9SQzQaAmZyIAEaBgiAjICnBg'})
+    href = ""
 
-        self.driver.add_cookie(
-            {'domain': 'www.google.com', 'expiry': 1695040872, 'httpOnly': False, 'name': 'OTZ', 'path': '/',
-             'sameSite': 'Lax', 'secure': True, 'value': '7169081_48_52_123900_48_436380'})
+    for tag in ibnC6b_tags:
+        if "safeui=off" in tag.get_attribute("href"):
+            href = tag.get_attribute("href")
 
-    def __scroll(self, limit):
-        if not self.quiet:
-            print("Scrolling...")
+    href = href.replace("&prev=https://www.google.com/search?q%3Dgoogle%26tbm%3Disch", "")
+    logger.debug(f"href : {href}")
 
-        bottom_tag = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "div[jsname='wEwttd'][data-status='5']"))
-        )
+    self.driver.get(href)
 
-        display_more_tag = self.driver.find_element(By.CSS_SELECTOR, 'input[jsaction="Pmjnye"]')
+
+def __consent(self):
+    self.driver.get("https://www.google.com/")  # To add cookie with domain .google.com
+
+    self.driver.add_cookie(
+        {'domain': '.google.com', 'expiry': 1726576871, 'httpOnly': False, 'name': 'SOCS', 'path': '/',
+         'sameSite': 'Lax', 'secure': False, 'value': 'CAESHAgBEhJnd3NfMjAyMzA4MTUtMF9SQzQaAmZyIAEaBgiAjICnBg'})
+
+    self.driver.add_cookie(
+        {'domain': 'www.google.com', 'expiry': 1695040872, 'httpOnly': False, 'name': 'OTZ', 'path': '/',
+         'sameSite': 'Lax', 'secure': True, 'value': '7169081_48_52_123900_48_436380'})
+
+
+def __scroll(self, limit):
+    if not self.quiet:
+        print("Scrolling...")
+
+    bottom_tag = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "div[jsname='wEwttd'][data-status='5']"))
+    )
+
+    display_more_tag = self.driver.find_element(By.CSS_SELECTOR, 'input[jsaction="Pmjnye"]')
+
+    data_status = int(bottom_tag.get_attribute("data-status"))
+
+    list_items = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "div[role='list']"))
+    )
+
+    while data_status != 3:
+        if display_more_tag.is_displayed() and display_more_tag.is_enabled():
+            WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
+                EC.element_to_be_clickable(display_more_tag)).click()
+
+        self.driver.execute_script("arguments[0].scrollIntoView(true);", bottom_tag)
+
+        image_items = list_items.find_elements(By.CSS_SELECTOR, "div[role='listitem']")
+
+        logger.debug(f"limit : {limit} - len(image_items) : {len(image_items)}")
+
+        if limit <= len(image_items):
+            return
 
         data_status = int(bottom_tag.get_attribute("data-status"))
 
-        list_items = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "div[role='list']"))
-        )
+        logger.debug(f"data_status : {data_status}")
 
-        while data_status != 3:
-            if display_more_tag.is_displayed() and display_more_tag.is_enabled():
-                WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
-                    EC.element_to_be_clickable(display_more_tag)).click()
 
-            self.driver.execute_script("arguments[0].scrollIntoView(true);", bottom_tag)
+def close(self):
+    self.driver.close()
 
-            image_items = list_items.find_elements(By.CSS_SELECTOR, "div[role='listitem']")
+    pid = self.driver.service.process.pid
 
-            logger.debug(f"limit : {limit} - len(image_items) : {len(image_items)}")
-
-            if limit <= len(image_items):
-                return
-
-            data_status = int(bottom_tag.get_attribute("data-status"))
-
-            logger.debug(f"data_status : {data_status}")
-
-    def close(self):
-        self.driver.close()
-
-        pid = self.driver.service.process.pid
-
-        try:
-            os.kill(int(pid), signal.CTRL_C_EVENT)
-        except ProcessLookupError:
-            pass
+    try:
+        os.kill(int(pid), signal.CTRL_C_EVENT)
+    except ProcessLookupError:
+        pass
 
 
 def download_item(index, query, query_destination, image_url, preview_src, resize, file_format, pbar=None):
