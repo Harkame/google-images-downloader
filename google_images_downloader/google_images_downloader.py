@@ -126,27 +126,27 @@ class GoogleImagesDownloader:
     def __download_items(self, query, destination, image_items, resize, limit, file_format, pbar=None):
         query_destination = os.path.join(destination, query)
 
-        with ThreadPoolExecutor(max_workers=5) as executor:
-            futures = []
-            for index, image_item in enumerate(image_items):
-                image_url, preview_src = self.__get_image_values(index, image_item)
+        # with ThreadPoolExecutor(max_workers=5) as executor:
+        # futures = []
+        for index, image_item in enumerate(image_items):
+            image_url, preview_src = self.__get_image_values(index, image_item)
 
-                logger.debug(f"[{index}] -> image_url : {image_url}")
+            logger.debug(f"[{index}] -> image_url : {image_url}")
 
-                if preview_src.startswith("http"):
-                    logger.debug(f"[{index}] -> preview_src (URL) : {preview_src}")
-                else:
-                    logger.debug(f"[{index}] -> preview_src (Data) : {preview_src[0:100]}...")
+            if preview_src.startswith("http"):
+                logger.debug(f"[{index}] -> preview_src (URL) : {preview_src}")
+            else:
+                logger.debug(f"[{index}] -> preview_src (Data) : {preview_src[0:100]}...")
 
-                # futures.append(executor.submit(download_item, index, query, query_destination, image_url, preview_src,
-                # resize, file_format, pbar=pbar))
+            # futures.append(executor.submit(download_item, index, query, query_destination, image_url, preview_src,
+            # resize, file_format, pbar=pbar))
 
-                download_item(index, query, query_destination, image_url, preview_src, resize, file_format, pbar=pbar)
+            download_item(index, query, query_destination, image_url, preview_src, resize, file_format, pbar=pbar)
 
-                if index + 1 == limit:
-                    break
+            if index + 1 == limit:
+                break
 
-        wait(futures)
+        # wait(futures)
 
     def __get_image_values(self, index, image_item):
         preview_src_tag = None
