@@ -6,9 +6,11 @@ import pytest
 from ..google_images_downloader import GoogleImagesDownloader, DEFAULT_LIMIT
 
 QUERY = "cat"
+ANOTHER_QUERIES = ["dog", "shark", "bird"]
 QUERY_WITHOUT_RESULTS = "77af778b51abd4a3c51c5ddd97204a9c3ae614ebccb75a606c3b6865aed6744e azerty"
 DESTINATION = "downloads_tests"
-ANOTHER_DESTINATIONS = ["downloads_tests_2", "downloads_tests_3", "downloads_tests_4"]
+ANOTHER_DESTINATIONS = ["downloads_tests_" + str(index) for index in
+                        range(0, 5)]  # Create multiple another destinations
 NO_LIMIT = 9999
 
 
@@ -30,14 +32,20 @@ class DownloadTest:
 
         assert len(files) == DEFAULT_LIMIT
 
-    """
+    @pytest.mark.parametrize("query", ANOTHER_QUERIES)
+    def test_download_multiple_query(self, query):
+        self.downloader.download(query, destination=DESTINATION)
+
+        files = os.listdir(os.path.join(DESTINATION, QUERY))
+
+        assert len(files) == DEFAULT_LIMIT
+
     def test_download_no_results(self):
         self.downloader.download(QUERY_WITHOUT_RESULTS, destination=DESTINATION)
 
         files = os.listdir(os.path.join(DESTINATION, QUERY_WITHOUT_RESULTS))
 
         assert len(files) == 0
-    """
 
     @pytest.mark.parametrize("destination", ANOTHER_DESTINATIONS)
     def test_download_another_destination(self, destination):
