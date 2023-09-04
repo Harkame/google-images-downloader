@@ -44,7 +44,7 @@ class BaseTestDownload:
         assert len(files) == DEFAULT_LIMIT
 
     @pytest.mark.parametrize("query", ANOTHER_QUERIES)
-    def test_download_multiple_query(self, query):
+    def test_download_another_query(self, query):
         self.downloader.download(query, destination=DESTINATION)
 
         files = os.listdir(os.path.join(DESTINATION, query))
