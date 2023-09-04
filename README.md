@@ -52,7 +52,7 @@ google-images-downloader -h
 from google_images_downloader import GoogleImagesDownloader
 
 downloader = GoogleImagesDownloader(browser="chrome", show=False, debug=False,
-                                    quiet=False)  # Constructor with default values
+                                    quiet=False, disable_safeui=False)  # Constructor with default values
 
 downloader.download("bear")  # Download 50 images in ./downloads folder
 
