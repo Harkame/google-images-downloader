@@ -336,7 +336,7 @@ def download_image(index, image_url):
 
 
 def download_image_with_requests(index, image_url):
-    logger.debug(f"[{index}] -> Try to download - image_url : {image_url}")
+    logger.debug(f"[{index}] -> Try to download_image_with_requests - image_url : {image_url}")
     image_bytes = None
 
     try:
@@ -357,7 +357,7 @@ def download_image_with_requests(index, image_url):
 
 
 def download_image_with_urllib(index, image_url):
-    logger.debug(f"[{index}] -> Try to download - image_url : {image_url}")
+    logger.debug(f"[{index}] -> Try to download_image_with_urllib - image_url : {image_url}")
     image_bytes = None
 
     try:
