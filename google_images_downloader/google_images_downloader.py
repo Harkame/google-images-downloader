@@ -348,9 +348,9 @@ def download_image_with_requests(index, image_url):
         else:
             logger.debug(
                 f"[{index}] -> Failed to download - request.status_code : {response.status_code}")
-    except requests.exceptions.SSLError as e:
+    except Exception as e:  # requests.exceptions.SSLError
         logger.debug(
-            f"[{index}] -> requests.exceptions.SSLError : {e}")
+            f"[{index}] -> Exception : {e}")
 
     return image_bytes
 
@@ -368,7 +368,7 @@ def download_image_with_urllib(index, image_url):
         else:
             logger.debug(
                 f"[{index}] -> Failed to download - request.status_code : {response.status_code}")
-    except urllib.request.HTTPError as e:
+    except Exception as e:  #
         logger.debug(
             f"[{index}] -> Exception : {e}")
 
