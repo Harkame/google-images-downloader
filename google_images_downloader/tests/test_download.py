@@ -6,7 +6,7 @@ import pytest
 from ..google_images_downloader import GoogleImagesDownloader, DEFAULT_LIMIT
 
 QUERY = "cat"
-ANOTHER_QUERIES = ["dog", "shark", "bird"]
+ANOTHER_QUERIES = ["dog", "fish", "bird", "car", "fruit"]
 QUERY_WITHOUT_RESULTS = "77af778b51abd4a3c51c5ddd97204a9c3ae614ebccb75a606c3b6865aed6744e azerty"
 DESTINATION = "downloads_tests"
 ANOTHER_DESTINATIONS = ["downloads_tests_" + str(index) for index in
