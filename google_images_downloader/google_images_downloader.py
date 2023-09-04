@@ -299,10 +299,13 @@ def download_item(index, query, query_destination, image_url, preview_src, resiz
 
     logger.debug(f"[{index}] -> len(image_bytes) : {len(image_bytes)}")
 
-    save_image(index, query, query_destination, resize, file_format, image_bytes, pbar)
+    save_image(index, query, query_destination, resize, file_format, image_bytes)
+
+    if pbar:
+        pbar.update(1)
 
 
-def save_image(index, query, query_destination, resize, file_format, image_bytes, pbar):
+def save_image(index, query, query_destination, resize, file_format, image_bytes):
     image = Image.open(BytesIO(image_bytes))
 
     logger.debug(f"[{index}] -> image.format : {image.format}")
@@ -334,9 +337,6 @@ def save_image(index, query, query_destination, resize, file_format, image_bytes
 
     logger.debug(f"[{index}] -> file downloaded : {complete_file_name}")
 
-    if pbar:
-        pbar.update(1)
-
 
 def download_image(index, image_url):
     image_bytes = download_image_with_requests(index, image_url)
@@ -367,7 +367,6 @@ def download_image_with_requests(index, image_url):
     except Exception as e:  # requests.exceptions.SSLError
         logger.debug(
             f"[{index}] -> Exception : {e}")
-        raise e
 
     return image_bytes
 
@@ -387,7 +386,6 @@ def download_image_with_urllib(index, image_url):
     except Exception as e:  # urllib.request.HTTPError
         logger.debug(
             f"[{index}] -> Exception : {e}")
-        raise e
 
     return image_bytes
 
