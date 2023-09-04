@@ -351,6 +351,7 @@ def download_image_with_requests(index, image_url):
     except Exception as e:  # requests.exceptions.SSLError
         logger.debug(
             f"[{index}] -> Exception : {e}")
+        raise e
 
     return image_bytes
 
@@ -371,6 +372,7 @@ def download_image_with_urllib(index, image_url):
     except Exception as e:  #
         logger.debug(
             f"[{index}] -> Exception : {e}")
+        raise e
 
     return image_bytes
 
