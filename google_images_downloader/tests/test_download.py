@@ -64,7 +64,7 @@ class DownloadTest:
 
         assert len(files) < NO_LIMIT  # Google Images returns ~600 images maximum
     """
-    
+
     @pytest.mark.parametrize("resize",
                              [
                                  (64, 64),
