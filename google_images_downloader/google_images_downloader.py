@@ -324,6 +324,13 @@ def save_image(index, query, query_destination, resize, file_format, image_bytes
         pbar.update(1)
 
 
+"""
+If using response.read() the next error can appear :
+aiohttp.client_exceptions.ClientPayloadError: Response payload is not completed
+https://github.com/aio-libs/aiohttp/issues/4581
+"""
+
+
 async def download_image(index, image_url):
     logger.debug(f"[{index}] -> Try to download - image_url : {image_url}")
 
@@ -331,7 +338,7 @@ async def download_image(index, image_url):
         async with session.get(image_url) as response:
             if response.status == 200:
                 logger.debug(f"[{index}] -> Successfully get image_bytes")
-                return await response.read()
+                return await response.content.read()
             else:
                 logger.debug(
                     f"[{index}] -> Failed to download - request.status_code : {response.status}")
