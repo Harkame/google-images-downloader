@@ -32,7 +32,7 @@ def remove_download_folders():
         shutil.rmtree(another_destination, ignore_errors=True)
 
 
-class DownloadTest:
+class TestTestDownload:
     downloader = None
     browser = None
 
@@ -129,5 +129,5 @@ class DownloadTest:
         self.downloader = None  # Bug ? test suit is not ending if not
 
 
-class TestChrome(DownloadTest):
+class TestDownloadChrome(TestTestDownload):
     browser = "chrome"
