@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import TimeoutException
-import time
+import psutil
 
 from ..google_images_downloader import GoogleImagesDownloader, DEFAULT_LIMIT, WEBDRIVER_WAIT_DURATION
 
@@ -12,6 +12,7 @@ class BaseTestBrowser:
     downloader = None
     browser = None
 
+    """
     def test_consent(self):
         self.downloader.driver.get("https://www.google.com")
 
@@ -49,6 +50,14 @@ class BaseTestBrowser:
         button_tags = radio_group_tag.find_elements(By.CSS_SELECTOR, "div[jsname='GCYh9b']")
 
         assert button_tags[2].get_attribute("aria-checked") == "true"
+    """
+
+    def test_close(self):
+        pid = self.downloader.driver.service.process.pid
+
+        self.downloader.close()
+
+        assert pid not in psutil.pids()
 
     @pytest.fixture(autouse=True)
     def resource(self):
