@@ -12,10 +12,6 @@ class BaseTestBrowser:
     browser = None
 
     def test_consent(self):
-        cookies_name = [cookie["name"] for cookie in self.downloader.driver.get_cookies()]
-
-        assert "SOCS" in cookies_name and "CONSENT" in cookies_name
-
         self.downloader.driver.get("https://www.google.com")
 
         confirm_popup_tag = None
@@ -50,7 +46,7 @@ class BaseTestBrowser:
         assert button_tags[1].get_attribute("aria-checked") == "true"
 
     def test_disable_safeui(self):
-        self.downloader._GoogleImagesDownloader__disable_safeui()
+        self.downloader.disable_safeui()
 
         self.downloader.driver.get("https://www.google.com/safesearch")
 

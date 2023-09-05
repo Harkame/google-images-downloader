@@ -82,7 +82,7 @@ class GoogleImagesDownloader:
         self.__consent()
 
         if disable_safeui:
-            self.__disable_safeui()
+            self.disable_safeui()
 
     def download(self, query, destination=DEFAULT_DESTINATION, limit=DEFAULT_LIMIT,
                  resize=DEFAULT_RESIZE, file_format=DEFAULT_FORMAT):
@@ -197,7 +197,7 @@ class GoogleImagesDownloader:
 
         return image_url, preview_src
 
-    def __disable_safeui(self):
+    def disable_safeui(self):
         self.driver.get(f"https://www.google.com/search?q=google&tbm=isch")
 
         WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
