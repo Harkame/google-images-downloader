@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import TimeoutException
+import time
 
 from ..google_images_downloader import GoogleImagesDownloader, DEFAULT_LIMIT, WEBDRIVER_WAIT_DURATION
 
@@ -27,6 +28,8 @@ class BaseTestBrowser:
 
     def test_consent_cookies_removed(self):
         self.downloader.driver.delete_all_cookies()
+
+        time.sleep(3)
 
         self.downloader.driver.get("https://www.google.com")
 
@@ -60,7 +63,7 @@ class BaseTestBrowser:
 
     @pytest.fixture(autouse=True)
     def resource(self):
-        self.downloader = GoogleImagesDownloader(browser=self.browser, show=True)
+        self.downloader = GoogleImagesDownloader(browser=self.browser)
 
         yield
 
