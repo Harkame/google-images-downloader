@@ -15,8 +15,8 @@ from tqdm import tqdm
 import requests
 import signal
 from pathlib import Path
-import errno
 import time
+import psutil
 
 DEFAULT_DESTINATION = os.path.join(Path(__file__).parent.parent, "downloads")
 DEFAULT_LIMIT = 50
@@ -282,8 +282,9 @@ def is_running(pid):
         if os.name != "nt":
             os.kill(int(pid), signal.SIGQUIT)
     except OSError:
-        return False
-    return True
+        pass
+
+    return pid in psutil.pids()
 
 
 def download_item(index, query, query_destination, image_url, preview_src, resize, file_format, pbar=None):

@@ -22,7 +22,8 @@ dependencies = [
     "requests>=2.31.0",
     "Pillow>=10.0.0",
     "fake-useragent>=1.2.1",
-    "tqdm>=4.66.1"
+    "tqdm>=4.66.1",
+    "psutil>=5.9.5"
 ]
 [project.urls]
 repository = "https://github.com/Harkame/google-images-downloader"
