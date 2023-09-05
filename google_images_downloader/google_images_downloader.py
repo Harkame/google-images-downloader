@@ -17,6 +17,7 @@ import signal
 from pathlib import Path
 import time
 import psutil
+from urllib3.exceptions import MaxRetryError
 
 DEFAULT_DESTINATION = os.path.join(Path(__file__).parent.parent, "downloads")
 DEFAULT_LIMIT = 50
@@ -265,7 +266,10 @@ class GoogleImagesDownloader:
             logger.debug(f"data_status : {data_status}")
 
     def close(self):
-        self.driver.close()
+        try:
+            self.driver.close()
+        except MaxRetryError as e:
+            logger.debug(f"Driver seems to be already closed - e : {e}")
 
         pid = self.driver.service.process.pid
 
@@ -276,8 +280,6 @@ class GoogleImagesDownloader:
 
 def is_running(pid):
     try:
-        os.kill(int(pid), signal.SIGINT)
-
         if os.name == "nt":
             os.kill(int(pid), signal.SIGTERM)
         else:
