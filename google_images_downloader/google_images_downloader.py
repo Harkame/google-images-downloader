@@ -15,6 +15,8 @@ from tqdm import tqdm
 import requests
 import signal
 from pathlib import Path
+import errno
+import time
 
 DEFAULT_DESTINATION = os.path.join(Path(__file__).parent.parent, "downloads")
 DEFAULT_LIMIT = 50
@@ -267,13 +269,20 @@ class GoogleImagesDownloader:
 
         pid = self.driver.service.process.pid
 
-        try:
-            if os.name == "nt":
-                os.kill(int(pid), signal.CTRL_C_EVENT)
-            else:
-                os.kill(int(pid), signal.SIGKILL)
-        except ProcessLookupError:
-            pass
+        while is_running(pid):
+            logger.debug(f"Try to kill process - pid : {pid}")
+
+
+def is_running(pid):
+    try:
+        if os.name == "nt":
+            os.kill(int(pid), signal.CTRL_C_EVENT)
+        else:
+            os.kill(int(pid), signal.SIGTERM)
+    except OSError as err:
+        if err.errno == errno.ESRCH:
+            return False
+    return True
 
 
 def download_item(index, query, query_destination, image_url, preview_src, resize, file_format, pbar=None):
