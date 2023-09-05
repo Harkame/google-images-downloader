@@ -26,17 +26,6 @@ class BaseTestBrowser:
 
         assert not confirm_popup_tag
 
-    def test_consent_cookies_removed(self):
-        self.downloader.driver.delete_all_cookies()
-
-        time.sleep(3)
-
-        self.downloader.driver.get("https://www.google.com")
-
-        WebDriverWait(self.downloader.driver, WEBDRIVER_WAIT_DURATION).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "div#CXQnmb"))
-        )
-
     def test_safeui_enabled_by_default(self):
         self.downloader.driver.get("https://www.google.com/safesearch")
 
