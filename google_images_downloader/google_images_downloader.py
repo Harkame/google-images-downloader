@@ -271,14 +271,14 @@ class GoogleImagesDownloader:
 
         while is_running(pid):
             logger.debug(f"Try to kill process - pid : {pid}")
+            time.sleep(0.25)
 
 
 def is_running(pid):
     try:
         os.kill(int(pid), signal.SIGTERM)
-    except OSError as err:
-        if err.errno == errno.ESRCH:
-            return False
+    except OSError:
+        return False
     return True
 
 
