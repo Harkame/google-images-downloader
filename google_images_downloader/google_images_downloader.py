@@ -276,7 +276,11 @@ class GoogleImagesDownloader:
 
 def is_running(pid):
     try:
+        os.kill(int(pid), signal.SIGINT)
         os.kill(int(pid), signal.SIGTERM)
+
+        if os.name != "nt":
+            os.kill(int(pid), signal.SIGQUIT)
     except OSError:
         return False
     return True
