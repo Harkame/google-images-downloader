@@ -268,10 +268,10 @@ class GoogleImagesDownloader:
         pid = self.driver.service.process.pid
 
         try:
-            os.kill(int(pid), signal.SIGTERM)
-
-            if signal.CTRL_C_EVENT:
+            if os.name == "nt":
                 os.kill(int(pid), signal.CTRL_C_EVENT)
+            else:
+                os.kill(int(pid), signal.SIGKILL)
         except ProcessLookupError:
             pass
 
