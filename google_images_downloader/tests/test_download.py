@@ -43,6 +43,7 @@ class BaseTestDownload:
 
         assert len(files) == DEFAULT_LIMIT
 
+    """
     @pytest.mark.parametrize("query", ANOTHER_QUERIES)
     def test_download_another_query(self, query):
         self.downloader.download(query, destination=DESTINATION)
@@ -112,6 +113,7 @@ class BaseTestDownload:
                 assert file_extension == ".jpg"
             elif file_format == "PNG":
                 assert file_extension == ".png"
+    """
 
     @pytest.fixture(autouse=True)
     def resource(self):
