@@ -13,10 +13,8 @@ import base64
 from io import BytesIO
 from tqdm import tqdm
 import requests
-import signal
 from pathlib import Path
 import time
-import psutil
 from urllib3.exceptions import MaxRetryError
 
 DEFAULT_DESTINATION = os.path.join(Path(__file__).parent.parent, "downloads")
@@ -209,7 +207,10 @@ class GoogleImagesDownloader:
 
         button_tags = radio_group_tag.find_elements(By.CSS_SELECTOR, "div[jsname='GCYh9b']")
 
-        button_tags[2].click()
+        button_off = button_tags[2]
+
+        while button_off.get_attribute("aria-checked") != "true":
+            button_off.click()
 
     def __consent(self):
         self.driver.get("https://www.google.com/")  # To add cookie with domain .google.com
@@ -221,6 +222,8 @@ class GoogleImagesDownloader:
         self.driver.add_cookie(
             {'domain': 'www.google.com', 'expiry': 1695040872, 'httpOnly': False, 'name': 'OTZ', 'path': '/',
              'sameSite': 'Lax', 'secure': True, 'value': '7169081_48_52_123900_48_436380'})
+
+        self.driver.get("https://www.google.com/")
 
     def __scroll(self, limit):
         if not self.quiet:
