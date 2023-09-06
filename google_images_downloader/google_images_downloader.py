@@ -199,7 +199,7 @@ class GoogleImagesDownloader:
         return image_url, preview_src
 
     def disable_safeui(self):
-        self.driver.get(f"https://www.google.com/safesearch")
+        self.driver.get("https://www.google.com/safesearch")
 
         radio_group_tag = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "g-radio-button-group[jsname='CSzuJd']"))
