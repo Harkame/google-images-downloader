@@ -17,13 +17,8 @@ jobs:
       matrix:
         py:
           - "3.11"
-          - "3.10"
-          - "3.9"
-          - "3.8"
         os:
           - ubuntu-latest
-          - macos-latest
-          - windows-latest
     steps:
       - uses: actions/checkout@v3
         with:
@@ -43,3 +38,18 @@ jobs:
         run: pip install -e .
       - name: Run test suite
         run: pytest google_images_downloader/tests --cov=google_images_downloader --cov-report=xml:coverage.xml --cov-report=term
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      - name: Publish code coverage to Code Climate
+        uses: paambaati/codeclimate-action@v5.0.0
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+      - name: Publish code coverage to Codacy
+        uses: codacy/codacy-coverage-reporter-action@v1
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          coverage-reports: ./coverage.xml
