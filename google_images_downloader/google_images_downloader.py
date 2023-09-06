@@ -271,6 +271,7 @@ class GoogleImagesDownloader:
         except MaxRetryError as e:
             logger.debug(f"Driver seems to be already closed - e : {e}")
 
+
 def download_item(index, query, query_destination, image_url, preview_src, resize, file_format, pbar=None):
     image_bytes = None
 
@@ -390,7 +391,3 @@ def enable_logs():
     stream_handler.setFormatter(logging.Formatter('%(asctime)s - %(funcName)s - %(message)s', "%H:%M:%S"))
 
     logger.addHandler(stream_handler)
-
-if __name__ == "__main__":
-    downloader = GoogleImagesDownloader(debug=True)
-    downloader.close()
