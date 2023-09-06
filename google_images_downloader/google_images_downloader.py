@@ -207,11 +207,11 @@ class GoogleImagesDownloader:
 
         button_tags = radio_group_tag.find_elements(By.CSS_SELECTOR, "div[jsname='GCYh9b']")
 
-        button_off = button_tags[2]
+        button_tags[2].click()  # Click on button off
 
-        while button_off.get_attribute("aria-checked") != "true":
-            button_off.click()
-            time.sleep(0.25)
+        WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(  # Wait for confirmation popup
+            EC.presence_of_element_located((By.CSS_SELECTOR, "div#snbc :nth-child(3) div[jsname='Ng57nc']"))
+        )
 
     def __consent(self):
         self.driver.get("https://www.google.com/")  # To add cookie with domain .google.com
