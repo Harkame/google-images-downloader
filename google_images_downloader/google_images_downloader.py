@@ -201,24 +201,15 @@ class GoogleImagesDownloader:
         return image_url, preview_src
 
     def disable_safeui(self):
-        self.driver.get(f"https://www.google.com/search?q=google&tbm=isch")
+        self.driver.get(f"https://www.google.com/safesearch")
 
-        WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "div[role='list']"))
+        radio_group_tag = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "g-radio-button-group[jsname='CSzuJd']"))
         )
 
-        ibnC6b_tags = self.driver.find_elements(By.CSS_SELECTOR, "div[jsname='ibnC6b'] a")
+        button_tags = radio_group_tag.find_elements(By.CSS_SELECTOR, "div[jsname='GCYh9b']")
 
-        href = ""
-
-        for tag in ibnC6b_tags:
-            if "safeui=off" in tag.get_attribute("href"):
-                href = tag.get_attribute("href")
-
-        href = href.replace("&prev=https://www.google.com/search?q%3Dgoogle%26tbm%3Disch", "")
-        logger.debug(f"href : {href}")
-
-        self.driver.get(href)
+        button_tags[2].click()
 
     def __consent(self):
         self.driver.get("https://www.google.com/")  # To add cookie with domain .google.com
@@ -391,3 +382,9 @@ def enable_logs():
     stream_handler.setFormatter(logging.Formatter('%(asctime)s - %(funcName)s - %(message)s', "%H:%M:%S"))
 
     logger.addHandler(stream_handler)
+
+
+if __name__ == "__main__":
+    downloader = GoogleImagesDownloader(debug=True, show=True)
+    downloader.disable_safeui()
+    time.sleep(9999)
