@@ -211,6 +211,7 @@ class GoogleImagesDownloader:
 
         while button_off.get_attribute("aria-checked") != "true":
             button_off.click()
+            time.sleep(0.25)
 
     def __consent(self):
         self.driver.get("https://www.google.com/")  # To add cookie with domain .google.com
@@ -258,6 +259,8 @@ class GoogleImagesDownloader:
             data_status = int(bottom_tag.get_attribute("data-status"))
 
             logger.debug(f"data_status : {data_status}")
+
+            time.sleep(0.25)
 
     def close(self):
         try:
@@ -385,9 +388,3 @@ def enable_logs():
     stream_handler.setFormatter(logging.Formatter('%(asctime)s - %(funcName)s - %(message)s', "%H:%M:%S"))
 
     logger.addHandler(stream_handler)
-
-
-if __name__ == "__main__":
-    downloader = GoogleImagesDownloader(debug=True, show=True)
-    downloader.disable_safeui()
-    time.sleep(9999)
