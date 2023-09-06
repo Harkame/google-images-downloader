@@ -12,7 +12,6 @@ class BaseTestBrowser:
     downloader = None
     browser = None
 
-    """
     def test_consent(self):
         self.downloader.driver.get("https://www.google.com")
 
@@ -50,7 +49,6 @@ class BaseTestBrowser:
         button_tags = radio_group_tag.find_elements(By.CSS_SELECTOR, "div[jsname='GCYh9b']")
 
         assert button_tags[2].get_attribute("aria-checked") == "true"
-    """
 
     def test_close(self):
         pid = self.downloader.driver.service.process.pid
