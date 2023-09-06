@@ -267,28 +267,9 @@ class GoogleImagesDownloader:
 
     def close(self):
         try:
-            self.driver.close()
+            self.driver.quit()
         except MaxRetryError as e:
             logger.debug(f"Driver seems to be already closed - e : {e}")
-
-        pid = self.driver.service.process.pid
-
-        while is_running(pid):
-            logger.debug(f"Try to kill process - pid : {pid}")
-            time.sleep(0.25)
-
-
-def is_running(pid):
-    try:
-        if os.name == "nt":
-            os.kill(int(pid), signal.SIGTERM)
-        else:
-            os.kill(int(pid), signal.SIGQUIT)
-    except OSError:
-        pass
-
-    return pid in psutil.pids()
-
 
 def download_item(index, query, query_destination, image_url, preview_src, resize, file_format, pbar=None):
     image_bytes = None
@@ -409,3 +390,7 @@ def enable_logs():
     stream_handler.setFormatter(logging.Formatter('%(asctime)s - %(funcName)s - %(message)s', "%H:%M:%S"))
 
     logger.addHandler(stream_handler)
+
+if __name__ == "__main__":
+    downloader = GoogleImagesDownloader(debug=True)
+    downloader.close()
