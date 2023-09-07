@@ -145,7 +145,5 @@ class BaseTestDownload:
         self.downloader = None  # Bug ? test suit is not ending if not
 
 
-"""
 class TestDownloadChrome(BaseTestDownload):
     browser = "chrome"
-"""
