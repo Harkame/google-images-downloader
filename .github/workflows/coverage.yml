@@ -1,10 +1,9 @@
 name: coverage
 on:
   push:
-  pull_request:
 
 concurrency:
-  group: check-${{ github.ref }}
+  group: ${{ github.ref }}-coverage
   cancel-in-progress: true
 
 jobs:
