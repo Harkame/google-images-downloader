@@ -7,6 +7,9 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/6ab037c4ca021b4be8ab/maintainability)](https://codeclimate.com/github/Harkame/google-images-downloader/maintainability)
 [![CodeFactor](https://www.codefactor.io/repository/github/harkame/google-images-downloader/badge)](https://www.codefactor.io/repository/github/harkame/google-images-downloader)
 
+[![Coverage Status](https://coveralls.io/repos/github/Harkame/google-images-downloader/badge.svg)](https://coveralls.io/github/Harkame/google-images-downloader)
+[![codecov](https://codecov.io/gh/Harkame/google-images-downloader/graph/badge.svg?token=9qdPDbT1e0)](https://codecov.io/gh/Harkame/google-images-downloader)
+
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ## Requirements
