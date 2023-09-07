@@ -113,6 +113,24 @@ class BaseTestDownload:
             elif file_format == "PNG":
                 assert file_extension == ".png"
 
+    def test_not_quiet_download(self, capsys):
+        self.downloader.close()
+        self.downloader = GoogleImagesDownloader(browser=self.browser)
+        self.downloader.download(QUERY, destination=DESTINATION)
+
+        captured = capsys.readouterr()
+        assert captured.out != ""
+        assert captured.err != ""
+
+    def test_quiet_download(self, capsys):
+        self.downloader.close()
+        self.downloader = GoogleImagesDownloader(browser=self.browser, quiet=True)
+        self.downloader.download(QUERY, destination=DESTINATION)
+
+        captured = capsys.readouterr()
+        assert captured.out == ""
+        assert captured.err == ""
+
     @pytest.fixture(autouse=True)
     def resource(self):
         remove_download_folders()
