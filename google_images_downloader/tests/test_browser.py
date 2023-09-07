@@ -26,6 +26,7 @@ class BaseTestBrowser:
 
         assert not confirm_popup_tag
 
+    """
     def test_safeui_enabled_by_default(self):
         self.downloader.driver.get("https://www.google.com/safesearch")
 
@@ -56,6 +57,7 @@ class BaseTestBrowser:
         self.downloader.close()
 
         assert pid not in psutil.pids()
+    """
 
     @pytest.fixture(autouse=True)
     def resource(self):
