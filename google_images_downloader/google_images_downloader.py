@@ -16,7 +16,6 @@ import requests
 from pathlib import Path
 import time
 from urllib3.exceptions import MaxRetryError
-from selenium.webdriver.common.keys import Keys
 
 DEFAULT_DESTINATION = os.path.join(Path(__file__).parent.parent, "downloads")
 DEFAULT_LIMIT = 50
@@ -60,8 +59,7 @@ class GoogleImagesDownloader:
 
             self.quiet = True  # If enable debug logs, disable progress bar
 
-        if quiet:
-            self.quiet = True
+        self.quiet = quiet
 
         if browser == DEFAULT_BROWSER:  # chrome
             options = webdriver.ChromeOptions()
