@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 user_agent = UserAgent().chrome
-headers = {'User-Agent': str(user_agent)}
+headers = {"User-Agent": str(user_agent)}
 
 WEBDRIVER_WAIT_DURATION = DEFAULT_WEBDRIVER_WAIT_DURATION
 
@@ -51,6 +51,7 @@ class GoogleImagesDownloader:
         logger.debug(f"show : {show}")
         logger.debug(f"debug : {debug}")
         logger.debug(f"quiet : {quiet}")
+        logger.debug(f"disable_safeui : {disable_safeui}")
 
         self.quiet = quiet
 
@@ -58,8 +59,6 @@ class GoogleImagesDownloader:
             enable_logs()
 
             self.quiet = True  # If enable debug logs, disable progress bar
-
-        self.quiet = quiet
 
         if browser == DEFAULT_BROWSER:  # chrome
             options = webdriver.ChromeOptions()
@@ -69,7 +68,7 @@ class GoogleImagesDownloader:
 
             options.add_argument("--disable-gpu")
             options.add_argument("--disable-dev-shm-usage")
-            options.add_experimental_option('excludeSwitches', ['enable-logging'])
+            options.add_experimental_option("excludeSwitches", ["enable-logging"])
 
             self.driver = webdriver.Chrome(options=options)
         elif browser == "firefox":
@@ -215,12 +214,12 @@ class GoogleImagesDownloader:
         self.driver.get("https://www.google.com/")  # To add cookie with domain .google.com
 
         self.driver.add_cookie(
-            {'domain': '.google.com', 'expiry': 1726576871, 'httpOnly': False, 'name': 'SOCS', 'path': '/',
-             'sameSite': 'Lax', 'secure': False, 'value': 'CAESHAgBEhJnd3NfMjAyMzA4MTUtMF9SQzQaAmZyIAEaBgiAjICnBg'})
+            {"domain": ".google.com", "expiry": 1726576871, "httpOnly": False, "name": "SOCS", "path": "/",
+             "sameSite": "Lax", "secure": False, "value": "CAESHAgBEhJnd3NfMjAyMzA4MTUtMF9SQzQaAmZyIAEaBgiAjICnBg"})
 
         self.driver.add_cookie(
-            {'domain': 'www.google.com', 'expiry': 1695040872, 'httpOnly': False, 'name': 'OTZ', 'path': '/',
-             'sameSite': 'Lax', 'secure': True, 'value': '7169081_48_52_123900_48_436380'})
+            {"domain": "www.google.com", "expiry": 1695040872, "httpOnly": False, "name": "OTZ", "path": "/",
+             "sameSite": "Lax", "secure": True, "value": "7169081_48_52_123900_48_436380"})
 
         self.driver.get("https://www.google.com/")
 
@@ -428,6 +427,6 @@ def enable_logs():
         logger.removeHandler(logger.handlers[0])
 
     stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(logging.Formatter('%(asctime)s - %(funcName)s - %(message)s', "%H:%M:%S"))
+    stream_handler.setFormatter(logging.Formatter("%(asctime)s - %(funcName)s - %(message)s", "%H:%M:%S"))
 
     logger.addHandler(stream_handler)
