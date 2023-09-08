@@ -16,6 +16,7 @@ import requests
 from pathlib import Path
 import time
 from urllib3.exceptions import MaxRetryError
+from selenium.webdriver.common.keys import Keys
 
 DEFAULT_DESTINATION = os.path.join(Path(__file__).parent.parent, "downloads")
 DEFAULT_LIMIT = 50
@@ -27,6 +28,8 @@ DEFAULT_FORMAT = None
 DEFAULT_DISABLE_SAFEUI = False
 DEFAULT_WEBDRIVER_WAIT_DURATION = 20
 DEFAULT_BROWSER = "chrome"
+
+MAXIMUM_SCROLL_RETRY = 20
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -158,13 +161,10 @@ class GoogleImagesDownloader:
         preview_src_tag = None
 
         while not preview_src_tag:  # Sometimes image part is not displayed the first time
-            self.driver.execute_script("arguments[0].scrollIntoView(true);", image_item)
-
             logger.debug(f"[{index}] -> Try to click on image_item")
 
             try:
-                (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(image_item))
-                 .click())
+                self.__click_on_element(image_item)
             except ElementClickInterceptedException as e:
                 logger.debug(f"[{index}] -> ElementClickInterceptedException : {e}")
                 self.driver.execute_script(
@@ -207,7 +207,7 @@ class GoogleImagesDownloader:
 
         button_tags = radio_group_tag.find_elements(By.CSS_SELECTOR, "div[jsname='GCYh9b']")
 
-        button_tags[2].click()  # Click on button off
+        self.__click_on_element(button_tags[2])
 
         WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(  # Wait for confirmation popup
             EC.presence_of_element_located((By.CSS_SELECTOR, "div#snbc :nth-child(3) div[jsname='Ng57nc']"))
@@ -230,37 +230,77 @@ class GoogleImagesDownloader:
         if not self.quiet:
             print("Scrolling...")
 
-        bottom_tag = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "div[jsname='wEwttd'][data-status='5']"))
-        )
+        try:
+            bottom_tag = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "div[jsname='wEwttd']")))
+        except TimeoutException as e:
+            logger.debug(f"e : {e}")
+            raise e
 
         display_more_tag = self.driver.find_element(By.CSS_SELECTOR, 'input[jsaction="Pmjnye"]')
 
-        data_status = int(bottom_tag.get_attribute("data-status"))
+        data_status_str = bottom_tag.get_attribute("data-status")
+        data_status = -1
+
+        while not data_status_str and data_status != 5:  # Waiting for all images to load
+            data_status_str = bottom_tag.get_attribute("data-status")
+
+            if data_status_str:
+                data_status = int(data_status_str)
+            time.sleep(0.5)
 
         list_items = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "div[role='list']"))
         )
 
-        while data_status != 3:
+        retry = 0
+        last_len_image_items = 0
+
+        while data_status != 3:  # Wait for no more images available, end of the page
             if display_more_tag.is_displayed() and display_more_tag.is_enabled():
-                WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
-                    EC.element_to_be_clickable(display_more_tag)).click()
+                self.__click_on_element(display_more_tag)
 
             self.driver.execute_script("arguments[0].scrollIntoView(true);", bottom_tag)
 
             image_items = list_items.find_elements(By.CSS_SELECTOR, "div[role='listitem']")
+            len_image_items = len(image_items)
 
-            logger.debug(f"limit : {limit} - len(image_items) : {len(image_items)}")
+            logger.debug(f"last_len_image_items : {last_len_image_items}")
+            logger.debug(f"len_image_items : {len_image_items}")
 
-            if limit <= len(image_items):
+            self.__click_on_element(image_items[-1], scroll=False)  # Don't scroll to avoid yo-yo scroll
+
+            if last_len_image_items == len_image_items:
+                logger.debug(f"retry : {retry}")
+
+                if retry == MAXIMUM_SCROLL_RETRY:
+                    logger.debug("maximum retry reached")
+                    return
+
+                retry += 1
+            else:
+                retry = 0
+
+            last_len_image_items = len_image_items
+
+            logger.debug(f"limit : {limit} - len_image_items : len_image_items")
+
+            if limit <= len_image_items:
                 return
 
             data_status = int(bottom_tag.get_attribute("data-status"))
 
             logger.debug(f"data_status : {data_status}")
 
-            time.sleep(0.25)
+            if data_status == 1:  # Some images are loading
+                time.sleep(0.75)
+
+    def __click_on_element(self, element, scroll=True):
+        if scroll:
+            self.driver.execute_script("arguments[0].scrollIntoView(true);", element)
+
+        (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(element))
+         .click())
 
     def close(self):
         try:
@@ -369,7 +409,8 @@ def download_image_with_urllib(index, image_url):
     image_bytes = None
 
     try:
-        with urllib.request.urlopen(image_url) as response:
+        request = urllib.request.Request(image_url)
+        with urllib.request.urlopen(request) as response:
             if response.status == 200:
                 logger.debug(f"[{index}] -> Successfully get image_bytes")
                 image_bytes = response.read()
@@ -384,6 +425,10 @@ def download_image_with_urllib(index, image_url):
 
 
 def enable_logs():
+    # Useful if multiple downloader are created
+    while logger.hasHandlers():
+        logger.removeHandler(logger.handlers[0])
+
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(logging.Formatter('%(asctime)s - %(funcName)s - %(message)s', "%H:%M:%S"))
 
