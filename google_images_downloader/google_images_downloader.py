@@ -389,7 +389,7 @@ def download_image_with_requests(index, image_url):
     image_bytes = None
 
     try:
-        response = requests.get(image_url, allow_redirects=True)
+        response = requests.get(image_url, allow_redirects=True, headers=headers)
 
         if response.status_code == 200:
             logger.debug(f"[{index}] -> Successfully get image_bytes")
@@ -409,7 +409,7 @@ def download_image_with_urllib(index, image_url):
     image_bytes = None
 
     try:
-        request = urllib.request.Request(image_url)
+        request = urllib.request.Request(image_url, headers=headers)
         with urllib.request.urlopen(request) as response:
             if response.status == 200:
                 logger.debug(f"[{index}] -> Successfully get image_bytes")
