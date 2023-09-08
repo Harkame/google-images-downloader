@@ -3,7 +3,9 @@ import shutil
 from PIL import Image
 import pytest
 
-from ..google_images_downloader import GoogleImagesDownloader, DEFAULT_LIMIT
+from ..google_images_downloader import GoogleImagesDownloader, DEFAULT_LIMIT, download_image, \
+    download_image_with_requests, \
+    download_image_with_urllib
 
 QUERY = "cat"
 ANOTHER_QUERIES = ["dog", "fish", "bird", "car", "fruit"]
@@ -23,6 +25,7 @@ RESIZE_FORMATS = [
 FILE_FORMATS = ["JPEG", "PNG"]
 LIMITS = [10, 20, 75, 100, 200, 300]
 NO_LIMIT = 9999
+IMAGE_URL_FAIL_WITH_REQUESTS = "https://www.fourpaws.com/-/media/Project/OneWeb/FourPaws/Images/articles/cat-corner/small-cat-breeds/small-cats-header-cropped.jpg?h=388&iar=0&w=927&hash=32725EF83B05BE026904D96C50B03A8D"
 
 
 def remove_download_folders():
@@ -30,6 +33,24 @@ def remove_download_folders():
 
     for another_destination in ANOTHER_DESTINATIONS:
         shutil.rmtree(another_destination, ignore_errors=True)
+
+
+def test_download_fail_with_requests():
+    image_bytes = download_image_with_requests(0, IMAGE_URL_FAIL_WITH_REQUESTS)
+
+    assert not image_bytes
+
+
+def test_download_works_with_urllib():
+    image_bytes = download_image_with_urllib(0, IMAGE_URL_FAIL_WITH_REQUESTS)
+
+    assert image_bytes
+
+
+def test_download_fail_with_requests_2():
+    image_bytes = download_image(0, IMAGE_URL_FAIL_WITH_REQUESTS)
+
+    assert image_bytes
 
 
 class BaseTestDownload:
