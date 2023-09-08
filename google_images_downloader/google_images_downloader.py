@@ -375,7 +375,6 @@ def download_image(index, image_url):
     image_bytes = download_image_with_requests(index, image_url)
 
     # Some downloads failed with requests but works with urllib
-    # Sample : https://www.fourpaws.com/-/media/Project/OneWeb/FourPaws/Images/articles/cat-corner/small-cat-breeds/small-cats-header-cropped.jpg?h=388&iar=0&w=927&hash=32725EF83B05BE026904D96C50B03A8D
     if image_bytes is None:
         logger.debug(
             f"[{index}] -> download_image_with_requests failed, try with download_image_with_urllib - image_url : {image_url}")
