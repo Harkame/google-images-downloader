@@ -115,9 +115,6 @@ class GoogleImagesDownloader:
 
         image_items = list_items.find_elements(By.CSS_SELECTOR, "div[role='listitem']")
 
-        if not self.quiet:
-            print("Downloading...")
-
         downloads_count = len(image_items) if limit > len(image_items) else limit
 
         if self.quiet:
@@ -127,6 +124,9 @@ class GoogleImagesDownloader:
                 return self.__download_items(query, destination, image_items, resize, limit, file_format, pbar=pbar)
 
     def __download_items(self, query, destination, image_items, resize, limit, file_format, pbar=None):
+        if not self.quiet:
+            print("Downloading...")
+
         query_destination = os.path.join(destination, query)
 
         with ThreadPoolExecutor(max_workers=5) as executor:
@@ -168,7 +168,7 @@ class GoogleImagesDownloader:
                     "document.getElementsByClassName('qs41qe')[0].style.display = 'none'")  # Hide element that blocks the click
                 continue
 
-            try:
+            try:  # Check if image is not blurred
                 self.driver.find_element(By.CSS_SELECTOR, "div[jsname='CGzTgf'] a[jsname='fSMu2b']")
                 return None, None
             except NoSuchElementException:
@@ -312,16 +312,9 @@ def download_item(index, query, query_destination, image_url, preview_src, resiz
     if image_url:
         image_bytes = download_image(index, image_url)  # Try to download image_url
 
-    if not image_bytes:  # Download with image_url failed or no image_url, download the preview image
+    if not image_bytes and preview_src:  # Download with image_url failed or no image_url, download the preview image
         logger.debug(f"[{index}] -> download with image_url failed, try to download the preview")
-
-        if preview_src.startswith("http"):
-            logger.debug(f"[{index}] -> preview_src is URL")
-            image_bytes = download_image(index, preview_src)  # Try to download preview_src
-        else:
-            logger.debug(f"[{index}] -> preview_src is data")
-            image_bytes = base64.b64decode(
-                preview_src.replace("data:image/png;base64,", "").replace("data:image/jpeg;base64,", ""))
+        image_bytes = download_preview(index, preview_src)
 
     if not image_bytes:
         logger.debug(f"[{index}] -> Can't download none of image_url and preview_src")
@@ -333,6 +326,16 @@ def download_item(index, query, query_destination, image_url, preview_src, resiz
 
     if pbar:
         pbar.update(1)
+
+
+def download_preview(index, preview_src):
+    if preview_src.startswith("http"):
+        logger.debug(f"[{index}] -> preview_src is URL")
+        return download_image(index, preview_src)  # Try to download preview_src
+    else:
+        logger.debug(f"[{index}] -> preview_src is data")
+        return base64.b64decode(
+            preview_src.replace("data:image/png;base64,", "").replace("data:image/jpeg;base64,", ""))
 
 
 def save_image(index, query, query_destination, resize, file_format, image_bytes):
