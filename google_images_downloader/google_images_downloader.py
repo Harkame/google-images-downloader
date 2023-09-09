@@ -16,6 +16,9 @@ import requests
 from pathlib import Path
 import time
 from urllib3.exceptions import MaxRetryError
+from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.firefox import GeckoDriverManager
+from selenium.webdriver.chrome.service import Service as ChromeService
 
 DEFAULT_DESTINATION = os.path.join(Path(__file__).parent.parent, "downloads")
 DEFAULT_LIMIT = 50
@@ -70,7 +73,7 @@ class GoogleImagesDownloader:
             options.add_argument("--disable-dev-shm-usage")
             options.add_experimental_option("excludeSwitches", ["enable-logging"])
 
-            self.driver = webdriver.Chrome(options=options)
+            self.driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
         elif browser == "firefox":
             options = webdriver.FirefoxOptions()
 
@@ -78,7 +81,8 @@ class GoogleImagesDownloader:
                 options.add_argument("-headless")
 
             self.driver = webdriver.Firefox(options=options,
-                                            service=webdriver.FirefoxService(log_output=os.devnull))
+                                            service=webdriver.FirefoxService(GeckoDriverManager().install(),
+                                                                             log_output=os.devnull))
 
         self.__consent()
 
