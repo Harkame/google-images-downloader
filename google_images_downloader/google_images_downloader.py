@@ -165,7 +165,6 @@ class GoogleImagesDownloader:
                 logger.debug(f"[{index}] -> ElementClickInterceptedException : {e}")
                 self.driver.execute_script(
                     "document.getElementsByClassName('qs41qe')[0].style.display = 'none'")  # Hide element that blocks the click
-                raise e
                 continue
 
             try:  # Check if image is not blurred
@@ -180,7 +179,6 @@ class GoogleImagesDownloader:
                         (By.CSS_SELECTOR, "div[jsname='CGzTgf'] img[jsname='JuXqh']"))
                 )
             except TimeoutException as e:
-                raise e
                 logger.debug(f"[{index}] -> Can't reach images tag...retry")
 
         preview_src = preview_src_tag.get_attribute("src")
@@ -192,7 +190,6 @@ class GoogleImagesDownloader:
                 EC.presence_of_element_located((By.CSS_SELECTOR, "div[jsname='CGzTgf'] img[jsname='kn3ccd']"))
             ).get_attribute("src")
         except TimeoutException as e:  # No image available
-            raise e
             logger.debug(f"[{index}] Can't retrieve image_url")
 
         return image_url, preview_src
