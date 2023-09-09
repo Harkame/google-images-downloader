@@ -56,7 +56,7 @@ def test_download_fail_with_requests_2():
 class BaseTestDownload:
     downloader = None
     browser = None
-    """
+
     def test_download(self):
         self.downloader.download(QUERY, destination=DESTINATION)
 
@@ -64,7 +64,7 @@ class BaseTestDownload:
 
         assert len(files) == DEFAULT_LIMIT
 
-
+    """
     @pytest.mark.parametrize("query", ANOTHER_QUERIES)
     def test_download_another_query(self, query):
         self.downloader.download(query, destination=DESTINATION)
@@ -153,6 +153,7 @@ class BaseTestDownload:
         captured = capsys.readouterr()
         assert captured.out == ""
         assert captured.err == ""
+    """
 
     @pytest.fixture(autouse=True)
     def resource(self):
@@ -165,8 +166,6 @@ class BaseTestDownload:
         remove_download_folders()
 
         self.downloader.close()
-
-    """
 
 
 """
