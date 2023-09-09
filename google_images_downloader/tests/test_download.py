@@ -35,7 +35,6 @@ def remove_download_folders():
         shutil.rmtree(another_destination, ignore_errors=True)
 
 
-"""
 def test_download_fail_with_requests():
     image_bytes = download_image_with_requests(0, IMAGE_URL_FAIL_WITH_REQUESTS)
 
@@ -52,13 +51,12 @@ def test_download_fail_with_requests_2():
     image_bytes = download_image(0, IMAGE_URL_FAIL_WITH_REQUESTS)
 
     assert image_bytes
-"""
 
 
 class BaseTestDownload:
     downloader = None
     browser = None
-
+    """
     def test_download(self):
         self.downloader.download(QUERY, destination=DESTINATION)
 
@@ -66,7 +64,7 @@ class BaseTestDownload:
 
         assert len(files) == DEFAULT_LIMIT
 
-    """
+
     @pytest.mark.parametrize("query", ANOTHER_QUERIES)
     def test_download_another_query(self, query):
         self.downloader.download(query, destination=DESTINATION)
@@ -155,7 +153,6 @@ class BaseTestDownload:
         captured = capsys.readouterr()
         assert captured.out == ""
         assert captured.err == ""
-    """
 
     @pytest.fixture(autouse=True)
     def resource(self):
@@ -168,6 +165,8 @@ class BaseTestDownload:
         remove_download_folders()
 
         self.downloader.close()
+
+    """
 
 
 """
