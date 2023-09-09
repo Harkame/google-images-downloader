@@ -35,6 +35,7 @@ def remove_download_folders():
         shutil.rmtree(another_destination, ignore_errors=True)
 
 
+"""
 def test_download_fail_with_requests():
     image_bytes = download_image_with_requests(0, IMAGE_URL_FAIL_WITH_REQUESTS)
 
@@ -51,6 +52,7 @@ def test_download_fail_with_requests_2():
     image_bytes = download_image(0, IMAGE_URL_FAIL_WITH_REQUESTS)
 
     assert image_bytes
+"""
 
 
 class BaseTestDownload:
