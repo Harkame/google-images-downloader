@@ -1,7 +1,7 @@
 # google-images-downloader
 
 [![PyPI version](https://badge.fury.io/py/google-images-downloader.svg)](https://badge.fury.io/py/google-images-downloader)
-[![build](https://github.com/Harkame/google-images-downloader/actions/workflows/build.yml/badge.svg)](https://github.com/Harkame/google-images-downloader/actions/workflows/build.yml)
+[![Test](https://github.com/Harkame/google-images-downloader/actions/workflows/test.yml/badge.svg)](https://github.com/Harkame/google-images-downloader/actions/workflows/build.yml)
 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/35653176f62b47aa8666544e6c30dcfd)](https://app.codacy.com/gh/Harkame/google-images-downloader/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![Maintainability](https://api.codeclimate.com/v1/badges/6ab037c4ca021b4be8ab/maintainability)](https://codeclimate.com/github/Harkame/google-images-downloader/maintainability)
