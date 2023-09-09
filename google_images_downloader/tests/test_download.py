@@ -169,14 +169,7 @@ class BaseTestDownload:
 
 
 """
-
-
 class TestDownloadChrome(BaseTestDownload):
     browser = "chrome"
 
-
 """
-
-
-class TestDownloadFirefox(BaseTestDownload):
-    browser = "firefox"
