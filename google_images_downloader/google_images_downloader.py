@@ -73,16 +73,17 @@ class GoogleImagesDownloader:
             options.add_argument("--disable-dev-shm-usage")
             options.add_experimental_option("excludeSwitches", ["enable-logging"])
 
-            self.driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
+            self.driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()),
+                                           options=options)
         elif browser == "firefox":
             options = webdriver.FirefoxOptions()
 
             if not show:
                 options.add_argument("-headless")
 
-            self.driver = webdriver.Firefox(options=options,
-                                            service=webdriver.FirefoxService(GeckoDriverManager().install(),
-                                                                             log_output=os.devnull))
+            self.driver = webdriver.Firefox(
+                service=webdriver.FirefoxService(GeckoDriverManager().install(),
+                                                 log_output=os.devnull), options=options)
 
         self.__consent()
 
