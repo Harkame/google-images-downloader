@@ -40,6 +40,7 @@ jobs:
       - uses: browser-actions/setup-firefox@v1
         if: ${{ matrix.os != 'windows-latest' }} # Not working on Windows at the moment
       - run: firefox --version
+        if: ${{ matrix.os != 'windows-latest' }} # Not working on Windows at the moment
       - name: Install tests dependencies
         run: pip install pytest pytest-cov
       - name: Install package dependencies
