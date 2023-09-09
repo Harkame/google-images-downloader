@@ -67,7 +67,7 @@ class GoogleImagesDownloader:
             options.add_argument("--disable-dev-shm-usage")
             options.add_experimental_option("excludeSwitches", ["enable-logging"])
 
-            self.driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()),
+            self.driver = webdriver.Chrome(service=ChromeService(),
                                            options=options)
         elif browser == "firefox":
             options = webdriver.FirefoxOptions()
@@ -76,8 +76,8 @@ class GoogleImagesDownloader:
                 options.add_argument("-headless")
 
             self.driver = webdriver.Firefox(
-                service=webdriver.FirefoxService(GeckoDriverManager().install(),
-                                                 log_output=os.devnull), options=options)
+                service=webdriver.FirefoxService(log_output=os.devnull),
+                options=options)
 
         self.__consent()
 
@@ -431,3 +431,9 @@ def enable_logs():
     stream_handler.setFormatter(logging.Formatter("%(asctime)s - %(funcName)s - %(message)s", "%H:%M:%S"))
 
     logger.addHandler(stream_handler)
+
+
+if __name__ == "__main__":
+    downloader = GoogleImagesDownloader(debug=True)
+    downloader.download("dog", limit=999)
+    downloader.close()
