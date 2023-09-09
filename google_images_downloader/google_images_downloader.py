@@ -161,7 +161,7 @@ class GoogleImagesDownloader:
 
             try:
                 self.__click_on_element(image_item)
-            except ElementClickInterceptedException as e:
+            except ElementClickInterceptedException:
                 logger.debug(f"[{index}] -> ElementClickInterceptedException : {e}")
                 self.driver.execute_script(
                     "document.getElementsByClassName('qs41qe')[0].style.display = 'none'")  # Hide element that blocks the click
@@ -178,7 +178,7 @@ class GoogleImagesDownloader:
                     EC.presence_of_element_located(
                         (By.CSS_SELECTOR, "div[jsname='CGzTgf'] img[jsname='JuXqh']"))
                 )
-            except TimeoutException as e:
+            except TimeoutException:
                 logger.debug(f"[{index}] -> Can't reach images tag...retry")
 
         preview_src = preview_src_tag.get_attribute("src")
@@ -189,7 +189,7 @@ class GoogleImagesDownloader:
             image_url = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, "div[jsname='CGzTgf'] img[jsname='kn3ccd']"))
             ).get_attribute("src")
-        except TimeoutException as e:  # No image available
+        except TimeoutException:  # No image available
             logger.debug(f"[{index}] Can't retrieve image_url")
 
         return image_url, preview_src
