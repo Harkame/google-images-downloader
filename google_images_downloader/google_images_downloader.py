@@ -431,9 +431,3 @@ def enable_logs():
     stream_handler.setFormatter(logging.Formatter("%(asctime)s - %(funcName)s - %(message)s", "%H:%M:%S"))
 
     logger.addHandler(stream_handler)
-
-
-if __name__ == "__main__":
-    downloader = GoogleImagesDownloader(debug=True)
-    downloader.download("dog", limit=999)
-    downloader.close()

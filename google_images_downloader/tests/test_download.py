@@ -25,7 +25,7 @@ RESIZE_FORMATS = [
 FILE_FORMATS = ["JPEG", "PNG"]
 LIMITS = [10, 20, 75, 100, 200, 300]
 NO_LIMIT = 9999
-IMAGE_URL_FAIL_WITH_REQUESTS = "https://www.fourpaws.com/-/media/Project/OneWeb/FourPaws/Images/articles/cat-corner/small-cat-breeds/small-cats-header-cropped.jpg?h=388&iar=0&w=927&hash=32725EF83B05BE026904D96C50B03A8D"
+IMAGE_URL_FAIL_WITH_REQUESTS = "https://www.hindustantimes.com/ht-img/img/2023/08/25/1600x900/international_dog_day_1692974397743_1692974414085.jpg"
 
 
 def remove_download_folders():
