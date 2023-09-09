@@ -64,7 +64,6 @@ class BaseTestDownload:
 
         assert len(files) == DEFAULT_LIMIT
 
-    """
     @pytest.mark.parametrize("query", ANOTHER_QUERIES)
     def test_download_another_query(self, query):
         self.downloader.download(query, destination=DESTINATION)
@@ -72,7 +71,6 @@ class BaseTestDownload:
         files = os.listdir(os.path.join(DESTINATION, query))
 
         assert len(files) == DEFAULT_LIMIT
-
 
     def test_download_no_results(self):
         self.downloader.download(QUERY_WITHOUT_RESULTS, destination=DESTINATION)
@@ -153,7 +151,6 @@ class BaseTestDownload:
         captured = capsys.readouterr()
         assert captured.out == ""
         assert captured.err == ""
-    """
 
     @pytest.fixture(autouse=True)
     def resource(self):
@@ -168,8 +165,5 @@ class BaseTestDownload:
         self.downloader.close()
 
 
-"""
 class TestDownloadChrome(BaseTestDownload):
     browser = "chrome"
-
-"""
