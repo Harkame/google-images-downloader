@@ -7,7 +7,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from PIL import Image
 import logging
-from fake_useragent import UserAgent
 from selenium.common.exceptions import TimeoutException, ElementClickInterceptedException, NoSuchElementException
 import base64
 from io import BytesIO
@@ -16,8 +15,6 @@ import requests
 from pathlib import Path
 import time
 from urllib3.exceptions import MaxRetryError
-from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.chrome.service import Service as ChromeService
 
 DEFAULT_DESTINATION = os.path.join(Path(__file__).parent.parent, "downloads")
@@ -35,9 +32,6 @@ MAXIMUM_SCROLL_RETRY = 20
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-
-user_agent = UserAgent().chrome
-headers = {"User-Agent": str(user_agent)}
 
 WEBDRIVER_WAIT_DURATION = DEFAULT_WEBDRIVER_WAIT_DURATION
 
@@ -393,7 +387,7 @@ def download_image_with_requests(index, image_url):
     image_bytes = None
 
     try:
-        response = requests.get(image_url, allow_redirects=True, headers=headers)
+        response = requests.get(image_url, allow_redirects=True)
 
         if response.status_code == 200:
             logger.debug(f"[{index}] -> Successfully get image_bytes")
@@ -413,7 +407,7 @@ def download_image_with_urllib(index, image_url):
     image_bytes = None
 
     try:
-        request = urllib.request.Request(image_url, headers=headers)
+        request = urllib.request.Request(image_url)
         with urllib.request.urlopen(request) as response:
             if response.status == 200:
                 logger.debug(f"[{index}] -> Successfully get image_bytes")
