@@ -64,8 +64,13 @@ class BaseTestBrowser:
         yield
 
         self.downloader.close()
-        self.downloader = None  # Bug ? test suit is not ending if not
 
 
+"""
 class TestBrowserChrome(BaseTestBrowser):
     browser = "chrome"
+"""
+
+
+class TestBrowserFirefox(BaseTestBrowser):
+    browser = "firefox"
