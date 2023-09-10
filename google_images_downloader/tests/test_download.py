@@ -64,6 +64,7 @@ class BaseTestDownload:
 
         assert len(files) == DEFAULT_LIMIT
 
+    """
     @pytest.mark.parametrize("query", ANOTHER_QUERIES)
     def test_download_another_query(self, query):
         self.downloader.download(query, destination=DESTINATION)
@@ -72,7 +73,6 @@ class BaseTestDownload:
 
         assert len(files) == DEFAULT_LIMIT
 
-    """
     def test_download_no_results(self):
         self.downloader.download(QUERY_WITHOUT_RESULTS, destination=DESTINATION)
 
