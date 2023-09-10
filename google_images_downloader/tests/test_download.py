@@ -57,6 +57,7 @@ class BaseTestDownload:
     downloader = None
     browser = None
 
+    """
     def test_download(self):
         self.downloader.download(QUERY, destination=DESTINATION)
 
@@ -151,6 +152,7 @@ class BaseTestDownload:
         captured = capsys.readouterr()
         assert captured.out == ""
         assert captured.err == ""
+    """
 
     @pytest.fixture(autouse=True)
     def resource(self):

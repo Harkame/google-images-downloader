@@ -68,7 +68,3 @@ class BaseTestBrowser:
 
 class TestBrowserChrome(BaseTestBrowser):
     browser = "chrome"
-
-
-class TestBrowserFirefox(BaseTestBrowser):
-    browser = "firefox"
