@@ -161,13 +161,9 @@ class GoogleImagesDownloader:
         while not preview_src_tag:  # Sometimes image part is not displayed the first time
             logger.debug(f"[{index}] -> Try to click on image_item")
 
-            try:
-                self.__click_on_element(image_item, scroll=False)
-            except ElementClickInterceptedException as e:
-                logger.debug(f"[{index}] -> ElementClickInterceptedException : {e}")
-                self.driver.execute_script(
-                    "document.getElementsByClassName('qs41qe')[0].style.display = 'none'")  # Hide element that blocks the click
-                continue
+            self.driver.execute_script(
+                "document.getElementsByClassName('qs41qe')[0].style.display = 'none'")  # Hide element that blocks the click
+            self.__click_on_element(image_item, scroll=False)
 
             try:  # Check if image is not blurred
                 self.driver.find_element(By.CSS_SELECTOR, "div[jsname='CGzTgf'] a[jsname='fSMu2b']")
