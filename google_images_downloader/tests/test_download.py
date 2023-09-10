@@ -58,7 +58,7 @@ class BaseTestDownload:
     browser = None
 
     def test_download(self):
-        self.downloader.download(QUERY, destination=DESTINATION, limit=1)
+        self.downloader.download(QUERY, destination=DESTINATION)
 
         files = os.listdir(os.path.join(DESTINATION, QUERY))
 
