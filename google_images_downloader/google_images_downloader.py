@@ -158,15 +158,22 @@ class GoogleImagesDownloader:
 
             wait(futures)
 
-    def __scroll_to_element(self, element):
-        while not element.is_displayed() or not element.is_enabled():
-            self.driver.execute_script("arguments[0].scrollIntoView(true);", element)
-
     def __get_image_values(self, index, image_item):
-        self.__scroll_to_element(image_item)
 
-        (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(image_item))
-         .click())
+        while True:
+            logger.debug(f"[{index}] -> Try to open side menu")
+            self.driver.execute_script("arguments[0].scrollIntoView(true);", image_item)
+
+            (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(image_item))
+             .click())
+
+            try:
+                (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, "div[jsname='CGzTgf']"))))
+                break
+            except NoSuchElementException:
+                logger.debug(f"[{index}] -> Try to open side menu failed...retry")
+                pass
 
         try:
             self.driver.find_element(By.CSS_SELECTOR, "div[jsname='CGzTgf'] a[jsname='fSMu2b']")
@@ -174,12 +181,10 @@ class GoogleImagesDownloader:
         except NoSuchElementException:
             pass
 
-        preview_src_tag = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
+        preview_src = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
             EC.presence_of_element_located(
                 (By.CSS_SELECTOR, "div[jsname='CGzTgf'] img[jsname='JuXqh']"))
-        )
-
-        preview_src = preview_src_tag.get_attribute("src")
+        ).get_attribute("src")
 
         image_url = None
 
@@ -427,3 +432,10 @@ def enable_logs():
     stream_handler.setFormatter(logging.Formatter("%(asctime)s - %(funcName)s - %(message)s", "%H:%M:%S"))
 
     logger.addHandler(stream_handler)
+
+
+if __name__ == "__main__":
+    for i in range(0, 100):
+        downloader = GoogleImagesDownloader(debug=True)
+        downloader.download("cat")
+        downloader.close()
