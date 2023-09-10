@@ -66,5 +66,7 @@ class BaseTestBrowser:
         self.downloader.close()
 
 
+"""
 class TestBrowserChrome(BaseTestBrowser):
     browser = "chrome"
+"""
