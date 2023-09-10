@@ -158,10 +158,12 @@ class GoogleImagesDownloader:
 
             wait(futures)
 
-    def __get_image_values(self, index, image_item):
-        preview_src_tag = None
+    def __scroll_to_element(self, element):
+        while not element.is_displayed() or not element.is_enabled():
+            self.driver.execute_script("arguments[0].scrollIntoView(true);", element)
 
-        self.driver.execute_script("arguments[0].scrollIntoView(true);", image_item)
+    def __get_image_values(self, index, image_item):
+        self.__scroll_to_element(image_item)
 
         (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(image_item))
          .click())
