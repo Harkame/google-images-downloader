@@ -106,6 +106,11 @@ class GoogleImagesDownloader:
                 print("No results")
             return
 
+        self.driver.execute_script("""
+            var elementToRemove = document.getElementsByClassName('qs41qe')[0]
+            elementToRemove.parentNode.removeChild(elementToRemove);
+            """)  # Remove that element that can intercept clicks
+
         self.__scroll(limit)
 
         list_items = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
@@ -157,9 +162,6 @@ class GoogleImagesDownloader:
         preview_src_tag = None
 
         self.driver.execute_script("arguments[0].scrollIntoView(true);", image_item)
-
-        self.driver.execute_script(
-            "document.getElementsByClassName('qs41qe')[0].style.display = 'none'")  # Hide element that blocks the click
 
         (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(image_item))
          .click())
