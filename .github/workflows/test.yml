@@ -9,7 +9,7 @@ concurrency:
 
 jobs:
   test:
-    name: test with ${{ matrix.py }} on ${{ matrix.os }}
+    name: Test with ${{ matrix.py }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -53,6 +53,7 @@ jobs:
           name: coverage.xml
           path: .
   coverage:
+    name: Upload coverage report
     needs: [ test ]
     runs-on: ubuntu-latest
     steps:
