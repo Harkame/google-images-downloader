@@ -156,30 +156,24 @@ class GoogleImagesDownloader:
     def __get_image_values(self, index, image_item):
         preview_src_tag = None
 
-        while not preview_src_tag:  # Sometimes image part is not displayed the first time
-            logger.debug(f"[{index}] -> Try to click on image_item")
+        self.driver.execute_script("arguments[0].scrollIntoView(true);", image_item)
 
-            try:
-                self.__click_on_element(image_item)
-            except ElementClickInterceptedException as e:
-                logger.debug(f"[{index}] -> ElementClickInterceptedException : {e}")
-                self.driver.execute_script(
-                    "document.getElementsByClassName('qs41qe')[0].style.display = 'none'")  # Hide element that blocks the click
-                continue
+        self.driver.execute_script(
+            "document.getElementsByClassName('qs41qe')[0].style.display = 'none'")  # Hide element that blocks the click
 
-            try:
-                self.driver.find_element(By.CSS_SELECTOR, "div[jsname='CGzTgf'] a[jsname='fSMu2b']")
-                return None, None
-            except NoSuchElementException:
-                pass
+        (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(image_item))
+         .click())
 
-            try:
-                preview_src_tag = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
-                    EC.presence_of_element_located(
-                        (By.CSS_SELECTOR, "div[jsname='CGzTgf'] img[jsname='JuXqh']"))
-                )
-            except TimeoutException:
-                logger.debug(f"[{index}] -> Can't reach images tag...retry")
+        try:
+            self.driver.find_element(By.CSS_SELECTOR, "div[jsname='CGzTgf'] a[jsname='fSMu2b']")
+            return None, None
+        except NoSuchElementException:
+            pass
+
+        preview_src_tag = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
+            EC.presence_of_element_located(
+                (By.CSS_SELECTOR, "div[jsname='CGzTgf'] img[jsname='JuXqh']"))
+        )
 
         preview_src = preview_src_tag.get_attribute("src")
 
@@ -203,7 +197,8 @@ class GoogleImagesDownloader:
 
         button_tags = radio_group_tag.find_elements(By.CSS_SELECTOR, "div[jsname='GCYh9b']")
 
-        self.__click_on_element(button_tags[2])
+        (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(button_tags[2]))
+         .click())
 
         WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(  # Wait for confirmation popup
             EC.presence_of_element_located((By.CSS_SELECTOR, "div#snbc :nth-child(3) div[jsname='Ng57nc']"))
@@ -254,7 +249,10 @@ class GoogleImagesDownloader:
 
         while data_status != 3:  # Wait for no more images available, end of the page
             if display_more_tag.is_displayed() and display_more_tag.is_enabled():
-                self.__click_on_element(display_more_tag)
+                self.driver.execute_script("arguments[0].scrollIntoView(true);", display_more_tag)
+
+                (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(display_more_tag))
+                 .click())
 
             self.driver.execute_script("arguments[0].scrollIntoView(true);", bottom_tag)
 
@@ -264,7 +262,8 @@ class GoogleImagesDownloader:
             logger.debug(f"last_len_image_items : {last_len_image_items}")
             logger.debug(f"len_image_items : {len_image_items}")
 
-            self.__click_on_element(image_items[-1], scroll=False)  # Don't scroll to avoid yo-yo scroll
+            (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(image_items[-1]))
+             .click())
 
             if last_len_image_items == len_image_items:
                 logger.debug(f"retry : {retry}")
@@ -290,13 +289,6 @@ class GoogleImagesDownloader:
 
             if data_status == 1:  # Some images are loading
                 time.sleep(0.75)
-
-    def __click_on_element(self, element, scroll=True):
-        if scroll:
-            self.driver.execute_script("arguments[0].scrollIntoView(true);", element)
-
-        (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(element))
-         .click())
 
     def close(self):
         try:
