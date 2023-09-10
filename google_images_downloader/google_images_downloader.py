@@ -156,11 +156,13 @@ class GoogleImagesDownloader:
     def __get_image_values(self, index, image_item):
         preview_src_tag = None
 
+        self.driver.execute_script("arguments[0].scrollIntoView(true);", image_item)
+
         while not preview_src_tag:  # Sometimes image part is not displayed the first time
             logger.debug(f"[{index}] -> Try to click on image_item")
 
             try:
-                self.__click_on_element(image_item)
+                self.__click_on_element(image_item, scroll=False)
             except ElementClickInterceptedException as e:
                 logger.debug(f"[{index}] -> ElementClickInterceptedException : {e}")
                 self.driver.execute_script(
