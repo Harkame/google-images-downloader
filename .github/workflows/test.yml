@@ -36,23 +36,29 @@ jobs:
         run: chromium --version
       - if: ${{ matrix.os != 'macos-latest' }}
         run: chrome --version
-      - uses: browser-actions/setup-firefox@v1
-        if: ${{ matrix.os != 'windows-latest' }} # Not working on Windows at the moment
-      - run: firefox --version
-        if: ${{ matrix.os != 'windows-latest' }} # Not working on Windows at the moment
+      - if: ${{ matrix.os != 'windows-latest' }} # Not working on Windows at the moment
+        uses: browser-actions/setup-firefox@v1
+      - if: ${{ matrix.os != 'windows-latest' }} # Not working on Windows at the moment
+        run: firefox --version
       - name: Install tests dependencies
         run: pip install pytest pytest-cov
       - name: Install package dependencies
         run: pip install -e .
       - name: Run test suite
         run: pytest --cov=google_images_downloader --cov-report xml:coverage.xml
-  finish:
+      - if: ${{ matrix.os != 'windows-latest' && matrix.py == '3.11' }} # Upload only one coverage, latest python version
+        uses: actions/upload-artifact@master
+        with:
+          name: coverage.xml
+          path: .
+  coverage:
     needs: [ test ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v4
+      - uses: actions/download-artifact@master
         with:
-          python-version: '3.x'
+          name: coverage.xml
+          path: .
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         with:
