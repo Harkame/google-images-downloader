@@ -161,7 +161,7 @@ class GoogleImagesDownloader:
 
             try:
                 self.__click_on_element(image_item)
-            except ElementClickInterceptedException:
+            except ElementClickInterceptedException as e:
                 logger.debug(f"[{index}] -> ElementClickInterceptedException : {e}")
                 self.driver.execute_script(
                     "document.getElementsByClassName('qs41qe')[0].style.display = 'none'")  # Hide element that blocks the click
