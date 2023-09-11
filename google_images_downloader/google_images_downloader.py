@@ -25,7 +25,7 @@ DEFAULT_DEBUG = False
 DEFAULT_SHOW = False
 DEFAULT_FORMAT = None
 DEFAULT_DISABLE_SAFEUI = False
-DEFAULT_WEBDRIVER_WAIT_DURATION = 40
+DEFAULT_WEBDRIVER_WAIT_DURATION = 20
 DEFAULT_BROWSER = "chrome"
 
 MAXIMUM_SCROLL_RETRY = 20
@@ -174,6 +174,11 @@ class GoogleImagesDownloader:
             except NoSuchElementException:
                 logger.debug(f"[{index}] -> Try to open side menu failed...retry")
                 pass
+
+        links_tag = (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "div[jsname='CGzTgf'] a[role='link']"))))
+
+        logger.debug(f"[{index}] -> links_tag : {links_tag.get_attribute('innerHTML')}")
 
         try:
             self.driver.find_element(By.CSS_SELECTOR, "div[jsname='CGzTgf'] a[jsname='fSMu2b']")
