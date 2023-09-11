@@ -158,41 +158,26 @@ class GoogleImagesDownloader:
             wait(futures)
 
     def __get_image_values(self, index, image_item):
+        self.driver.execute_script("arguments[0].scrollIntoView(true);", image_item)
 
-        while True:
-            logger.debug(f"[{index}] -> Try to open side menu")
-            self.driver.execute_script("arguments[0].scrollIntoView(true);", image_item)
-
-            (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(image_item))
-             .click())
-
-            try:
-                side_menu_tag = (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, "div[jsname='CGzTgf']"))))
-                assert side_menu_tag.is_displayed()
-                break
-            except NoSuchElementException:
-                logger.debug(f"[{index}] -> Try to open side menu failed...retry")
-                pass
-
-        while True:
-            try:
-                (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, "div[jsname='CGzTgf'] a[role='link']"))))
-                break
-            except TimeoutException:
-                time.sleep(0.5)
+        (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(image_item))
+         .click())
 
         try:
-            self.driver.find_element(By.CSS_SELECTOR, "div[jsname='CGzTgf'] a[jsname='fSMu2b']")
+            self.driver.find_element(By.CSS_SELECTOR,
+                                     "div[jsname='CGzTgf'] a[jsname='fSMu2b']")  # Check if the image is blurred
             return None, None
         except NoSuchElementException:
-            pass
+            pass  # Nothing to do
 
-        preview_src = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
-            EC.presence_of_element_located(
-                (By.CSS_SELECTOR, "div[jsname='CGzTgf'] img[jsname='JuXqh']"))
-        ).get_attribute("src")
+        try:
+            preview_src = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
+                EC.presence_of_element_located(
+                    (By.CSS_SELECTOR, "div[jsname='CGzTgf'] img[jsname='JuXqh']"))
+            ).get_attribute("src")
+        except TimeoutException as e:
+            logger.debug(f"[{index}] -> Can't retrieve preview")
+            raise e
 
         image_url = None
 
@@ -201,7 +186,7 @@ class GoogleImagesDownloader:
                 EC.presence_of_element_located((By.CSS_SELECTOR, "div[jsname='CGzTgf'] img[jsname='kn3ccd']"))
             ).get_attribute("src")
         except TimeoutException:  # No image available
-            logger.debug(f"[{index}] Can't retrieve image_url")
+            logger.debug(f"[{index}] -> Can't retrieve image_url")
 
         return image_url, preview_src
 
