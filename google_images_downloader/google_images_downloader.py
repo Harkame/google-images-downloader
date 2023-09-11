@@ -168,17 +168,21 @@ class GoogleImagesDownloader:
              .click())
 
             try:
-                (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
+                side_menu_tag = (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
                     EC.presence_of_element_located((By.CSS_SELECTOR, "div[jsname='CGzTgf']"))))
+                assert side_menu_tag.is_displayed()
                 break
             except NoSuchElementException:
                 logger.debug(f"[{index}] -> Try to open side menu failed...retry")
                 pass
 
-        links_tag = (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "div[jsname='CGzTgf'] a[role='link']"))))
-
-        logger.debug(f"[{index}] -> links_tag : {links_tag.get_attribute('innerHTML')}")
+        while True:
+            try:
+                (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, "div[jsname='CGzTgf'] a[role='link']"))))
+                break
+            except NoSuchElementException:
+                time.sleep(0.5)
 
         try:
             self.driver.find_element(By.CSS_SELECTOR, "div[jsname='CGzTgf'] a[jsname='fSMu2b']")
