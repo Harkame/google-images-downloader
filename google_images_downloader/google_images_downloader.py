@@ -17,7 +17,7 @@ import time
 from urllib3.exceptions import MaxRetryError
 from selenium.webdriver.chrome.service import Service as ChromeService
 
-DEFAULT_DESTINATION = os.path.join(Path(__file__).parent.parent, "downloads")
+DEFAULT_DESTINATION = os.path.join(".", "downloads")
 DEFAULT_LIMIT = 50
 DEFAULT_RESIZE = None
 DEFAULT_QUIET = False
@@ -181,7 +181,7 @@ class GoogleImagesDownloader:
                 (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
                     EC.presence_of_element_located((By.CSS_SELECTOR, "div[jsname='CGzTgf'] a[role='link']"))))
                 break
-            except NoSuchElementException:
+            except TimeoutException:
                 time.sleep(0.5)
 
         try:
