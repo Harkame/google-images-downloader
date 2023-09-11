@@ -90,7 +90,7 @@ class GoogleImagesDownloader:
         self.driver.get(f"https://www.google.com/search?q={query}&tbm=isch")
 
         try:
-            WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
+            list_items = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, "div[role='list']"))
             )
         except TimeoutException:
@@ -104,10 +104,6 @@ class GoogleImagesDownloader:
             """)  # Remove that element that can intercept clicks
 
         self.__scroll(limit)
-
-        list_items = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "div[role='list']"))
-        )
 
         image_items = list_items.find_elements(By.CSS_SELECTOR, "div[role='listitem']")
 
@@ -153,6 +149,10 @@ class GoogleImagesDownloader:
     def __get_image_values(self, index, image_item):
         image_item.click()
 
+        WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(  # Waits for side menu opening
+            EC.presence_of_element_located((By.CSS_SELECTOR, "div[jsname='CGzTgf']"))
+        )
+
         try:
             self.driver.find_element(By.CSS_SELECTOR,
                                      "div[jsname='CGzTgf'] a[jsname='fSMu2b']")  # Check if the image is blurred
@@ -177,14 +177,11 @@ class GoogleImagesDownloader:
     def disable_safeui(self):
         self.driver.get("https://www.google.com/safesearch")
 
-        radio_group_tag = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "g-radio-button-group[jsname='CSzuJd']"))
-        )
+        radio_group_tag = self.driver.find_element(By.CSS_SELECTOR, "g-radio-button-group[jsname='CSzuJd']")
 
         button_tags = radio_group_tag.find_elements(By.CSS_SELECTOR, "div[jsname='GCYh9b']")
 
-        (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(button_tags[2]))
-         .click())
+        button_tags[2].click()  # Click on disable safeui radio button
 
         WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(  # Wait for confirmation popup
             EC.presence_of_element_located((By.CSS_SELECTOR, "div#snbc :nth-child(3) div[jsname='Ng57nc']"))
@@ -207,12 +204,7 @@ class GoogleImagesDownloader:
         if not self.quiet:
             print("Scrolling...")
 
-        try:
-            bottom_tag = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, "div[jsname='wEwttd']")))
-        except TimeoutException as e:
-            logger.debug(f"e : {e}")
-            raise e
+        bottom_tag = self.driver.find_element(By.CSS_SELECTOR, "div[jsname='wEwttd']")
 
         display_more_tag = self.driver.find_element(By.CSS_SELECTOR, 'input[jsaction="Pmjnye"]')
 
@@ -226,9 +218,7 @@ class GoogleImagesDownloader:
                 data_status = int(data_status_str)
             time.sleep(0.5)
 
-        list_items = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "div[role='list']"))
-        )
+        list_items = self.driver.find_element(By.CSS_SELECTOR, "div[role='list']")
 
         retry = 0
         last_len_image_items = 0
@@ -249,7 +239,7 @@ class GoogleImagesDownloader:
             logger.debug(f"len_image_items : {len_image_items}")
 
             (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(image_items[-1]))
-             .click())
+             .click())  # Sometimes, the browser stop to respond (like a freeze), click on a item seems to "wake" him up
 
             if last_len_image_items == len_image_items:
                 logger.debug(f"retry : {retry}")
@@ -412,6 +402,6 @@ def enable_logs():
 
 
 if __name__ == "__main__":
-    downloader = GoogleImagesDownloader(debug=True, show=True, browser="firefox")
+    downloader = GoogleImagesDownloader(debug=True, show=True, disable_safeui=True)
     downloader.download("cat", limit=9999)
     downloader.close()
