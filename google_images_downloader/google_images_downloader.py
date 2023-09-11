@@ -12,10 +12,8 @@ import base64
 from io import BytesIO
 from tqdm import tqdm
 import requests
-from pathlib import Path
 import time
 from urllib3.exceptions import MaxRetryError
-from selenium.webdriver.chrome.service import Service as ChromeService
 
 DEFAULT_DESTINATION = os.path.join(".", "downloads")
 DEFAULT_LIMIT = 50
@@ -34,11 +32,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 WEBDRIVER_WAIT_DURATION = DEFAULT_WEBDRIVER_WAIT_DURATION
-
-"""
-if os.name == "nt":  # Fix "Event loop is closed" error on Windows
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-"""
 
 
 class GoogleImagesDownloader:
@@ -425,10 +418,3 @@ def enable_logs():
     stream_handler.setFormatter(logging.Formatter("%(asctime)s - %(funcName)s - %(message)s", "%H:%M:%S"))
 
     logger.addHandler(stream_handler)
-
-
-if __name__ == "__main__":
-    for i in range(0, 100):
-        downloader = GoogleImagesDownloader(debug=True)
-        downloader.download("cat")
-        downloader.close()
