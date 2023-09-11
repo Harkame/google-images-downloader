@@ -274,22 +274,20 @@ class GoogleImagesDownloader:
 
 
 def download_item(index, query, query_destination, image_url, preview_src, resize, file_format, pbar=None):
-    image_bytes = None
+    image = None
 
     if image_url:
-        image_bytes = download_image(index, image_url)  # Try to download image_url
+        image = download_image(index, image_url)  # Try to download image_url
 
-    if not image_bytes and preview_src:  # Download with image_url failed or no image_url, download the preview image
+    if not image:  # Download with image_url failed or no image_url, download the preview image
         logger.debug(f"[{index}] -> download with image_url failed, try to download the preview")
-        image_bytes = download_preview(index, preview_src)
+        image = download_preview(index, preview_src)
 
-    if not image_bytes:
+    if not image:
         logger.debug(f"[{index}] -> Can't download none of image_url and preview_src")
         return
 
-    logger.debug(f"[{index}] -> len(image_bytes) : {len(image_bytes)}")
-
-    save_image(index, query, query_destination, resize, file_format, image_bytes)
+    save_image(index, image, query, query_destination, resize, file_format)
 
     if pbar:
         pbar.update(1)
@@ -301,13 +299,11 @@ def download_preview(index, preview_src):
         return download_image(index, preview_src)  # Try to download preview_src
     else:
         logger.debug(f"[{index}] -> preview_src is data")
-        return base64.b64decode(
-            preview_src.replace("data:image/png;base64,", "").replace("data:image/jpeg;base64,", ""))
+        return Image.open(BytesIO(base64.b64decode(
+            preview_src.replace("data:image/png;base64,", "").replace("data:image/jpeg;base64,", ""))))
 
 
-def save_image(index, query, query_destination, resize, file_format, image_bytes):
-    image = Image.open(BytesIO(image_bytes))
-
+def save_image(index, image, query, query_destination, resize, file_format):
     logger.debug(f"[{index}] -> image.format : {image.format}")
     logger.debug(f"[{index}] -> image.mode : {image.mode}")
 
@@ -339,46 +335,46 @@ def save_image(index, query, query_destination, resize, file_format, image_bytes
 
 
 def download_image(index, image_url):
-    image_bytes = download_image_with_requests(index, image_url)
+    image = download_image_with_requests(index, image_url)
 
     # Some downloads failed with requests but works with urllib
-    if image_bytes is None:
+    if image is None:
         logger.debug(
             f"[{index}] -> download_image_with_requests failed, try with download_image_with_urllib - image_url : {image_url}")
-        image_bytes = download_image_with_urllib(index, image_url)
+        image = download_image_with_urllib(index, image_url)
 
-    return image_bytes
+    return image
 
 
 def download_image_with_requests(index, image_url):
     logger.debug(f"[{index}] -> Try to download_image_with_requests - image_url : {image_url}")
-    image_bytes = None
+    image = None
 
     try:
         response = requests.get(image_url, allow_redirects=True, timeout=30)
 
         if response.status_code == 200:
             logger.debug(f"[{index}] -> Successfully get image_bytes")
-            image_bytes = response.content
+            image = Image.open(BytesIO(response.content))
         else:
             logger.debug(
                 f"[{index}] -> Failed to download - request.status_code : {response.status_code}")
-    except Exception as e:  # requests.exceptions.SSLError
+    except Exception as e:  # requests.exceptions.SSLError, PIL.UnidentifiedImageError
         logger.debug(
             f"[{index}] -> Exception : {e}")
 
-    return image_bytes
+    return image
 
 
 def download_image_with_urllib(index, image_url):
     logger.debug(f"[{index}] -> Try to download_image_with_urllib - image_url : {image_url}")
-    image_bytes = None
+    image = None
 
     try:
         with urllib.request.urlopen(image_url, timeout=30) as response:
             if response.status == 200:
                 logger.debug(f"[{index}] -> Successfully get image_bytes")
-                image_bytes = response.read()
+                image = Image.open(BytesIO(response.read()))
             else:
                 logger.debug(
                     f"[{index}] -> Failed to download - request.status_code : {response.status}")
@@ -386,7 +382,7 @@ def download_image_with_urllib(index, image_url):
         logger.debug(
             f"[{index}] -> Exception : {e}")
 
-    return image_bytes
+    return image
 
 
 def enable_logs():
@@ -398,9 +394,3 @@ def enable_logs():
     stream_handler.setFormatter(logging.Formatter("%(asctime)s - %(funcName)s - %(message)s", "%H:%M:%S"))
 
     logger.addHandler(stream_handler)
-
-
-if __name__ == "__main__":
-    downloader = GoogleImagesDownloader(debug=True, show=True, disable_safeui=True, browser="firefox")
-    downloader.download("cat")
-    downloader.close()
