@@ -355,7 +355,7 @@ def download_image_with_requests(index, image_url):
     image_bytes = None
 
     try:
-        response = requests.get(image_url, allow_redirects=True)
+        response = requests.get(image_url, allow_redirects=True, timeout=30)
 
         if response.status_code == 200:
             logger.debug(f"[{index}] -> Successfully get image_bytes")
@@ -375,8 +375,7 @@ def download_image_with_urllib(index, image_url):
     image_bytes = None
 
     try:
-        request = urllib.request.Request(image_url)
-        with urllib.request.urlopen(request) as response:
+        with urllib.request.urlopen(image_url, timeout=30) as response:
             if response.status == 200:
                 logger.debug(f"[{index}] -> Successfully get image_bytes")
                 image_bytes = response.read()
@@ -402,6 +401,6 @@ def enable_logs():
 
 
 if __name__ == "__main__":
-    downloader = GoogleImagesDownloader(debug=True, show=True, disable_safeui=True)
-    downloader.download("cat", limit=9999)
+    downloader = GoogleImagesDownloader(debug=True, show=True, disable_safeui=True, browser="firefox")
+    downloader.download("cat")
     downloader.close()
