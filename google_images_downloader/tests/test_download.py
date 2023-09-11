@@ -79,7 +79,6 @@ class BaseTestDownload:
 
         assert len(files) == 0
 
-    """
     @pytest.mark.parametrize("destination", ANOTHER_DESTINATIONS)
     def test_download_another_destination(self, destination):
         self.downloader.download(QUERY, destination=destination)
@@ -152,7 +151,6 @@ class BaseTestDownload:
         captured = capsys.readouterr()
         assert captured.out == ""
         assert captured.err == ""
-    """
 
     @pytest.fixture(autouse=True)
     def resource(self):
