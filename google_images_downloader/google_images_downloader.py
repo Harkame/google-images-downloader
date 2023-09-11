@@ -151,10 +151,7 @@ class GoogleImagesDownloader:
             wait(futures)
 
     def __get_image_values(self, index, image_item):
-        self.driver.execute_script("arguments[0].scrollIntoView(true);", image_item)
-
-        (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(image_item))
-         .click())
+        image_item.click()
 
         try:
             self.driver.find_element(By.CSS_SELECTOR,
@@ -163,14 +160,8 @@ class GoogleImagesDownloader:
         except NoSuchElementException:
             pass  # Nothing to do
 
-        try:
-            preview_src = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
-                EC.presence_of_element_located(
-                    (By.CSS_SELECTOR, "div[jsname='CGzTgf'] img[jsname='JuXqh']"))
-            ).get_attribute("src")
-        except TimeoutException as e:
-            logger.debug(f"[{index}] -> Can't retrieve preview")
-            raise e
+        preview_src = self.driver.find_element(By.CSS_SELECTOR,
+                                               "div[jsname='CGzTgf'] img[jsname='JuXqh']").get_attribute("src")
 
         image_url = None
 
@@ -418,3 +409,9 @@ def enable_logs():
     stream_handler.setFormatter(logging.Formatter("%(asctime)s - %(funcName)s - %(message)s", "%H:%M:%S"))
 
     logger.addHandler(stream_handler)
+
+
+if __name__ == "__main__":
+    downloader = GoogleImagesDownloader(debug=True, show=True, browser="firefox")
+    downloader.download("cat", limit=9999)
+    downloader.close()
