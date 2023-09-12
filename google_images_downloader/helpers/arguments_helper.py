@@ -1,7 +1,9 @@
 import argparse
 import re
 import os
-import google_images_downloader
+
+from google_images_downloader import DEFAULT_DESTINATION, DEFAULT_LIMIT, DEFAULT_RESIZE, DEFAULT_FORMAT, \
+    DEFAULT_BROWSER, DEFAULT_SHOW, DEFAULT_DEBUG, DEFAULT_QUIET, DEFAULT_WEBDRIVER_WAIT_DURATION, DEFAULT_DISABLE_SAFEUI
 
 
 def get_arguments(arguments):
@@ -26,7 +28,7 @@ def get_arguments(arguments):
         help="download destination" + os.linesep +
              "example : google-images-downloader -d C:\\my\\download\\destination" + os.linesep +
              "(default: %(default)s)",
-        default=google_images_downloader.DEFAULT_DESTINATION
+        default=DEFAULT_DESTINATION
     )
 
     parser.add_argument(
@@ -37,7 +39,7 @@ def get_arguments(arguments):
              "use a big number like 9999 to download every images" + os.linesep +
              "example : google-images-downloader -l 400" + os.linesep +
              "(default: %(default)s)",
-        default=google_images_downloader.DEFAULT_LIMIT,
+        default=DEFAULT_LIMIT,
         type=int
     )
 
@@ -48,7 +50,7 @@ def get_arguments(arguments):
              "by default, images are not resized" + os.linesep +
              "example : google-images-downloader -r 256x256" + os.linesep +
              "(default: %(default)s)",
-        default=google_images_downloader.DEFAULT_RESIZE,
+        default=DEFAULT_RESIZE,
         type=get_formatted_resize,
     )
 
@@ -59,7 +61,7 @@ def get_arguments(arguments):
              "by default, images keep their default format" + os.linesep +
              "example : google-images-downloader -f PNG" + os.linesep +
              "(default: %(default)s)",
-        default=google_images_downloader.DEFAULT_FORMAT,
+        default=DEFAULT_FORMAT,
         choices=["JPEG", "PNG"])
 
     parser.add_argument(
@@ -68,7 +70,7 @@ def get_arguments(arguments):
         help="specify browser to use for web scraping" + os.linesep +
              "example : google-images-downloader -b firefox" + os.linesep +
              "(default: %(default)s)",
-        default=google_images_downloader.DEFAULT_BROWSER,
+        default=DEFAULT_BROWSER,
         choices=["chrome", "firefox"])
 
     parser.add_argument(
@@ -78,7 +80,7 @@ def get_arguments(arguments):
              "useful for debugging" + os.linesep +
              "example : google-images-downloader -s",
         action="store_true",
-        default=google_images_downloader.DEFAULT_SHOW
+        default=DEFAULT_SHOW
     )
 
     parser.add_argument(
@@ -87,7 +89,7 @@ def get_arguments(arguments):
         help="enable debug logs, disable progression bar and messages" + os.linesep +
              "example : google-images-downloader -D",
         action="store_true",
-        default=google_images_downloader.DEFAULT_DEBUG
+        default=DEFAULT_DEBUG
     )
 
     parser.add_argument(
@@ -96,7 +98,7 @@ def get_arguments(arguments):
         help="disable program output" + os.linesep +
              "example : google-images-downloader -Q",
         action="store_true",
-        default=google_images_downloader.DEFAULT_QUIET
+        default=DEFAULT_QUIET
     )
 
     parser.add_argument(
@@ -105,7 +107,7 @@ def get_arguments(arguments):
         help="webdriver wait duration in seconds" + os.linesep +
              "example : google-images-downloader -w 30" + os.linesep +
              "(default: %(default)s)",
-        default=google_images_downloader.DEFAULT_WEBDRIVER_WAIT_DURATION,
+        default=DEFAULT_WEBDRIVER_WAIT_DURATION,
         type=int
     )
 
@@ -115,7 +117,7 @@ def get_arguments(arguments):
         help="Disable safeui (blurred images)" + os.linesep +
              "example : google-images-downloader -S",
         action="store_true",
-        default=google_images_downloader.DEFAULT_DISABLE_SAFEUI
+        default=DEFAULT_DISABLE_SAFEUI
     )
 
     return parser.parse_args(arguments)
