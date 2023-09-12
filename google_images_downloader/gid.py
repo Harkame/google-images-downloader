@@ -149,12 +149,23 @@ class GoogleImagesDownloader:
     def __get_image_values(self, index, image_item):
         self.driver.execute_script("arguments[0].scrollIntoView(true);", image_item)
 
-        (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(image_item))
-         .click())
+        try:
+            (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(image_item))
+             .click())
+        except TimeoutException as e:
+            logger.debug(f"[{index}] -> TimeoutException EC.element_to_be_clickable(image_item)")
+            logger.debug(f"[{index}] -> TimeoutException -> e")
+            raise e
 
-        WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(  # Waits for side menu opening
-            EC.presence_of_element_located((By.CSS_SELECTOR, "div[jsname='CGzTgf']"))
-        )
+        try:
+            WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(  # Waits for side menu opening
+                EC.presence_of_element_located((By.CSS_SELECTOR, "div[jsname='CGzTgf']"))
+            )
+        except TimeoutException as e:
+            logger.debug(
+                f"[{index}] -> TimeoutException EC.presence_of_element_located((By.CSS_SELECTOR, \"div[jsname='CGzTgf']\"))")
+            logger.debug(f"[{index}] -> TimeoutException -> e")
+            raise e
 
         try:
             self.driver.find_element(By.CSS_SELECTOR,
