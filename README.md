@@ -43,10 +43,10 @@ pip install .
 #### Basic usage
 
 ```shell
-google-images-downloader -q QUERY
+google-images-downloader -q QUERY1 QUERY2 "LONG QUERY 3"
 ```
 
-For more information
+For more informations
 
 ```shell
 google-images-downloader -h
@@ -68,7 +68,7 @@ downloader.download("bird", limit=100)  # Download 100 images
 
 downloader.download("dog", resize=(256, 256))  # Download with images resizing
 
-downloader.download("dog", file_format="JPEG")  # Download with images re-formatting (JPEG or PNG)
+downloader.download("fish", file_format="JPEG")  # Download with images re-formatting (JPEG or PNG)
 
 downloader.close()  # Do not forget to close the driver
 ```
