@@ -5,7 +5,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 import psutil
 
-from ..google_images_downloader import GoogleImagesDownloader, WEBDRIVER_WAIT_DURATION
+from ..gid import GoogleImagesDownloader, WEBDRIVER_WAIT_DURATION
 
 
 class BaseTestBrowser:
