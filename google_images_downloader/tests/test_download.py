@@ -9,6 +9,7 @@ from ..gid import download_image, download_image_with_requests, download_image_w
 
 QUERY = "cat"
 ANOTHER_QUERIES = ["dog", "fish", "bird", "car", "fruit"]
+UNSAFE_QUERY = "heart suregerie operation"
 QUERY_WITHOUT_RESULTS = "77af778b51abd4a3c51c5ddd97204a9c3ae614ebccb75a606c3b6865aed6744e azerty"
 DESTINATION = "downloads_tests"
 ANOTHER_DESTINATIONS = ["downloads_tests_" + str(index) for index in
@@ -95,6 +96,8 @@ class BaseTestDownload:
         assert len(files) == limit
 
     """
+    """
+
     def test_download_no_limit(self):
         self.downloader.download(QUERY, destination=DESTINATION,
                                  limit=NO_LIMIT)
@@ -102,6 +105,8 @@ class BaseTestDownload:
         files = os.listdir(os.path.join(DESTINATION, QUERY))
 
         assert len(files) < NO_LIMIT  # Google Images returns ~600 images maximum
+
+    """
     """
 
     @pytest.mark.parametrize("resize", RESIZE_FORMATS)
@@ -152,6 +157,30 @@ class BaseTestDownload:
         captured = capsys.readouterr()
         assert captured.out == ""
         assert captured.err == ""
+
+    def test_debug_download(self, capsys):
+        self.downloader.close()
+        self.downloader = google_images_downloader.GoogleImagesDownloader(browser=self.browser, debug=True)
+        assert self.downloader.quiet  # Enable debug, set downloader quiet
+
+        self.downloader.download(QUERY, destination=DESTINATION)
+
+        captured = capsys.readouterr()
+        assert captured.out == ""
+        assert "__init__" in captured.err  # Typical debug message
+
+    def test_download_unsafe_query(self):
+        self.downloader.download(UNSAFE_QUERY, destination=DESTINATION)
+
+        files = os.listdir(os.path.join(DESTINATION, UNSAFE_QUERY))
+        assert len(files) < DEFAULT_LIMIT  # Blurred images are not downloaded
+
+    def test_download_unsafe_query_disable_safeui(self):
+        self.downloader.disable_safeui()
+        self.downloader.download(UNSAFE_QUERY, destination=DESTINATION)
+
+        files = os.listdir(os.path.join(DESTINATION, UNSAFE_QUERY))
+        assert len(files) == DEFAULT_LIMIT  # All images are downloaded
 
     @pytest.fixture(autouse=True)
     def resource(self):
