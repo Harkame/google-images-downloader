@@ -398,7 +398,7 @@ def download_image_with_urllib(index, image_url):
 
 def enable_logs():
     # Useful if multiple downloader are created
-    while logger.hasHandlers():
+    while len(logger.handlers) > 0:
         logger.removeHandler(logger.handlers[0])
 
     stream_handler = logging.StreamHandler()
