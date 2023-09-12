@@ -3,9 +3,8 @@ import shutil
 from PIL import Image
 import pytest
 
-from ..google_images_downloader import GoogleImagesDownloader, DEFAULT_LIMIT, download_image, \
-    download_image_with_requests, \
-    download_image_with_urllib
+import google_images_downloader
+from ..google_images_downloader import download_image, download_image_with_requests, download_image_with_urllib
 
 QUERY = "cat"
 ANOTHER_QUERIES = ["dog", "fish", "bird", "car", "fruit"]
@@ -48,7 +47,7 @@ def test_download_works_with_urllib():
 
 
 def test_download_fail_with_requests_2():
-    image_bytes = download_image(0, IMAGE_URL_FAIL_WITH_REQUESTS)
+    image_bytes = google_images_downloader.download_image(0, IMAGE_URL_FAIL_WITH_REQUESTS)
 
     assert image_bytes
 
@@ -62,7 +61,7 @@ class BaseTestDownload:
 
         files = os.listdir(os.path.join(DESTINATION, QUERY))
 
-        assert len(files) == DEFAULT_LIMIT
+        assert len(files) == google_images_downloader.DEFAULT_LIMIT
 
     @pytest.mark.parametrize("query", ANOTHER_QUERIES)
     def test_download_another_query(self, query):
@@ -70,7 +69,7 @@ class BaseTestDownload:
 
         files = os.listdir(os.path.join(DESTINATION, query))
 
-        assert len(files) == DEFAULT_LIMIT
+        assert len(files) == google_images_downloader.DEFAULT_LIMIT
 
     def test_download_no_results(self):
         self.downloader.download(QUERY_WITHOUT_RESULTS, destination=DESTINATION)
@@ -85,7 +84,7 @@ class BaseTestDownload:
 
         files = os.listdir(os.path.join(destination, QUERY))
 
-        assert len(files) == DEFAULT_LIMIT
+        assert len(files) == google_images_downloader.DEFAULT_LIMIT
 
     @pytest.mark.parametrize("limit", LIMITS)
     def test_download_limit(self, limit):
@@ -136,7 +135,7 @@ class BaseTestDownload:
 
     def test_not_quiet_download(self, capsys):
         self.downloader.close()
-        self.downloader = GoogleImagesDownloader(browser=self.browser)
+        self.downloader = google_images_downloader.GoogleImagesDownloader(browser=self.browser)
         self.downloader.download(QUERY, destination=DESTINATION)
 
         captured = capsys.readouterr()
@@ -145,7 +144,7 @@ class BaseTestDownload:
 
     def test_quiet_download(self, capsys):
         self.downloader.close()
-        self.downloader = GoogleImagesDownloader(browser=self.browser, quiet=True)
+        self.downloader = google_images_downloader.GoogleImagesDownloader(browser=self.browser, quiet=True)
         self.downloader.download(QUERY, destination=DESTINATION)
 
         captured = capsys.readouterr()
@@ -156,7 +155,7 @@ class BaseTestDownload:
     def resource(self):
         remove_download_folders()
 
-        self.downloader = GoogleImagesDownloader(browser=self.browser)
+        self.downloader = google_images_downloader.GoogleImagesDownloader(browser=self.browser)
 
         yield
 
