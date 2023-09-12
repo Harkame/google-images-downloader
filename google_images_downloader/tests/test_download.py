@@ -8,8 +8,8 @@ from google_images_downloader import DEFAULT_LIMIT, GoogleImagesDownloader
 from ..gid import download_image, download_image_with_requests, download_image_with_urllib
 
 QUERY = "cat"
-ANOTHER_QUERIES = ["dog", "fish", "bird", "car", "fruit"]
-UNSAFE_QUERY = "heart suregerie operation"
+ANOTHER_QUERIES = ["dog", "fish", "bird", "red car", "fruit"]
+UNSAFE_QUERY = "heart surgery operation"
 QUERY_WITHOUT_RESULTS = "77af778b51abd4a3c51c5ddd97204a9c3ae614ebccb75a606c3b6865aed6744e azerty"
 DESTINATION = "downloads_tests"
 ANOTHER_DESTINATIONS = ["downloads_tests_" + str(index) for index in
