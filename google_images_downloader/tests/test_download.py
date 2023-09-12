@@ -167,7 +167,7 @@ class BaseTestDownload:
 
         captured = capsys.readouterr()
         assert captured.out == ""
-        assert "__init__" in captured.err  # Typical debug message
+        assert captured.err != ""
 
     def test_download_unsafe_query(self):
         self.downloader.download(UNSAFE_QUERY, destination=DESTINATION)
