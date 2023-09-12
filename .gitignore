@@ -13,3 +13,5 @@ coverage.xml
 venv
 geckodriver.log
 .pypirc
+.log
+debug.py
