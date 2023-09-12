@@ -7,7 +7,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from PIL import Image
 import logging
-from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException, \
+    JavascriptException
 import base64
 from io import BytesIO
 from tqdm import tqdm
@@ -147,10 +148,14 @@ class GoogleImagesDownloader:
         side_menu_tag = None
 
         while not side_menu_tag:
-            self.driver.execute_script("""
-                var elementToRemove = document.getElementsByClassName('qs41qe')[0]
-                elementToRemove.parentNode.removeChild(elementToRemove);
-                """)  # Remove that element that can intercepts clicks
+            try:
+                self.driver.execute_script("""
+                    var elementToRemove = document.getElementsByClassName('qs41qe')[0]
+                    elementToRemove.parentNode.removeChild(elementToRemove);
+                    """)  # Remove that element that can intercepts clicks
+            except JavascriptException:
+                pass
+
             try:
                 (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(image_item))
                  .click())
