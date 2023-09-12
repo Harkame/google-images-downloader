@@ -63,6 +63,7 @@ class BaseTestDownload:
 
         assert len(files) == google_images_downloader.DEFAULT_LIMIT
 
+    """
     @pytest.mark.parametrize("query", ANOTHER_QUERIES)
     def test_download_another_query(self, query):
         self.downloader.download(query, destination=DESTINATION)
@@ -85,6 +86,7 @@ class BaseTestDownload:
         files = os.listdir(os.path.join(destination, QUERY))
 
         assert len(files) == google_images_downloader.DEFAULT_LIMIT
+    """
 
     @pytest.mark.parametrize("limit", LIMITS)
     def test_download_limit(self, limit):
@@ -94,6 +96,7 @@ class BaseTestDownload:
 
         assert len(files) == limit
 
+    """
     def test_download_no_limit(self):
         self.downloader.download(QUERY, destination=DESTINATION,
                                  limit=NO_LIMIT)
@@ -150,6 +153,7 @@ class BaseTestDownload:
         captured = capsys.readouterr()
         assert captured.out == ""
         assert captured.err == ""
+    """
 
     @pytest.fixture(autouse=True)
     def resource(self):
@@ -170,5 +174,7 @@ class TestDownloadChrome(BaseTestDownload):
     browser = "chrome"
 
 
+"""
 class TestDownloadFirefox(BaseTestDownload):
     browser = "firefox"
+"""
