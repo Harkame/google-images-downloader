@@ -176,7 +176,10 @@ class BaseTestDownload:
         assert len(files) < DEFAULT_LIMIT  # Blurred images are not downloaded
 
     def test_download_unsafe_query_disable_safeui(self):
-        self.downloader.disable_safeui()
+        self.downloader.close()
+        self.downloader = google_images_downloader.GoogleImagesDownloader(browser=self.browser, debug=True,
+                                                                          disable_safeui=True)
+
         self.downloader.download(UNSAFE_QUERY, destination=DESTINATION)
 
         files = os.listdir(os.path.join(DESTINATION, UNSAFE_QUERY))
