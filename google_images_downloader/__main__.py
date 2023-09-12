@@ -8,19 +8,16 @@ from helpers.arguments_helper import get_arguments
 def main():
     arguments = get_arguments(sys.argv[1:])
 
-    print(arguments.resize)
-
     google_images_downloader.WEBDRIVER_WAIT_DURATION = arguments.wait_duration
 
     downloader = GoogleImagesDownloader(browser=arguments.browser, show=arguments.show, debug=arguments.debug,
                                         quiet=arguments.quiet,
                                         disable_safeui=arguments.disable_safeui)
 
-    """
     for query in arguments.queries:
         downloader.download(query, destination=arguments.destination, limit=arguments.limit, resize=resize,
                             file_format=arguments.format)
-    """
+
     downloader.close()
 
 
