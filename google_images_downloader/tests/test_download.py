@@ -4,7 +4,8 @@ from PIL import Image
 import pytest
 
 import google_images_downloader
-from ..google_images_downloader import download_image, download_image_with_requests, download_image_with_urllib
+from google_images_downloader import DEFAULT_LIMIT, GoogleImagesDownloader
+from ..gid import download_image, download_image_with_requests, download_image_with_urllib
 
 QUERY = "cat"
 ANOTHER_QUERIES = ["dog", "fish", "bird", "car", "fruit"]
@@ -47,7 +48,7 @@ def test_download_works_with_urllib():
 
 
 def test_download_fail_with_requests_2():
-    image_bytes = google_images_downloader.download_image(0, IMAGE_URL_FAIL_WITH_REQUESTS)
+    image_bytes = download_image(0, IMAGE_URL_FAIL_WITH_REQUESTS)
 
     assert image_bytes
 
@@ -60,8 +61,7 @@ class BaseTestDownload:
         self.downloader.download(QUERY, destination=DESTINATION)
 
         files = os.listdir(os.path.join(DESTINATION, QUERY))
-
-        assert len(files) == google_images_downloader.DEFAULT_LIMIT
+        assert len(files) == DEFAULT_LIMIT
 
     """
     @pytest.mark.parametrize("query", ANOTHER_QUERIES)
@@ -159,7 +159,9 @@ class BaseTestDownload:
     def resource(self):
         remove_download_folders()
 
-        self.downloader = google_images_downloader.GoogleImagesDownloader(browser=self.browser)
+        google_images_downloader.WEBDRIVER_WAIT_DURATION *= 2  # Double webdriver wait duration for tests
+
+        self.downloader = GoogleImagesDownloader(browser=self.browser)
 
         yield
 
