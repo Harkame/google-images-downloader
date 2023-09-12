@@ -7,7 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from PIL import Image
 import logging
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
 import base64
 from io import BytesIO
 from tqdm import tqdm
@@ -98,11 +98,6 @@ class GoogleImagesDownloader:
                 print("No results")
             return
 
-        self.driver.execute_script("""
-            var elementToRemove = document.getElementsByClassName('qs41qe')[0]
-            elementToRemove.parentNode.removeChild(elementToRemove);
-            """)  # Remove that element that can intercept clicks
-
         self.__scroll(limit)
 
         image_items = list_items.find_elements(By.CSS_SELECTOR, "div[role='listitem']")
@@ -152,8 +147,17 @@ class GoogleImagesDownloader:
         side_menu_tag = None
 
         while not side_menu_tag:
-            (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(image_item))
-             .click())
+            self.driver.execute_script("""
+                var elementToRemove = document.getElementsByClassName('qs41qe')[0]
+                elementToRemove.parentNode.removeChild(elementToRemove);
+                """)  # Remove that element that can intercepts clicks
+            try:
+                (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(image_item))
+                 .click())
+            except ElementClickInterceptedException as e:
+                logger.debug(
+                    f"[{index}] -> Failed to click on image_item...retry")
+                continue
 
             try:
                 side_menu_tag = WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(
@@ -167,6 +171,7 @@ class GoogleImagesDownloader:
         try:
             self.driver.find_element(By.CSS_SELECTOR,
                                      "div[jsname='CGzTgf'] a[jsname='fSMu2b']")  # Check if the image is blurred
+            logger.debug(f"[{index}] -> Images seems to be blurred")
             return None, None
         except NoSuchElementException:
             pass  # Nothing to do
