@@ -15,7 +15,7 @@ def main():
                                         disable_safeui=arguments.disable_safeui)
 
     for query in arguments.queries:
-        downloader.download(query, destination=arguments.destination, limit=arguments.limit, resize=resize,
+        downloader.download(query, destination=arguments.destination, limit=arguments.limit, resize=arguments.resize,
                             file_format=arguments.format)
 
     downloader.close()
