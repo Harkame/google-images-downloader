@@ -2,6 +2,7 @@ import os
 import shutil
 from PIL import Image
 import pytest
+import sys
 
 import google_images_downloader
 from google_images_downloader import DEFAULT_LIMIT, GoogleImagesDownloader
@@ -200,7 +201,10 @@ class TestDownloadChrome(BaseTestDownload):
     browser = "chrome"
 
 
-"""
-class TestDownloadFirefox(BaseTestDownload):
+running_on_windows_ci = sys.platform == "win32" and (
+        "GITHUB_ACTIONS" in os.environ and os.environ["GITHUB_ACTIONS"] == "true")
+
+
+# Firefox setup action is not supported at the moment for windows
+class TestDownloadFirefox(BaseTestDownload if not running_on_windows_ci else object):
     browser = "firefox"
-"""

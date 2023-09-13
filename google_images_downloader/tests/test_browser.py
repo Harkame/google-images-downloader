@@ -4,6 +4,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 import psutil
+import sys
+import os
 
 from ..gid import GoogleImagesDownloader, WEBDRIVER_WAIT_DURATION
 
@@ -70,5 +72,9 @@ class TestBrowserChrome(BaseTestBrowser):
     browser = "chrome"
 
 
-class TestBrowserFirefox(BaseTestBrowser):
+running_on_windows_ci = sys.platform == "win32" and (
+        "GITHUB_ACTIONS" in os.environ and os.environ["GITHUB_ACTIONS"] == "true")
+
+
+class TestBrowserFirefox(BaseTestBrowser if not running_on_windows_ci else object):
     browser = "firefox"
