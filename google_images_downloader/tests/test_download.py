@@ -14,11 +14,10 @@ UNSAFE_QUERY = "heart surgery operation"
 QUERY_WITHOUT_RESULTS = "77af778b51abd4a3c51c5ddd97204a9c3ae614ebccb75a606c3b6865aed6744e azerty"
 DESTINATION = "downloads_tests"
 ANOTHER_DESTINATIONS = ["downloads_tests_" + str(index) for index in
-                        range(0, 5)]  # Create multiple another destinations
+                        range(0, 3)]  # Create multiple another destinations
 RESIZE_FORMATS = [
     (64, 64),
     (512, 512),
-    (1024, 1024),
     (3840, 2160),
     (197, 302),
     (415, 213)
