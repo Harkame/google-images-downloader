@@ -117,6 +117,8 @@ class GoogleImagesDownloader:
 
         query_destination = os.path.join(destination, query)
 
+        started_downloads = 0
+
         with ThreadPoolExecutor(max_workers=5) as executor:
             futures = []
             for index, image_item in enumerate(image_items):
@@ -137,7 +139,9 @@ class GoogleImagesDownloader:
                     executor.submit(download_item, index, query, query_destination, image_url, preview_src, resize,
                                     file_format, pbar=pbar))
 
-                if index + 1 == limit:
+                started_downloads += 1
+
+                if started_downloads == limit:
                     break
 
             wait(futures)
@@ -351,6 +355,7 @@ def save_image(index, image, query, query_destination, resize, file_format):
     complete_file_name = os.path.join(query_destination, image_name)
 
     image.save(complete_file_name, file_format)
+    image.close()
 
     logger.debug(f"[{index}] -> file downloaded : {complete_file_name}")
 
