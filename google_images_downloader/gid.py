@@ -99,6 +99,7 @@ class GoogleImagesDownloader:
                 print("No results")
             return
 
+        # if len(image_items) < limit:  # Scroll only if not enough images
         self.__scroll(limit)
 
         image_items = list_items.find_elements(By.CSS_SELECTOR, "div[role='listitem']")
@@ -249,24 +250,17 @@ class GoogleImagesDownloader:
         last_len_image_items = 0
 
         while data_status != 3:  # Wait for no more images available, end of the page
-            if display_more_tag.is_displayed() and display_more_tag.is_enabled():
-                self.driver.execute_script("arguments[0].scrollIntoView(true);", display_more_tag)
-
-                (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(display_more_tag))
-                 .click())
-
-            self.driver.execute_script("arguments[0].scrollIntoView(true);", bottom_tag)
-
             image_items = list_items.find_elements(By.CSS_SELECTOR, "div[role='listitem']")
             len_image_items = len(image_items)
 
             logger.debug(f"last_len_image_items : {last_len_image_items}")
             logger.debug(f"len_image_items : {len_image_items}")
 
-            (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(image_items[-1]))
-             .click())  # Sometimes, the browser stop to respond (like a freeze), click on a item seems to "wake" him up
+            logger.debug(f"limit : {limit} - len_image_items : len_image_items")
+            if limit <= len_image_items:  # Enough images available
+                return
 
-            if last_len_image_items == len_image_items:
+            if last_len_image_items == len_image_items:  # Avoid infinite loop
                 logger.debug(f"retry : {retry}")
 
                 if retry == MAXIMUM_SCROLL_RETRY:
@@ -279,10 +273,16 @@ class GoogleImagesDownloader:
 
             last_len_image_items = len_image_items
 
-            logger.debug(f"limit : {limit} - len_image_items : len_image_items")
+            if display_more_tag.is_displayed() and display_more_tag.is_enabled():
+                self.driver.execute_script("arguments[0].scrollIntoView(true);", display_more_tag)
 
-            if limit <= len_image_items:
-                return
+                (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(display_more_tag))
+                 .click())
+
+            self.driver.execute_script("arguments[0].scrollIntoView(true);", bottom_tag)
+
+            (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(image_items[-1]))
+             .click())  # Sometimes, the browser stop to respond (like a freeze), click on a item seems to "wake" him up
 
             data_status = int(bottom_tag.get_attribute("data-status"))
 
@@ -296,6 +296,10 @@ class GoogleImagesDownloader:
             self.driver.quit()
         except MaxRetryError as e:
             logger.debug(f"Driver seems to be already closed - e : {e}")
+
+        for handler in logger.handlers:
+            logger.removeHandler(handler)
+            handler.close()
 
 
 def download_item(index, query, query_destination, image_url, preview_src, resize, file_format, pbar=None):
@@ -412,9 +416,9 @@ def download_image_with_urllib(index, image_url):
 
 
 def enable_logs():
-    # Useful if multiple downloader are created
-    while len(logger.handlers) > 0:
-        logger.removeHandler(logger.handlers[0])
+    for handler in logger.handlers:
+        logger.removeHandler(handler)
+        handler.close()
 
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(logging.Formatter("%(asctime)s - %(funcName)s - %(message)s", "%H:%M:%S"))
