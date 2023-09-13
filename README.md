@@ -64,7 +64,7 @@ downloader.download("bear")  # Download 50 images in ./downloads folder
 
 downloader.download("cat", destination="C:\download\destination")  # Download at specified destination
 
-downloader.download("bird", limit=100)  # Download 100 images
+downloader.download("bird", limit=200)  # Download 100 images
 
 downloader.download("dog", resize=(256, 256))  # Download with images resizing
 
