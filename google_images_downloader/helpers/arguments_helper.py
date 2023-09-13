@@ -105,7 +105,7 @@ def get_arguments(arguments):
         "-w",
         "--wait_duration",
         help="webdriver wait duration in seconds" + os.linesep +
-             "example : google-images-downloader -w 30" + os.linesep +
+             "example : google-images-downloader -w 100" + os.linesep +
              "(default: %(default)s)",
         default=DEFAULT_WEBDRIVER_WAIT_DURATION,
         type=int
