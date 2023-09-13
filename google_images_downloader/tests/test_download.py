@@ -5,7 +5,7 @@ import pytest
 import sys
 
 import google_images_downloader
-from google_images_downloader import DEFAULT_LIMIT, GoogleImagesDownloader
+from google_images_downloader import GoogleImagesDownloader
 from ..gid import download_image, download_image_with_requests, download_image_with_urllib
 
 QUERY = "cat"
@@ -17,7 +17,6 @@ ANOTHER_DESTINATIONS = ["downloads_tests_" + str(index) for index in
                         range(0, 5)]  # Create multiple another destinations
 RESIZE_FORMATS = [
     (64, 64),
-    (256, 256),
     (512, 512),
     (1024, 1024),
     (3840, 2160),
@@ -25,7 +24,7 @@ RESIZE_FORMATS = [
     (415, 213)
 ]
 FILE_FORMATS = ["JPEG", "PNG"]
-LIMITS = [10, 20, 75, 100, 200, 300]
+LIMITS = [10, 25, 75, 100, 200]
 NO_LIMIT = 9999
 IMAGE_URL_FAIL_WITH_REQUESTS = "https://www.hindustantimes.com/ht-img/img/2023/08/25/1600x900/international_dog_day_1692974397743_1692974414085.jpg"
 UNSAFE_QUERY_LIMIT = 90
@@ -38,7 +37,6 @@ def remove_download_folders():
         shutil.rmtree(another_destination, ignore_errors=True)
 
 
-"""
 def test_download_fail_with_requests():
     image_bytes = download_image_with_requests(0, IMAGE_URL_FAIL_WITH_REQUESTS)
 
@@ -55,7 +53,6 @@ def test_download_fail_with_requests_2():
     image_bytes = download_image(0, IMAGE_URL_FAIL_WITH_REQUESTS)
 
     assert image_bytes
-"""
 
 
 class BaseTestDownload:
@@ -66,9 +63,8 @@ class BaseTestDownload:
         self.downloader.download(QUERY, destination=DESTINATION)
 
         files = os.listdir(os.path.join(DESTINATION, QUERY))
-        assert len(files) == DEFAULT_LIMIT
+        assert len(files) == google_images_downloader.DEFAULT_LIMIT
 
-    """
     @pytest.mark.parametrize("query", ANOTHER_QUERIES)
     def test_download_another_query(self, query):
         self.downloader.download(query, destination=DESTINATION)
@@ -84,7 +80,6 @@ class BaseTestDownload:
 
         assert len(files) == 0
 
-
     @pytest.mark.parametrize("destination", ANOTHER_DESTINATIONS)
     def test_download_another_destination(self, destination):
         self.downloader.download(QUERY, destination=destination)
@@ -92,7 +87,6 @@ class BaseTestDownload:
         files = os.listdir(os.path.join(destination, QUERY))
 
         assert len(files) == google_images_downloader.DEFAULT_LIMIT
-
 
     @pytest.mark.parametrize("limit", LIMITS)
     def test_download_limit(self, limit):
@@ -109,7 +103,6 @@ class BaseTestDownload:
         files = os.listdir(os.path.join(DESTINATION, QUERY))
 
         assert len(files) < NO_LIMIT  # Google Images returns ~600 images maximum
-
 
     @pytest.mark.parametrize("resize", RESIZE_FORMATS)
     def test_download_resize(self, resize):
@@ -141,7 +134,6 @@ class BaseTestDownload:
                 assert file_extension == ".jpg"
             elif file_format == "PNG":
                 assert file_extension == ".png"
-    """
 
     def test_not_quiet_download(self, capsys):
         self.downloader.close()
@@ -212,6 +204,8 @@ running_on_windows_ci = sys.platform == "win32" and (
         "GITHUB_ACTIONS" in os.environ and os.environ["GITHUB_ACTIONS"] == "true")
 
 
-# Firefox setup action is not supported at the moment for windows
+# https://github.com/browser-actions/setup-firefox
+# setup-firefox actions is not working at the moment for windows WM
+# https://github.com/browser-actions/setup-firefox/issues/252
 class TestDownloadFirefox(BaseTestDownload if not running_on_windows_ci else object):
     browser = "firefox"

@@ -76,5 +76,8 @@ running_on_windows_ci = sys.platform == "win32" and (
         "GITHUB_ACTIONS" in os.environ and os.environ["GITHUB_ACTIONS"] == "true")
 
 
+# https://github.com/browser-actions/setup-firefox
+# setup-firefox actions is not working at the moment for windows WM
+# https://github.com/browser-actions/setup-firefox/issues/252
 class TestBrowserFirefox(BaseTestBrowser if not running_on_windows_ci else object):
     browser = "firefox"
