@@ -117,7 +117,7 @@ class GoogleImagesDownloader:
 
         query_destination = os.path.join(destination, query)
 
-        started_downloads = 0
+        running_downloads = 0
 
         with ThreadPoolExecutor(max_workers=5) as executor:
             futures = []
@@ -139,9 +139,9 @@ class GoogleImagesDownloader:
                     executor.submit(download_item, index, query, query_destination, image_url, preview_src, resize,
                                     file_format, pbar=pbar))
 
-                started_downloads += 1
+                running_downloads += 1
 
-                if started_downloads == limit:
+                if running_downloads == limit:
                     break
 
             wait(futures)
