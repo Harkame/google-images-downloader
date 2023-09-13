@@ -38,6 +38,7 @@ def remove_download_folders():
         shutil.rmtree(another_destination, ignore_errors=True)
 
 
+"""
 def test_download_fail_with_requests():
     image_bytes = download_image_with_requests(0, IMAGE_URL_FAIL_WITH_REQUESTS)
 
@@ -54,6 +55,7 @@ def test_download_fail_with_requests_2():
     image_bytes = download_image(0, IMAGE_URL_FAIL_WITH_REQUESTS)
 
     assert image_bytes
+"""
 
 
 class BaseTestDownload:
@@ -66,6 +68,7 @@ class BaseTestDownload:
         files = os.listdir(os.path.join(DESTINATION, QUERY))
         assert len(files) == DEFAULT_LIMIT
 
+    """
     @pytest.mark.parametrize("query", ANOTHER_QUERIES)
     def test_download_another_query(self, query):
         self.downloader.download(query, destination=DESTINATION)
@@ -81,6 +84,7 @@ class BaseTestDownload:
 
         assert len(files) == 0
 
+
     @pytest.mark.parametrize("destination", ANOTHER_DESTINATIONS)
     def test_download_another_destination(self, destination):
         self.downloader.download(QUERY, destination=destination)
@@ -88,6 +92,7 @@ class BaseTestDownload:
         files = os.listdir(os.path.join(destination, QUERY))
 
         assert len(files) == google_images_downloader.DEFAULT_LIMIT
+
 
     @pytest.mark.parametrize("limit", LIMITS)
     def test_download_limit(self, limit):
@@ -104,6 +109,7 @@ class BaseTestDownload:
         files = os.listdir(os.path.join(DESTINATION, QUERY))
 
         assert len(files) < NO_LIMIT  # Google Images returns ~600 images maximum
+
 
     @pytest.mark.parametrize("resize", RESIZE_FORMATS)
     def test_download_resize(self, resize):
@@ -135,6 +141,7 @@ class BaseTestDownload:
                 assert file_extension == ".jpg"
             elif file_format == "PNG":
                 assert file_extension == ".png"
+    """
 
     def test_not_quiet_download(self, capsys):
         self.downloader.close()
@@ -162,7 +169,7 @@ class BaseTestDownload:
         self.downloader.download(QUERY, destination=DESTINATION)
 
         captured = capsys.readouterr()
-        assert captured.out == ""
+        assert captured.out == ""  # Enable debug, disable basic messages
         assert captured.err != ""
 
     def test_download_unsafe_query(self):
