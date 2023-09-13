@@ -28,6 +28,7 @@ FILE_FORMATS = ["JPEG", "PNG"]
 LIMITS = [10, 20, 75, 100, 200, 300]
 NO_LIMIT = 9999
 IMAGE_URL_FAIL_WITH_REQUESTS = "https://www.hindustantimes.com/ht-img/img/2023/08/25/1600x900/international_dog_day_1692974397743_1692974414085.jpg"
+UNSAFE_QUERY_LIMIT = 90
 
 
 def remove_download_folders():
@@ -165,20 +166,19 @@ class BaseTestDownload:
         assert captured.err != ""
 
     def test_download_unsafe_query(self):
-        self.downloader.download(UNSAFE_QUERY, destination=DESTINATION)
+        self.downloader.download(UNSAFE_QUERY, destination=DESTINATION, limit=UNSAFE_QUERY_LIMIT)
 
         files = os.listdir(os.path.join(DESTINATION, UNSAFE_QUERY))
-        assert len(files) < DEFAULT_LIMIT  # Blurred images are not downloaded
+        assert len(files) < UNSAFE_QUERY_LIMIT  # Blurred images are not downloaded
 
     def test_download_unsafe_query_disable_safeui(self):
         self.downloader.close()
-        self.downloader = google_images_downloader.GoogleImagesDownloader(browser=self.browser, debug=True,
-                                                                          disable_safeui=True)
+        self.downloader = google_images_downloader.GoogleImagesDownloader(browser=self.browser, disable_safeui=True)
 
-        self.downloader.download(UNSAFE_QUERY, destination=DESTINATION)
+        self.downloader.download(UNSAFE_QUERY, destination=DESTINATION, limit=UNSAFE_QUERY_LIMIT)
 
         files = os.listdir(os.path.join(DESTINATION, UNSAFE_QUERY))
-        assert len(files) == DEFAULT_LIMIT  # All images are downloaded
+        assert len(files) == UNSAFE_QUERY_LIMIT  # All images are downloaded
 
     @pytest.fixture(autouse=True)
     def resource(self):
@@ -190,11 +190,11 @@ class BaseTestDownload:
 
         yield
 
-        remove_download_folders()
-
         self.downloader.close()
 
         self.downloader = None
+
+        remove_download_folders()
 
 
 class TestDownloadChrome(BaseTestDownload):
