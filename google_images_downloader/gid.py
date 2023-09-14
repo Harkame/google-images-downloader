@@ -111,6 +111,9 @@ class GoogleImagesDownloader:
 
         downloads_count = len(image_items) if limit > len(image_items) else limit
 
+        if not self.quiet:
+            print("Downloading...")
+
         if self.quiet:
             return self.__download_items(query, destination, image_items, resize, limit, file_format)
         else:
@@ -118,9 +121,6 @@ class GoogleImagesDownloader:
                 return self.__download_items(query, destination, image_items, resize, limit, file_format, pbar=pbar)
 
     def __download_items(self, query, destination, image_items, resize, limit, file_format, pbar=None):
-        if not self.quiet:
-            print("Downloading...")
-
         query_destination = os.path.join(destination, query)
 
         running_downloads = 0
