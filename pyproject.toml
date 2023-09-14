@@ -10,8 +10,8 @@ packages = ["google_images_downloader"]
 [project]
 name = "google-images-downloader"
 requires-python = ">=3.8"
-description = "Script to download images from a \"Google Images\" query"
-version = "1.0.13"
+description = "Script to download images from Google Images queries"
+version = "1.0.14"
 authors = [
     { name = "Harkame" }
 ]
