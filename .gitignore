@@ -11,5 +11,6 @@ __pycache__
 coverage.xml
 .coverage
 venv
-geckodriver.log
 .pypirc
+*.log
+debug.py

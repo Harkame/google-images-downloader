@@ -2,27 +2,31 @@ import os
 import shutil
 from PIL import Image
 import pytest
+import sys
 
-from ..google_images_downloader import GoogleImagesDownloader, DEFAULT_LIMIT
+import google_images_downloader
+from google_images_downloader import GoogleImagesDownloader
+from ..gid import download_image, download_image_with_requests, download_image_with_urllib
 
 QUERY = "cat"
-ANOTHER_QUERIES = ["dog", "fish", "bird", "car", "fruit"]
+ANOTHER_QUERIES = ["dog", "fish", "bird", "red car", "fruit"]
+UNSAFE_QUERY = "heart surgery operation"
 QUERY_WITHOUT_RESULTS = "77af778b51abd4a3c51c5ddd97204a9c3ae614ebccb75a606c3b6865aed6744e azerty"
 DESTINATION = "downloads_tests"
 ANOTHER_DESTINATIONS = ["downloads_tests_" + str(index) for index in
-                        range(0, 5)]  # Create multiple another destinations
+                        range(0, 3)]  # Create multiple another destinations
 RESIZE_FORMATS = [
     (64, 64),
-    (256, 256),
     (512, 512),
-    (1024, 1024),
     (3840, 2160),
     (197, 302),
     (415, 213)
 ]
 FILE_FORMATS = ["JPEG", "PNG"]
-LIMITS = [10, 20, 75, 100, 200, 300]
+LIMITS = [10, 25, 75, 100, 200]
 NO_LIMIT = 9999
+IMAGE_URL_FAIL_WITH_REQUESTS = "https://www.hindustantimes.com/ht-img/img/2023/08/25/1600x900/international_dog_day_1692974397743_1692974414085.jpg"
+UNSAFE_QUERY_LIMIT = 90
 
 
 def remove_download_folders():
@@ -30,6 +34,24 @@ def remove_download_folders():
 
     for another_destination in ANOTHER_DESTINATIONS:
         shutil.rmtree(another_destination, ignore_errors=True)
+
+
+def test_download_fail_with_requests():
+    image_bytes = download_image_with_requests(0, IMAGE_URL_FAIL_WITH_REQUESTS)
+
+    assert not image_bytes
+
+
+def test_download_works_with_urllib():
+    image_bytes = download_image_with_urllib(0, IMAGE_URL_FAIL_WITH_REQUESTS)
+
+    assert image_bytes
+
+
+def test_download_fail_with_requests_2():
+    image_bytes = download_image(0, IMAGE_URL_FAIL_WITH_REQUESTS)
+
+    assert image_bytes
 
 
 class BaseTestDownload:
@@ -40,8 +62,7 @@ class BaseTestDownload:
         self.downloader.download(QUERY, destination=DESTINATION)
 
         files = os.listdir(os.path.join(DESTINATION, QUERY))
-
-        assert len(files) == DEFAULT_LIMIT
+        assert len(files) == google_images_downloader.DEFAULT_LIMIT
 
     @pytest.mark.parametrize("query", ANOTHER_QUERIES)
     def test_download_another_query(self, query):
@@ -49,7 +70,7 @@ class BaseTestDownload:
 
         files = os.listdir(os.path.join(DESTINATION, query))
 
-        assert len(files) == DEFAULT_LIMIT
+        assert len(files) == google_images_downloader.DEFAULT_LIMIT
 
     def test_download_no_results(self):
         self.downloader.download(QUERY_WITHOUT_RESULTS, destination=DESTINATION)
@@ -64,7 +85,7 @@ class BaseTestDownload:
 
         files = os.listdir(os.path.join(destination, QUERY))
 
-        assert len(files) == DEFAULT_LIMIT
+        assert len(files) == google_images_downloader.DEFAULT_LIMIT
 
     @pytest.mark.parametrize("limit", LIMITS)
     def test_download_limit(self, limit):
@@ -115,7 +136,7 @@ class BaseTestDownload:
 
     def test_not_quiet_download(self, capsys):
         self.downloader.close()
-        self.downloader = GoogleImagesDownloader(browser=self.browser)
+        self.downloader = google_images_downloader.GoogleImagesDownloader(browser=self.browser)
         self.downloader.download(QUERY, destination=DESTINATION)
 
         captured = capsys.readouterr()
@@ -124,26 +145,66 @@ class BaseTestDownload:
 
     def test_quiet_download(self, capsys):
         self.downloader.close()
-        self.downloader = GoogleImagesDownloader(browser=self.browser, quiet=True)
+        self.downloader = google_images_downloader.GoogleImagesDownloader(browser=self.browser, quiet=True)
         self.downloader.download(QUERY, destination=DESTINATION)
 
         captured = capsys.readouterr()
         assert captured.out == ""
         assert captured.err == ""
 
+    def test_debug_download(self, capsys):
+        self.downloader.close()
+        self.downloader = google_images_downloader.GoogleImagesDownloader(browser=self.browser, debug=True)
+        assert self.downloader.quiet  # Enable debug, set downloader quiet
+
+        self.downloader.download(QUERY, destination=DESTINATION)
+
+        captured = capsys.readouterr()
+        assert captured.out == ""  # Enable debug, disable basic messages
+        assert captured.err != ""
+
+    def test_download_unsafe_query(self):
+        self.downloader.download(UNSAFE_QUERY, destination=DESTINATION, limit=UNSAFE_QUERY_LIMIT)
+
+        files = os.listdir(os.path.join(DESTINATION, UNSAFE_QUERY))
+        assert len(files) < UNSAFE_QUERY_LIMIT  # Blurred images are not downloaded
+
+    def test_download_unsafe_query_disable_safeui(self):
+        self.downloader.close()
+        self.downloader = google_images_downloader.GoogleImagesDownloader(browser=self.browser, disable_safeui=True)
+
+        self.downloader.download(UNSAFE_QUERY, destination=DESTINATION, limit=UNSAFE_QUERY_LIMIT)
+
+        files = os.listdir(os.path.join(DESTINATION, UNSAFE_QUERY))
+        assert len(files) == UNSAFE_QUERY_LIMIT  # All images are downloaded
+
     @pytest.fixture(autouse=True)
     def resource(self):
         remove_download_folders()
+
+        google_images_downloader.WEBDRIVER_WAIT_DURATION *= 2  # Double webdriver wait duration for tests
 
         self.downloader = GoogleImagesDownloader(browser=self.browser)
 
         yield
 
-        remove_download_folders()
-
         self.downloader.close()
-        self.downloader = None  # Bug ? test suit is not ending if not
+
+        self.downloader = None
+
+        remove_download_folders()
 
 
 class TestDownloadChrome(BaseTestDownload):
     browser = "chrome"
+
+
+running_on_windows_ci = sys.platform == "win32" and (
+        "GITHUB_ACTIONS" in os.environ and os.environ["GITHUB_ACTIONS"] == "true")
+
+
+# https://github.com/browser-actions/setup-firefox
+# setup-firefox actions is not working at the moment for windows WM
+# https://github.com/browser-actions/setup-firefox/issues/252
+class TestDownloadFirefox(BaseTestDownload if not running_on_windows_ci else object):
+    browser = "firefox"

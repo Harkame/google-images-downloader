@@ -4,8 +4,10 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 import psutil
+import sys
+import os
 
-from ..google_images_downloader import GoogleImagesDownloader, DEFAULT_LIMIT, WEBDRIVER_WAIT_DURATION
+from ..gid import GoogleImagesDownloader, WEBDRIVER_WAIT_DURATION
 
 
 class BaseTestBrowser:
@@ -64,8 +66,18 @@ class BaseTestBrowser:
         yield
 
         self.downloader.close()
-        self.downloader = None  # Bug ? test suit is not ending if not
 
 
 class TestBrowserChrome(BaseTestBrowser):
     browser = "chrome"
+
+
+running_on_windows_ci = sys.platform == "win32" and (
+        "GITHUB_ACTIONS" in os.environ and os.environ["GITHUB_ACTIONS"] == "true")
+
+
+# https://github.com/browser-actions/setup-firefox
+# setup-firefox actions is not working at the moment for windows WM
+# https://github.com/browser-actions/setup-firefox/issues/252
+class TestBrowserFirefox(BaseTestBrowser if not running_on_windows_ci else object):
+    browser = "firefox"

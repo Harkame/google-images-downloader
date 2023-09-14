@@ -1,23 +1,28 @@
-name: coverage
+name: Test
 on:
   push:
+  pull_request:
 
 concurrency:
-  group: ${{ github.ref }}-coverage
+  group: ${{ github.ref }}-build
   cancel-in-progress: true
 
 jobs:
   test:
-    environment: build
-    name: test with ${{ matrix.py }} on ${{ matrix.os }}
+    name: Test with ${{ matrix.py }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         py:
           - "3.11"
+          - "3.10"
+          - "3.9"
+          - "3.8"
         os:
           - ubuntu-latest
+          - macos-latest
+          - windows-latest
     steps:
       - uses: actions/checkout@v3
         with:
@@ -31,25 +36,45 @@ jobs:
         run: chromium --version
       - if: ${{ matrix.os != 'macos-latest' }}
         run: chrome --version
+      - if: ${{ matrix.os != 'windows-latest' }} # Not working on Windows at the moment
+        uses: browser-actions/setup-firefox@v1
+      - if: ${{ matrix.os != 'windows-latest' }} # Not working on Windows at the moment
+        run: firefox --version
       - name: Install tests dependencies
         run: pip install pytest pytest-cov
       - name: Install package dependencies
         run: pip install -e .
       - name: Run test suite
         run: pytest --cov=google_images_downloader --cov-report xml:coverage.xml
-      - name: Upload coverage reports to Codecov
+      - if: ${{ matrix.os == 'ubuntu-latest' && matrix.py == '3.11' }} # Upload only one coverage, latest python version
+        name: Upload coverage.xml
+        uses: actions/upload-artifact@master
+        with:
+          name: coverage.xml
+          path: .
+  coverage:
+    name: Upload coverage report
+    needs: [ test ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download coverage.xml
+        uses: actions/download-artifact@master
+        with:
+          name: coverage.xml
+          path: .
+      - name: Upload report to Codecov
         uses: codecov/codecov-action@v3
         with:
           files: ./coverage.xml
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      - name: Publish code coverage to Code Climate
+      - name: Upload report to Code Climate
         uses: paambaati/codeclimate-action@v5.0.0
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         with:
           coverageLocations: ./coverage.xml:coverage.py
-      - name: Publish code coverage to Codacy
+      - name: Upload report to Codacy
         uses: codacy/codacy-coverage-reporter-action@v1
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
