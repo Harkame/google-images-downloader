@@ -86,7 +86,7 @@ downloader.close()  # Do not forget to close the driver
 ## Tests
 
 ```shell
-pip install tox
+pip install pytest
 
-tox
+pytest google_images_downloader/tests
 ```
