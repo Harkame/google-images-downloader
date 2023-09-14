@@ -59,6 +59,8 @@ class GoogleImagesDownloader:
 
             options.add_argument("--disable-gpu")
             options.add_argument("--disable-dev-shm-usage")
+            options.add_argument(
+                "--no-sandbox")  # Fix selenium.common.exceptions.WebDriverException, chrome not reachable ?
             options.add_experimental_option("excludeSwitches", ["enable-logging"])
 
             self.driver = webdriver.Chrome(options=options)
@@ -67,6 +69,9 @@ class GoogleImagesDownloader:
 
             if not show:
                 options.add_argument("-headless")
+
+            options.add_argument(
+                "--no-sandbox")  # Fix selenium.common.exceptions.WebDriverException, firefox not reachable ?
 
             self.driver = webdriver.Firefox(
                 service=webdriver.FirefoxService(log_output=os.devnull),
@@ -164,7 +169,7 @@ class GoogleImagesDownloader:
             try:
                 (WebDriverWait(self.driver, WEBDRIVER_WAIT_DURATION).until(EC.element_to_be_clickable(image_item))
                  .click())
-            except ElementClickInterceptedException as e:
+            except ElementClickInterceptedException:
                 logger.debug(
                     f"[{index}] -> Failed to click on image_item...retry")
                 continue

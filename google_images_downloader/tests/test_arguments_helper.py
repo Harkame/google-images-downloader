@@ -170,7 +170,7 @@ def test_get_arguments_missing_required():
 
     try:
         get_arguments([])
-    except SystemExit as e:
+    except SystemExit:
         try_to_exit = True
 
     assert try_to_exit
