@@ -1,10 +1,14 @@
 import sys
 
 import google_images_downloader
+import google_images_downloader.helpers
 
 
-def main(argv):
-    arguments = google_images_downloader.get_arguments(argv)
+def main(argv=None):
+    if not argv:
+        argv = sys.argv[1:]
+
+    arguments = google_images_downloader.helpers.get_arguments(argv)
 
     google_images_downloader.WEBDRIVER_WAIT_DURATION = arguments.wait_duration
 
