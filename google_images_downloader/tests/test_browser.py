@@ -7,7 +7,7 @@ import psutil
 import sys
 import os
 
-from ..gid import GoogleImagesDownloader, WEBDRIVER_WAIT_DURATION
+from google_images_downloader.gid import GoogleImagesDownloader, WEBDRIVER_WAIT_DURATION
 
 
 class BaseTestBrowser:

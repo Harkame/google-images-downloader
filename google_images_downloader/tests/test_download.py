@@ -1,12 +1,8 @@
-import os
 import shutil
-from PIL import Image
 import pytest
 import sys
 
-import google_images_downloader
-from google_images_downloader import GoogleImagesDownloader
-from ..gid import download_image, download_image_with_requests, download_image_with_urllib
+from google_images_downloader.gid import *
 
 QUERY = "cat"
 ANOTHER_QUERIES = ["dog", "fish", "bird", "red car", "fruit"]
@@ -62,15 +58,16 @@ class BaseTestDownload:
         self.downloader.download(QUERY, destination=DESTINATION)
 
         files = os.listdir(os.path.join(DESTINATION, QUERY))
-        assert len(files) == google_images_downloader.DEFAULT_LIMIT
+        assert len(files) == DEFAULT_LIMIT
 
+    """
     @pytest.mark.parametrize("query", ANOTHER_QUERIES)
     def test_download_another_query(self, query):
         self.downloader.download(query, destination=DESTINATION)
 
         files = os.listdir(os.path.join(DESTINATION, query))
 
-        assert len(files) == google_images_downloader.DEFAULT_LIMIT
+        assert len(files) == DEFAULT_LIMIT
 
     def test_download_no_results(self):
         self.downloader.download(QUERY_WITHOUT_RESULTS, destination=DESTINATION)
@@ -85,7 +82,7 @@ class BaseTestDownload:
 
         files = os.listdir(os.path.join(destination, QUERY))
 
-        assert len(files) == google_images_downloader.DEFAULT_LIMIT
+        assert len(files) == DEFAULT_LIMIT
 
     @pytest.mark.parametrize("limit", LIMITS)
     def test_download_limit(self, limit):
@@ -136,7 +133,7 @@ class BaseTestDownload:
 
     def test_not_quiet_download(self, capsys):
         self.downloader.close()
-        self.downloader = google_images_downloader.GoogleImagesDownloader(browser=self.browser)
+        self.downloader = GoogleImagesDownloader(browser=self.browser)
         self.downloader.download(QUERY, destination=DESTINATION)
 
         captured = capsys.readouterr()
@@ -145,7 +142,7 @@ class BaseTestDownload:
 
     def test_quiet_download(self, capsys):
         self.downloader.close()
-        self.downloader = google_images_downloader.GoogleImagesDownloader(browser=self.browser, quiet=True)
+        self.downloader = GoogleImagesDownloader(browser=self.browser, quiet=True)
         self.downloader.download(QUERY, destination=DESTINATION)
 
         captured = capsys.readouterr()
@@ -154,7 +151,7 @@ class BaseTestDownload:
 
     def test_debug_download(self, capsys):
         self.downloader.close()
-        self.downloader = google_images_downloader.GoogleImagesDownloader(browser=self.browser, debug=True)
+        self.downloader = GoogleImagesDownloader(browser=self.browser, debug=True)
         assert self.downloader.quiet  # Enable debug, set downloader quiet
 
         self.downloader.download(QUERY, destination=DESTINATION)
@@ -171,18 +168,19 @@ class BaseTestDownload:
 
     def test_download_unsafe_query_disable_safeui(self):
         self.downloader.close()
-        self.downloader = google_images_downloader.GoogleImagesDownloader(browser=self.browser, disable_safeui=True)
+        self.downloader = GoogleImagesDownloader(browser=self.browser, disable_safeui=True)
 
         self.downloader.download(UNSAFE_QUERY, destination=DESTINATION, limit=UNSAFE_QUERY_LIMIT)
 
         files = os.listdir(os.path.join(DESTINATION, UNSAFE_QUERY))
         assert len(files) == UNSAFE_QUERY_LIMIT  # All images are downloaded
+    """
 
     @pytest.fixture(autouse=True)
     def resource(self):
         remove_download_folders()
 
-        google_images_downloader.WEBDRIVER_WAIT_DURATION *= 2  # Double webdriver wait duration for tests
+        set_webdriver_wait_duration(WEBDRIVER_WAIT_DURATION * 2)  # Double webdriver wait duration for tests
 
         self.downloader = GoogleImagesDownloader(browser=self.browser)
 

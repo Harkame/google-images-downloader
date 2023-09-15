@@ -1,8 +1,10 @@
 import pytest
 
-import google_images_downloader
+from google_images_downloader.gid import DEFAULT_DESTINATION, DEFAULT_LIMIT, DEFAULT_RESIZE, DEFAULT_FORMAT, \
+    DEFAULT_BROWSER, DEFAULT_SHOW, DEFAULT_DEBUG, DEFAULT_QUIET, DEFAULT_WEBDRIVER_WAIT_DURATION, DEFAULT_DISABLE_SAFEUI
+from google_images_downloader.arguments_helper import get_arguments
 
-from ..helpers.arguments_helper import get_arguments
+from google_images_downloader.__version__ import __version__
 
 DESTINATIONS = ["downloads_tests_" + str(index) for index in
                 range(0, 5)]
@@ -153,16 +155,16 @@ def test_get_arguments_disable_safeui():
 def test_get_arguments_default_values():
     arguments = get_arguments(["-q", "cat"])
 
-    assert arguments.destination == google_images_downloader.DEFAULT_DESTINATION
-    assert arguments.limit == google_images_downloader.DEFAULT_LIMIT
-    assert arguments.resize == google_images_downloader.DEFAULT_RESIZE
-    assert arguments.format == google_images_downloader.DEFAULT_FORMAT
-    assert arguments.browser == google_images_downloader.DEFAULT_BROWSER
-    assert arguments.show == google_images_downloader.DEFAULT_SHOW
-    assert arguments.debug == google_images_downloader.DEFAULT_DEBUG
-    assert arguments.quiet == google_images_downloader.DEFAULT_QUIET
-    assert arguments.wait_duration == google_images_downloader.DEFAULT_WEBDRIVER_WAIT_DURATION
-    assert arguments.disable_safeui == google_images_downloader.DEFAULT_DISABLE_SAFEUI
+    assert arguments.destination == DEFAULT_DESTINATION
+    assert arguments.limit == DEFAULT_LIMIT
+    assert arguments.resize == DEFAULT_RESIZE
+    assert arguments.format == DEFAULT_FORMAT
+    assert arguments.browser == DEFAULT_BROWSER
+    assert arguments.show == DEFAULT_SHOW
+    assert arguments.debug == DEFAULT_DEBUG
+    assert arguments.quiet == DEFAULT_QUIET
+    assert arguments.wait_duration == DEFAULT_WEBDRIVER_WAIT_DURATION
+    assert arguments.disable_safeui == DEFAULT_DISABLE_SAFEUI
 
 
 def test_get_arguments_missing_required():
@@ -174,3 +176,17 @@ def test_get_arguments_missing_required():
         try_to_exit = True
 
     assert try_to_exit
+
+
+def test_get_arguments_version(capsys):
+    try_to_exit = False
+
+    try:
+        get_arguments(["-v"])
+    except SystemExit:
+        try_to_exit = True
+
+    assert try_to_exit
+
+    captured = capsys.readouterr()
+    assert __version__ in captured.out

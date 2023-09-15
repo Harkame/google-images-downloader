@@ -2,8 +2,17 @@ import argparse
 import re
 import os
 
-from google_images_downloader import DEFAULT_DESTINATION, DEFAULT_LIMIT, DEFAULT_RESIZE, DEFAULT_FORMAT, \
-    DEFAULT_BROWSER, DEFAULT_SHOW, DEFAULT_DEBUG, DEFAULT_QUIET, DEFAULT_WEBDRIVER_WAIT_DURATION, DEFAULT_DISABLE_SAFEUI
+try:  # Normal way
+    from gid import DEFAULT_DESTINATION, DEFAULT_LIMIT, DEFAULT_RESIZE, DEFAULT_QUIET, DEFAULT_DEBUG, DEFAULT_SHOW, \
+        DEFAULT_FORMAT, DEFAULT_DISABLE_SAFEUI, DEFAULT_WEBDRIVER_WAIT_DURATION, DEFAULT_BROWSER
+except ImportError:  # For main tests
+    from .gid import DEFAULT_DESTINATION, DEFAULT_LIMIT, DEFAULT_RESIZE, DEFAULT_QUIET, DEFAULT_DEBUG, DEFAULT_SHOW, \
+        DEFAULT_FORMAT, DEFAULT_DISABLE_SAFEUI, DEFAULT_WEBDRIVER_WAIT_DURATION, DEFAULT_BROWSER
+
+try:  # Normal way
+    from __dist_version__old import __version__
+except ImportError:  # For tests
+    from .__dist_version__old import __version__
 
 
 def get_arguments(arguments):
@@ -119,6 +128,15 @@ def get_arguments(arguments):
         action="store_true",
         default=DEFAULT_DISABLE_SAFEUI
     )
+
+    parser.add_argument(
+        "-v",
+        "--version",
+        help="Show google-images-downloader version",
+        action="version"
+    )
+
+    parser.version = __version__
 
     return parser.parse_args(arguments)
 

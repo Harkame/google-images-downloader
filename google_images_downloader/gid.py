@@ -429,3 +429,8 @@ def enable_logs():
     stream_handler.setFormatter(logging.Formatter("%(asctime)s - %(funcName)s - %(message)s", "%H:%M:%S"))
 
     logger.addHandler(stream_handler)
+
+
+def set_webdriver_wait_duration(value):
+    global WEBDRIVER_WAIT_DURATION
+    WEBDRIVER_WAIT_DURATION = value
