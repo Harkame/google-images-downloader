@@ -11,7 +11,7 @@ packages = ["google_images_downloader"]
 name = "google-images-downloader"
 requires-python = ">=3.8"
 description = "Script to download images from Google Images queries"
-version = "1.0.15"
+dynamic = ["version"]
 authors = [
     { name = "Harkame" }
 ]
@@ -23,7 +23,13 @@ dependencies = [
     "Pillow>=10.0.0",
     "tqdm>=4.66.1",
     "psutil>=5.9.5",
+    "setuptools-scm>=7.1.0"
 ]
+
+[tool.setuptools_scm]
+write_to = "google_images_downloader/__dist_version__.py"
+write_to_template = "__version__ = '{version}'\n"
+
 [project.urls]
 repository = "https://github.com/Harkame/google-images-downloader"
 
