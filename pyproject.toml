@@ -1,6 +1,7 @@
 [build-system]
 requires = [
-    "setuptools>=65.0.0"
+    "setuptools>=65.0.0",
+    "setuptools-scm>=7.1"
 ]
 build-backend = "setuptools.build_meta"
 
@@ -22,13 +23,13 @@ dependencies = [
     "requests>=2.31.0",
     "Pillow>=10.0.0",
     "tqdm>=4.66.1",
-    "psutil>=5.9.5",
-    "setuptools-scm>=7.1.0"
+    "psutil>=5.9.5"
 ]
 
 [tool.setuptools_scm]
 write_to = "google_images_downloader/__dist_version__.py"
 write_to_template = "__version__ = '{version}'\n"
+
 
 [project.urls]
 repository = "https://github.com/Harkame/google-images-downloader"
