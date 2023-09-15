@@ -30,8 +30,6 @@ dependencies = [
 [tool.setuptools_scm]
 write_to = "google_images_downloader/__dist_version__.py"
 write_to_template = "__version__ = '{version}'\n"
-version_scheme = "no-guess-dev"
-local_scheme = "no-local-version"
 
 [project.urls]
 repository = "https://github.com/Harkame/google-images-downloader"
