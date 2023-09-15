@@ -10,9 +10,9 @@ except ImportError:  # For main tests
         DEFAULT_FORMAT, DEFAULT_DISABLE_SAFEUI, DEFAULT_WEBDRIVER_WAIT_DURATION, DEFAULT_BROWSER
 
 try:  # Normal way
-    from __dist_version__old import __version__
+    from __version__ import __version__
 except ImportError:  # For tests
-    from .__dist_version__old import __version__
+    from .__version__ import __version__
 
 
 def get_arguments(arguments):
