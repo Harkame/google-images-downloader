@@ -60,7 +60,6 @@ class BaseTestDownload:
         files = os.listdir(os.path.join(DESTINATION, QUERY))
         assert len(files) == DEFAULT_LIMIT
 
-    """
     @pytest.mark.parametrize("query", ANOTHER_QUERIES)
     def test_download_another_query(self, query):
         self.downloader.download(query, destination=DESTINATION)
@@ -174,7 +173,6 @@ class BaseTestDownload:
 
         files = os.listdir(os.path.join(DESTINATION, UNSAFE_QUERY))
         assert len(files) == UNSAFE_QUERY_LIMIT  # All images are downloaded
-    """
 
     @pytest.fixture(autouse=True)
     def resource(self):
