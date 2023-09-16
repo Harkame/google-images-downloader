@@ -80,8 +80,26 @@ from google_images_downloader import GoogleImagesDownloader
 
 downloader = GoogleImagesDownloader(browser="firefox")  # Default : "chrome"
 
+...
+
 downloader.close()  # Do not forget to close the driver
 ```
+
+#### Increase webdriver wait duration
+
+```python
+from google_images_downloader import GoogleImagesDownloader, set_webdriver_wait_duration
+
+downloader = GoogleImagesDownloader()
+
+set_webdriver_wait_duration(60)  # Wait 60s maximum, default 30
+
+...
+
+downloader.close()  # Do not forget to close the driver
+```
+
+
 
 ## Tests
 
