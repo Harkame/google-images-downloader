@@ -104,7 +104,6 @@ class GoogleImagesDownloader:
                 print("No results")
             return
 
-        # if len(image_items) < limit:  # Scroll only if not enough images
         self.__scroll(limit)
 
         image_items = list_items.find_elements(By.CSS_SELECTOR, "div[role='listitem']")
