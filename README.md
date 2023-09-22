@@ -29,7 +29,7 @@ pip install google-images-downloader
 OR
 
 ```shell
-git clone https://github.com/Harkame/GoogleImagesDownloader.git
+git clone https://github.com/Harkame/google-images-downloader.git
 
 cd GoogleImagesDownloader
 
