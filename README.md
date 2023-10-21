@@ -31,7 +31,7 @@ OR
 ```shell
 git clone https://github.com/Harkame/google-images-downloader.git
 
-cd GoogleImagesDownloader
+cd google-images-downloader
 
 pip install .
 ```
