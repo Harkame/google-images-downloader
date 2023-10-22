@@ -92,7 +92,7 @@ from google_images_downloader import GoogleImagesDownloader, set_webdriver_wait_
 
 downloader = GoogleImagesDownloader()
 
-set_webdriver_wait_duration(60)  # Wait 60s maximum, default 30
+set_webdriver_wait_duration(60)  # Wait 60s maximum, default 10
 
 ...
 
